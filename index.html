@@ -183,7 +183,7 @@
         </div>
         <div class="flex items-center gap-2">
             <div id="sprint-timer-box" class="hidden flex items-center gap-1.5 bg-rose-900/30 border border-rose-500/30 px-2 py-1 rounded-full"><span id="timer-val" class="text-white font-mono text-xs">01:00</span></div>
-            <button onclick="openModal()" class="p-1.5 bg-slate-800 rounded-full border border-slate-700 hover:border-indigo-400" title="Ayuda (H)"><svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>
+            <button onclick="openModal()" class="p-1.5 bg-slate-800 rounded-full border border-slate-700 hover:border-indigo-400" title="Ayuda y Guía (H)"><svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>
             <button onclick="toggleTheme()" class="p-1.5 bg-slate-800 rounded-full border border-slate-700 hover:border-indigo-400" title="Tema (T)"><svg id="sun-icon" class="w-4 h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm4.707 4.707a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.414A1 1 0 016.464 5l.707.707a1 1 0 01-1.414 1.414l-.707-.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg><svg id="moon-icon" class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg></button>
             <div class="bg-slate-800 px-3 py-1 rounded-lg border border-slate-700 font-mono text-emerald-400 font-bold text-xs shadow-inner"><span id="score-val">0</span></div>
         </div>
@@ -273,7 +273,9 @@
         </div>
     </main>
 
-    <footer class="bg-slate-900 text-slate-500 text-[10px] py-4 px-6 text-center border-t border-slate-800 z-50 shrink-0 uppercase tracking-widest">Desarrollado por Juan Miguel Rios Redondo</footer>
+    <footer class="bg-slate-900 text-slate-500 text-[10px] py-4 px-6 text-center border-t border-slate-800 z-50 shrink-0 uppercase tracking-widest">
+        Desarrollado Por Juan Miguel Rios Redondo
+    </footer>
 
     <div id="help-modal" class="modal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
@@ -305,7 +307,16 @@
 
     <script>
         const KEY_SPELLINGS = {
-            'C':['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'], 'G':['G','Ab','A','Bb','B','C','C#','D','Eb','E','F','F#'], 'D':['D','Eb','E','F','F#','G','G#','A','Bb','B','C','C#'], 'A':['A','Bb','B','C','C#','D','D#','E','F','F#','G','G#'], 'E':['E','F','F#','G','G#','A','A#','B','C','C#','D','D#'], 'B':['B','C','C#','D','D#','E','F','F#','G','G#','A','A#'], 'F':['F','Gb','G','Ab','A','Bb','B','C','Db','D','Eb','E'], 'Bb':['Bb','Cb','C','Db','D','Eb','E','F','Gb','G','Ab','A'], 'Eb':['Eb','Fb','F','Gb','G','Ab','A','Bb','Cb','C','Db','D'], 'Ab':['Ab','Bbb','Bb','Cb','C','Db','D','Eb','Fb','F','Gb','G']
+            'C':['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
+            'G':['G', 'Ab', 'A', 'Bb', 'B', 'C', 'C#', 'D', 'Eb', 'E', 'F', 'F#'],
+            'D':['D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B', 'C', 'C#'],
+            'A':['A', 'Bb', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'],
+            'E':['E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#', 'D', 'D#'],
+            'B':['B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#'],
+            'F':['F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E'],
+            'Bb':['Bb', 'Cb', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A'],
+            'Eb':['Eb', 'Fb', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'Cb', 'C', 'Db', 'D'],
+            'Ab':['Ab', 'Bbb', 'Bb', 'Cb', 'C', 'Db', 'D', 'Eb', 'Fb', 'F', 'Gb', 'G']
         };
         const DEGREES = ['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7', '8'];
         const RESOLUTIONS = { 0:[0,-5,0], 1:[1,0], 2:[2,0], 3:[3,2,0], 4:[4,2,0], 5:[5,4,2,0], 6:[6,7,12], 7:[7,12], 8:[8,7,12], 9:[9,11,12], 10:[10,11,12], 11:[11,12], 12:[12,7,12] };
@@ -314,11 +325,36 @@
         const MINOR_PROGS = ["i - V - i", "i - iv - i", "i - iv - V - i", "i - bVI - ii° - V", "ii° - V - i", "i - bVII - bVI - V", "i - VII - VI - V"];
 
         let audioCtx;
-        let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true };
+        let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [] };
 
         function initAudio() { if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const comp = audioCtx.createDynamicsCompressor(); comp.connect(audioCtx.destination); state.masterOut = comp; } }
         function midiToFreq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
-        function playTone(freq, dur, type='triangle', start=0, vol=0.2) { const t = start + audioCtx.currentTime; const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = type; osc.frequency.setValueAtTime(freq, t); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t + dur); osc.connect(g); g.connect(state.masterOut); osc.start(t); osc.stop(t + dur); }
+        
+        function playTone(freq, dur, type='triangle', start=0, vol=0.2) { 
+            if(!audioCtx) return;
+            const t = start + audioCtx.currentTime; 
+            const osc = audioCtx.createOscillator(); 
+            const g = audioCtx.createGain(); 
+            osc.type = type; 
+            osc.frequency.setValueAtTime(freq, t); 
+            g.gain.setValueAtTime(0, t); 
+            g.gain.linearRampToValueAtTime(vol, t + 0.02); 
+            g.gain.exponentialRampToValueAtTime(0.001, t + dur); 
+            osc.connect(g); 
+            g.connect(state.masterOut); 
+            osc.start(t); 
+            osc.stop(t + dur);
+            state.activeOscillators.push(osc);
+        }
+
+        function stopAllSounds() {
+            state.activeOscillators.forEach(osc => {
+                try { osc.stop(); } catch(e) {}
+            });
+            state.activeOscillators = [];
+            state.isPlaying = false;
+        }
+
         function playChordWithBass(root, type, dur, start, vol=0.08) { const isMin = type.toLowerCase().includes('i') || type.includes('m') || type.includes('°'); const intervals = isMin ? [0, 3, 7] : [0, 4, 7]; playTone(midiToFreq(root - 12), dur, 'sine', start, 0.22); intervals.forEach(i => playTone(midiToFreq(root + i), dur, 'sine', start, vol)); }
 
         function getFunctionalClass(idx) { if ([0, 12].includes(idx)) return 'tonic'; if ([4, 7, 3].includes(idx)) return 'stable'; if ([1, 3, 6, 8, 10].includes(idx)) return 'tension'; return 'unstable'; }
@@ -328,6 +364,7 @@
         function toggleAutoResolve() { state.autoResolve = !state.autoResolve; document.getElementById('auto-resolve-btn').innerText = `Auto-Resolución: ${state.autoResolve ? 'ON' : 'OFF'}`; }
 
         function setGlobalMode(m) {
+            stopAllSounds(); // CANCELAR SONIDOS AL CAMBIAR DE MODO
             state.mode = m;
             document.getElementById('mode-mel-btn')?.classList.toggle('active-choice', m === 'melody');
             document.getElementById('mode-har-btn')?.classList.toggle('active-choice', m === 'harmony');
@@ -337,10 +374,11 @@
             document.getElementById('piano-stage')?.classList.toggle('hidden', isHarm);
             document.getElementById('harmony-grid')?.classList.toggle('hidden', !isHarm);
             resetUI();
+            state.target = null;
         }
 
         function startGame() {
-            if(state.isPlaying) return;
+            stopAllSounds(); // LIMPIAR AL REINICIAR
             initAudio(); resetUI();
             const keys = Object.keys(KEY_SPELLINGS);
             state.keyLabel = keys[Math.floor(Math.random()*keys.length)];
@@ -357,7 +395,7 @@
         function playCadence(cb) {
             state.isPlaying = true; const r = state.keyIndex; const type = state.currentRoundTonality === 'major' ? 'Maj' : 'Min';
             let t = 0; [0, 5, 7, 0].forEach(off => { playChordWithBass(r + off, type, 1.0, t); t += 1.0; });
-            setTimeout(() => { state.isPlaying = false; if(cb) cb(); }, t * 1000);
+            setTimeout(() => { if(state.isPlaying) { state.isPlaying = false; if(cb) cb(); } }, t * 1000);
         }
 
         function generateQuestion() {
@@ -391,7 +429,7 @@
 
         function playProgression(progStr) {
             const chords = progStr.split(' - ');
-            const map = { 'I':0, 'ii':2, 'iii':4, 'IV':5, 'V':7, 'vi':9, 'vii':11, 'vii°':11, 'i':0, 'ii°':2, 'III':3, 'iv':5, 'v':7, 'VI':8, 'VII':10, 'bVI':8, 'bVII':10, 'V/vi':4, 'V/V':2, 'V/IV':0, 'V/ii':9 };
+            const map = { 'I':0, 'ii':2, 'iii':4, 'IV':5, 'V':7, 'vi':9, 'vii':11, 'vii°':11, 'i':0, 'ii°':2, 'III':3, 'iv':5, 'v':7, 'VI':8, 'VII':10, 'bII':1, 'bIII':3, '#IV':6, 'bVI':8, 'bVII':10, 'V/vi':4, 'V/V':2, 'V/IV':0, 'V/ii':9 };
             let previousVoicing = null;
             let t = 0;
             chords.forEach((c, idx) => {
@@ -459,7 +497,6 @@
         function deleteLastNote() { if(state.userBuffer.length > 0) { const dots = document.querySelectorAll('.buffer-dot'); dots[state.userBuffer.length - 1].classList.remove('active'); state.userBuffer.pop(); } }
 
         function executeVisualResolution(degreeIdx, next, delay = 0) {
-            // REGLA: No auto-resolver si hay más de 1 nota
             const count = parseInt(document.getElementById('note-count-input').value) || 1;
             if(count > 1 && next) return; 
 
