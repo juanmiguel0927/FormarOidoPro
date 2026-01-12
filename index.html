@@ -101,7 +101,6 @@
         .cipher-text { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 900; color: #6366f1; }
         .roman-text { font-size: 9px; color: #64748b; font-weight: 600; margin-top: 2px; }
 
-        /* MODO DARK SWITCH */
         .theme-toggle {
             cursor: pointer;
             padding: 8px;
@@ -114,9 +113,61 @@
             transition: all 0.2s;
         }
         .theme-toggle:hover { transform: rotate(15deg); border-color: #6366f1; }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            color: var(--text-main);
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--border-ui);
+        }
     </style>
 </head>
 <body class="select-none">
+
+    <!-- AYUDA / RUTINA MODAL -->
+    <div id="help-modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 class="text-2xl font-black mb-4 text-indigo-500 uppercase italic">Guía y Rutina de Estudio</h2>
+            
+            <div class="space-y-4 text-sm leading-relaxed">
+                <section>
+                    <h3 class="font-bold text-indigo-400 uppercase text-xs tracking-widest mb-1">Rutina Diaria (30 min)</h3>
+                    <ul class="list-disc pl-5 space-y-1 opacity-80">
+                        <li><strong>0-5 min:</strong> Calentamiento. Usa los botones de <em>Resolución</em> para escuchar las trayectorias melódicas.</li>
+                        <li><strong>5-15 min:</strong> Modo Melodía (Básico). Enfócate en la gravedad del 4 al 3 y del 7 al 8.</li>
+                        <li><strong>15-20 min:</strong> Modo Melodía (Avanzado). Introduce b2 y #4 para sentir tensiones cromáticas.</li>
+                        <li><strong>20-30 min:</strong> Modo Armonía. Identifica las 200 progresiones usando el cifrado americano.</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h3 class="font-bold text-indigo-400 uppercase text-xs tracking-widest mb-1">Sugerencias de Mejora</h3>
+                    <ul class="list-disc pl-5 space-y-1 opacity-80">
+                        <li><strong>Canta antes de tocar:</strong> El <em>Modo Imagina</em> es vital. Si no puedes cantar la resolución, aún no la has interiorizado.</li>
+                        <li><strong>Contexto:</strong> Si fallas, escucha la resolución automática varias veces antes de pasar a la siguiente.</li>
+                        <li><strong>Cifrado:</strong> Familiarízate con la relación entre el Grado Romano y el nombre del acorde (Cifrado Americano).</li>
+                    </ul>
+                </div>
+
+                <button onclick="closeModal()" class="mt-8 w-full bg-indigo-600 text-white py-3 rounded-xl font-bold uppercase tracking-widest">Entendido</button>
+            </div>
+        </div>
+    </div>
 
     <!-- HEADER -->
     <header class="bg-slate-900 border-b border-slate-800 p-3 flex justify-between items-center shadow-xl z-50 shrink-0">
@@ -126,11 +177,13 @@
             </div>
             <div>
                 <h1 class="font-black text-xl tracking-tight uppercase text-white">Formar Oído <span class="text-indigo-400">Pro</span></h1>
-                <p class="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em]">Juan Miguel Rios Redondo</p>
             </div>
         </div>
         
         <div class="flex items-center gap-4">
+            <button onclick="openModal()" class="text-slate-400 hover:text-white transition-colors" title="Ayuda y Rutina">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </button>
             <button onclick="toggleTheme()" class="theme-toggle" title="Alternar Modo">
                 <svg id="sun-icon" class="w-4 h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm4.707 4.707a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.414A1 1 0 016.464 5l.707.707a1 1 0 01-1.414 1.414l-.707-.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg>
                 <svg id="moon-icon" class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
@@ -200,7 +253,7 @@
                 <div id="piano-stage" class="piano-stage"></div>
                 <div id="harmony-grid" class="hidden w-full max-w-5xl mx-auto px-4 grid grid-cols-2 gap-2 pb-12"></div>
             </div>
-            <div class="bg-slate-900 p-2 text-center border-t border-slate-800 flex justify-between px-6">
+            <div class="bg-slate-900 p-2 text-center border-t border-slate-800 flex justify-center items-center gap-8 px-6">
                 <button id="btn-repeat-base" class="hidden text-slate-300 text-[10px] font-bold uppercase hover:text-indigo-400" onclick="playCurrentCadence()">Repetir Base</button>
                 <button onclick="toggleImagina()" class="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-300 hover:text-indigo-400 flex items-center gap-2">
                     <span id="imagina-dot" class="w-2 h-2 rounded-full bg-slate-700"></span> Modo Imagina
@@ -210,9 +263,8 @@
         </div>
     </main>
 
-    <footer class="bg-slate-900 text-slate-600 text-[8px] uppercase tracking-[0.3em] py-2 px-6 flex justify-between border-t border-slate-800">
-        <span>© 2026 Formar Oído Pro</span>
-        <span>Autor: Juan Miguel Rios Redondo</span>
+    <footer class="bg-slate-900 text-slate-400 text-[10px] font-black uppercase tracking-[0.4em] py-3 px-6 text-center border-t border-slate-800 z-50">
+        JUAN MIGUEL RIOS REDONDO
     </footer>
 
     <script>
@@ -242,13 +294,13 @@
             3: [3, 2, 0],        // b3: b3 -> 2 -> 1
             4: [4, 2, 0],        // 3: 3 -> 2 -> 1
             5: [5, 4, 2, 0],     // 4: 4 -> 3 -> 2 -> 1
-            6: [6, 7, 12],       // #4: #4 -> 5 -> 8 (Ajustado)
-            7: [7, 12],          // 5: 5 -> 8 (Solicitud: 5 resuelve 5 8)
+            6: [6, 7, 12],       // #4: #4 -> 5 -> 8
+            7: [7, 12],          // 5: 5 -> 8 
             8: [8, 7, 12],       // b6: b6 -> 5 -> 8
             9: [9, 11, 12],      // 6: 6 -> 7 -> 8
             10: [10, 11, 12],    // b7: b7 -> 7 -> 8
             11: [11, 12],        // 7: 7 -> 8
-            12: [12, 7, 12]      // 8: 8 -> 7 -> 8 o similar (Estable)
+            12: [12, 7, 12]      // 8: 8 -> 7 -> 8
         };
 
         const MAJOR_LIST = ["I - V - I", "I - IV - I", "I - IV - V - I", "I - V - IV - I", "I - vi - IV - V", "I - vi - ii - V", "I - IV - ii - V", "I - iii - IV - V", "I - ii - iii - IV", "I - V - vi - IV", "vi - IV - I - V", "vi - ii - V - I", "I - V - vi - iii - IV - I - IV - V", "IV - V - I", "IV - I - V", "ii - V - I", "ii - IV - I", "I - iii - vi - IV", "I - iii - vi - ii - V", "I - vi - ii - V - iii - vi - ii - V", "I - IV - vii° - iii - vi - ii - V - I", "I - V/vi - vi - IV", "I - I7 - IV - iv", "I - bVII - IV - I", "I - bVII - bVI - bVII", "I - bIII - IV - I", "I - II - IV - I", "I - V - bVII - IV", "IV - V - iii - vi", "IV - iv - I", "I - vi - I - vi", "I - ii - V - IV", "I - IV - V - IV", "V - IV - I", "I - bVI - bVII - I", "I - vi - iii - V", "I - IV - bVII - I", "I - ii - IV - V", "vi - V - IV - III", "I - bII - I", "I - VII - vi - V", "IV - iii - ii - I", "I - v - I", "I - vii - vi - V", "I - III7 - IV - V", "I - V - vi - ii", "I - iii - ii - V", "vi - iii - IV - I", "ii - iii - IV - V", "I - IV - I - V", "I - vi - IV - ii - V", "IV - V - vi - I", "I - bVII - I", "I - vi - ii - IV", "I - V - ii - IV", "I - iii - vi - V", "iii - vi - IV - V", "vi - IV - V - I", "I - vi - V - IV", "I - IV - V - vi", "I - IV - iii - vi - ii - V - I", "I - III7 - vi - II7 - V7 - I", "Imaj7 - Vm7 - I7 - IVmaj7", "I - #IV° - V", "I - bIII° - ii - V", "I - IV - #IV° - V", "I - V/ii - ii - V/V - V", "IV - vii° - iii - vi - ii - V - I", "I - vii° - vi - V - IV - iii - ii - V", "I - IV - V - IV - I", "I - IV - bVII - IV", "I - iii - ii - IV", "I - v - IV - I", "I - bVI - IV - I", "I - V - vi - IV - I - V - IV - I", "vi - V - I - IV", "I - ii - IV - I", "I - IV - V - ii", "ii - vi - V - I", "I - iii - IV - I", "I - V/IV - IV - iv - I", "I - bVII - vi - V", "vi - V - IV - iii - ii - V - I", "I - ii - V - I", "I - bIII - bVI - bVII", "I - V - IV - V", "I - vi - IV - vi", "vi - iii - ii - V", "I - II7 - ii - V", "I - iii - IV - iv", "I - vii° - I", "I - vi - ii - IV - V", "I - IV - I - vi - V", "I - bIII - bVII - I", "I - IV - I - IV", "vi - I - V - IV", "I - III - IV - bVI", "I - vi - iii - IV", "I - V - I - IV - I - V - I", "I - IV - I - V - IV - I"];
@@ -331,14 +383,14 @@
             
             if(m === 'melody') {
                 melBtn.className = "flex-1 bg-indigo-600 text-white p-2 rounded-lg text-[10px] font-bold border border-indigo-400";
-                harBtn.className = "flex-1 bg-slate-800 text-slate-400 p-2 rounded-lg text-[10px] font-bold border border-slate-700";
+                harBtn.className = "flex-1 bg-slate-800 text-slate-400 p-2 rounded-lg text-[10px] font-bold border border-slate-700 hover:text-white";
                 lvlCont.style.display = 'flex';
                 practiceMod.style.display = 'flex';
                 document.getElementById('piano-stage').classList.remove('hidden');
                 document.getElementById('harmony-grid').classList.add('hidden');
             } else {
                 harBtn.className = "flex-1 bg-indigo-600 text-white p-2 rounded-lg text-[10px] font-bold border border-indigo-400";
-                melBtn.className = "flex-1 bg-slate-800 text-slate-400 p-2 rounded-lg text-[10px] font-bold border border-slate-700";
+                melBtn.className = "flex-1 bg-slate-800 text-slate-400 p-2 rounded-lg text-[10px] font-bold border border-slate-700 hover:text-white";
                 lvlCont.style.display = 'none';
                 practiceMod.style.display = 'none';
                 document.getElementById('piano-stage').classList.add('hidden');
@@ -486,7 +538,7 @@
                 if(functionalInterval >= 0 && functionalInterval <= 12) {
                     btn.setAttribute('data-interval', functionalInterval);
                     const degText = (functionalInterval === 12) ? '8' : DEGREES[functionalInterval];
-                    const noteName = KEY_SPELLINGS[state.keyLabel][functionalInterval];
+                    const noteName = KEY_SPELLINGS[state.keyLabel][functionalInterval % 12];
                     btn.innerHTML = `<div class="labels-wrapper"><div class="degree-tag">${degText}</div><div class="note-name">${noteName}</div></div>`;
                 }
                 btn.onclick = () => { playTone(midiToFreq(midi), 0.5); if(functionalInterval >= 0 && functionalInterval <= 12) checkAnswer(functionalInterval); };
@@ -528,12 +580,14 @@
             ui.classList.remove('hidden');
             document.getElementById('feedback-icon').innerText = ok ? "✨" : "⚠️";
             const text = document.getElementById('feedback-text');
-            text.innerText = ok ? "LOGRADO" : "FALLO";
+            text.innerText = ok ? "LOGRADO" : "ERRADO";
             text.className = `text-4xl font-black italic ${ok ? 'text-emerald-400' : 'text-rose-500'}`;
         }
 
         function resetUI() { document.getElementById('feedback-ui').classList.add('hidden'); renderPiano(); renderPracticeChips(); }
         function toggleImagina() { state.imagina = !state.imagina; document.getElementById('imagina-dot').className = `w-2 h-2 rounded-full ${state.imagina ? 'bg-indigo-400 shadow-[0_0_8px_indigo]' : 'bg-slate-700'}`; }
+        function openModal() { document.getElementById('help-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('help-modal').style.display = 'none'; }
 
         document.getElementById('btn-init').onclick = startGame;
         renderPiano(); renderPracticeChips();
