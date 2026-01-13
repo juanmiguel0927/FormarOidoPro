@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Formar Oído Pro </title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            950: '#020617',
+                        }
+                    },
+                    screens: {
+                        'xs': '380px', // Breakpoint extra pequeño para móviles
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&family=Fira+Code:wght@500;700&display=swap');
         
@@ -23,7 +41,7 @@
             --c-stable: #10b981;  
             --c-unstable: #f59e0b;
             --c-tension: #ef4444; 
-            --active-glow: 0 0 15px rgba(139, 92, 246, 0.6); /* Glow más fuerte */
+            --active-glow: 0 0 15px rgba(139, 92, 246, 0.6);
         }
 
         body.dark-mode {
@@ -47,27 +65,42 @@
             flex-direction: column;
             transition: background 0.4s ease, color 0.4s ease;
             overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         /* PIANO SCALING - FULL VIEW */
         .piano-viewport {
             width: 100%;
             overflow-x: auto;
-            padding: 15px 10px 35px 10px;
+            padding: 10px 10px 25px 10px;
             background: var(--bg-piano);
             border-top: 2px solid var(--border-ui);
             display: flex;
-            justify-content: center;
+            justify-content: flex-start; /* Alineado al inicio para permitir scroll */
             scrollbar-width: none;
             box-shadow: inset 0 4px 6px rgba(0,0,0,0.05);
+            transition: background 0.4s ease, border-color 0.4s ease;
+            -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
         }
+        
+        /* Centrar piano si hay espacio, sino scroll */
+        @media (min-width: 640px) {
+            .piano-viewport { justify-content: center; }
+        }
+
         .piano-stage {
             position: relative;
-            width: 100%;
             height: 140px;
+            /* Móvil: Ancho fijo mínimo para asegurar teclas tocables (scroll horizontal) */
+            min-width: 600px; 
+            /* Escritorio: Se adapta al ancho disponible hasta 920px */
+            width: 100%; 
             max-width: 920px;
             margin: 0 auto;
+            flex-shrink: 0; /* Evita que se encoja en flexbox */
         }
+        
         .key-white {
             position: absolute;
             top: 0;
@@ -112,14 +145,14 @@
         .key-black:active { transform: scale(0.98); border-bottom-width: 3px; }
 
         /* GRID CONFIGURATION */
-        .grid-3-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; }
-        .grid-2-cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; width: 100%; }
+        .grid-3-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 100%; }
+        .grid-2-cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; width: 100%; }
 
-        .control-group { background: var(--card-bg); padding: 5px; border-radius: 16px; border: 1px solid var(--border-ui); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .control-group { background: var(--card-bg); padding: 4px; border-radius: 14px; border: 1px solid var(--border-ui); box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: background 0.4s ease, border-color 0.4s ease; }
         .control-btn { 
-            padding: 8px 4px; 
+            padding: 8px 2px; 
             border-radius: 10px; 
-            font-size: 10px; 
+            font-size: 9px; /* Texto ligeramente más pequeño para móviles */
             font-weight: 800; 
             color: #64748b; 
             cursor: pointer; 
@@ -130,6 +163,8 @@
             white-space: nowrap; 
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         /* ALUMBRADO DE SELECCIÓN POTENCIADO */
@@ -142,25 +177,32 @@
             font-weight: 900 !important;
         }
 
-        /* 4-ELEMENT LINE STYLES */
+        /* RESPONSIVE ACTION LINE */
         .action-line-container {
             display: grid;
-            grid-template-columns: 1fr 1.5fr 1fr 0.8fr; /* Proporciones ajustadas para visibilidad */
+            /* Móvil por defecto: 2 columnas x 2 filas */
+            grid-template-columns: 1fr 1fr; 
             gap: 6px;
             width: 100%;
             align-items: center;
+        }
+        
+        /* Tablet/Escritorio: 1 sola fila */
+        @media (min-width: 640px) {
+            .action-line-container {
+                grid-template-columns: 1fr 1.5fr 1fr 0.8fr;
+            }
         }
 
         .compact-btn {
             background: var(--card-bg);
             border: 1px solid var(--border-ui);
             border-radius: 12px;
-            padding: 10px 4px;
+            padding: 0 8px;
             font-size: 10px;
             font-weight: 800;
             color: #64748b;
             text-align: center;
-            text-transform: uppercase;
             white-space: nowrap;
             display: flex;
             align-items: center;
@@ -168,6 +210,8 @@
             height: 42px;
             transition: all 0.1s;
         }
+        
+        .force-upper { text-transform: uppercase; letter-spacing: 0.05em; }
 
         .btn-new-q {
             background: var(--accent);
@@ -193,19 +237,22 @@
             background: var(--card-bg); 
             border: 2px solid var(--border-ui); 
             border-radius: 10px; 
-            width: 36px; 
-            height: 36px; 
+            width: 32px; 
+            height: 32px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             font-weight: 900; 
-            font-size: 12px; 
+            font-size: 11px; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
             cursor: pointer; 
             transition: all 0.2s;
             color: var(--text-main);
         }
         .practice-card:hover { transform: translateY(-3px) scale(1.05); border-color: var(--accent); color: var(--accent); }
+        @media (min-width: 640px) {
+            .practice-card { width: 36px; height: 36px; font-size: 12px; }
+        }
 
         /* COLORS */
         .color-tonic { color: var(--c-tonic) !important; border-color: var(--c-tonic) !important; }
@@ -218,127 +265,137 @@
         .bg-unstable { background: var(--c-unstable) !important; color: white !important; border: none; }
         .bg-tension { background: var(--c-tension) !important; color: white !important; border: none; }
 
-        /* VERTICAL UI LEVELS */
-        #feedback-ui { position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); z-index: 100; text-align: center; width: 100%; pointer-events: none; }
-        /* Action bar moved to top flow */
+        #feedback-ui { position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); z-index: 100; text-align: center; width: 100%; pointer-events: none; }
 
-        .feedback-text { font-size: 3rem; font-weight: 900; text-transform: uppercase; font-style: italic; letter-spacing: -0.05em; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .correct-ans { font-family: 'Fira Code', monospace; font-size: 12px; padding: 6px 18px; background: rgba(139, 92, 246, 0.1); border-radius: 20px; border: 1px solid rgba(139, 92, 246, 0.3); margin-top: 8px; color: var(--accent); font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .feedback-text { font-size: 2.5rem; font-weight: 900; text-transform: uppercase; font-style: italic; letter-spacing: -0.05em; text-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: opacity 0.2s; }
+        @media (min-width: 640px) { .feedback-text { font-size: 3rem; } }
 
-        .degree-tag { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 9px; }
-        .note-name { font-size: 9px; font-weight: 800; font-family: 'Fira Code', monospace; margin-top: 3px; }
+        .correct-ans { font-family: 'Fira Code', monospace; font-size: 11px; padding: 6px 14px; background: rgba(139, 92, 246, 0.1); border-radius: 20px; border: 1px solid rgba(139, 92, 246, 0.3); margin-top: 8px; color: var(--accent); font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); pointer-events: auto; }
+
+        .degree-tag { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 8px; }
+        .note-name { font-size: 8px; font-weight: 800; font-family: 'Fira Code', monospace; margin-top: 3px; text-transform: none; }
+        @media (min-width: 640px) {
+            .degree-tag { width: 20px; height: 20px; font-size: 9px; }
+            .note-name { font-size: 9px; }
+        }
         
         .highlight-res { background: #fbbf24 !important; z-index: 60 !important; transform: scale(1.05); border-color: #f59e0b !important; box-shadow: 0 0 15px #f59e0b !important; }
         .correct { background: #10b981 !important; border-color: #059669 !important; color: white !important; }
         .wrong { background: #ef4444 !important; border-color: #b91c1c !important; color: white !important; }
 
         .buffer-indicator { display: flex; gap: 6px; margin-top: 10px; justify-content: center; }
-        .buffer-dot { width: 12px; height: 12px; border-radius: 50%; background: #cbd5e1; border: 2px solid transparent; transition: all 0.2s; }
+        .buffer-dot { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; border: 2px solid transparent; transition: all 0.2s; }
         .buffer-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); border-color: white; transform: scale(1.2); }
 
-        #harmony-grid button { border: 2px solid var(--border-ui); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s; background: var(--card-bg); min-height: 85px; border-radius: 16px; padding: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        #harmony-grid button { border: 2px solid var(--border-ui); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s; background: var(--card-bg); min-height: 70px; border-radius: 14px; padding: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         #harmony-grid button:active { transform: scale(0.98); }
-        .cipher-text { font-family: 'Fira Code', monospace; font-size: 13px; font-weight: 900; color: var(--accent); text-align: center; margin-bottom: 2px; }
-        .roman-text { font-size: 9px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .cipher-text { font-family: 'Fira Code', monospace; font-size: 12px; font-weight: 900; color: var(--accent); text-align: center; margin-bottom: 2px; }
+        .roman-text { font-size: 8px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--card-bg); color: var(--text-main); max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; border-radius: 24px; padding: 32px; border: 1px solid var(--border-ui); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .modal-content { background: var(--card-bg); color: var(--text-main); max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; border-radius: 24px; padding: 24px; border: 1px solid var(--border-ui); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
 
         .input-mini { width: 100%; height: 100%; background: transparent; text-align: center; font-weight: 900; font-size: 11px; color: var(--accent); outline: none; border: none; }
         .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--card-bg); border: 1px solid var(--border-ui); border-radius: 12px; height: 42px; }
         .timer-label { font-size: 7px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: -2px; }
 
-        #practice-chips-container { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; padding: 4px; width: 100%; }
+        #practice-chips-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; padding: 4px; width: 100%; }
         
         .theme-toggle { cursor: pointer; padding: 8px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border-ui); display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: #64748b; }
         .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+        
+        /* Ajustes scrollbar para elementos con overflow */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="select-none">
 
-    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-3 flex justify-between items-center shadow-sm z-[150] shrink-0">
-        <div class="flex items-center gap-3">
-            <div class="bg-violet-600 p-1.5 rounded-xl shadow-md"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg></div>
-            <h1 class="font-black text-sm tracking-tight uppercase italic text-slate-800 dark:text-white">Formar Oído <span class="text-violet-500">Pro</span></h1>
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-2 sm:p-3 flex justify-between items-center shadow-sm z-[150] shrink-0 transition-colors duration-300">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div class="bg-violet-600 p-1.5 rounded-xl shadow-md"><svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg></div>
+            <h1 class="font-black text-xs sm:text-sm tracking-tight uppercase italic text-slate-800 dark:text-white leading-tight">Formar <br class="block sm:hidden">Oído <span class="text-violet-500">Pro</span></h1>
         </div>
-        <div class="flex items-center gap-3">
-            <div id="sprint-timer-box" class="hidden flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/30 px-3 py-1 rounded-full"><span id="timer-val" class="text-rose-500 font-mono text-xs font-bold">01:00</span></div>
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div id="sprint-timer-box" class="hidden flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/30 px-2 sm:px-3 py-1 rounded-full"><span id="timer-val" class="text-rose-500 font-mono text-xs font-bold">01:00</span></div>
             <button onclick="openModal()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 hover:border-violet-400 transition-colors" title="Ayuda (H)"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>
             <button onclick="toggleTheme()" class="theme-toggle" title="Tema (T)"><svg id="sun-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 010-1.414zm4.707 4.707a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.414A1 1 0 016.464 5l.707.707a1 1 0 01-1.414 1.414l-.707-.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg><svg id="moon-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg></button>
-            <div class="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-mono text-violet-600 dark:text-violet-400 font-bold text-xs shadow-sm"><span id="score-val">0</span></div>
+            <div class="bg-white dark:bg-slate-800 px-2 sm:px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-mono text-violet-600 dark:text-violet-400 font-bold text-xs shadow-sm"><span id="score-val">0</span></div>
         </div>
     </header>
 
     <main class="flex-1 flex flex-col relative overflow-hidden bg-gradient-to-b from-transparent to-slate-100/50 dark:to-black/20">
         
-        <!-- CONTROL BAR -->
-        <div class="p-3 sm:p-5 flex flex-col gap-4 z-10 shrink-0 max-w-4xl mx-auto w-full">
-            <div class="flex flex-col gap-1.5">
-                <div class="flex justify-between items-center px-1">
-                    <span class="text-[9px] uppercase font-black text-slate-400 tracking-widest">Niveles de Práctica</span>
-                    <div class="flex items-center gap-2 bg-white dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <span class="text-[8px] font-bold text-slate-500">NOTAS:</span>
-                        <input type="number" id="note-count-input" min="1" max="10" value="1" class="w-8 bg-transparent text-center font-bold text-xs text-violet-600 outline-none">
-                    </div>
-                </div>
-                <!-- 2 ROWS LEVELS (AS REQUESTED) -->
+        <!-- CONTROL BAR SCROLLABLE ON VERY SMALL SCREENS -->
+        <div class="overflow-y-auto max-h-[calc(100vh-200px)] no-scrollbar z-10 shrink-0 w-full">
+            <div class="p-2 sm:p-5 flex flex-col gap-3 sm:gap-4 max-w-4xl mx-auto w-full">
                 <div class="flex flex-col gap-1.5">
-                    <div class="control-group grid-3-cols" id="level-row-1">
-                        <button onclick="setLevel('basic1')" id="lvl-basic1" class="control-btn active-choice">BÁSICO 1-4</button>
-                        <button onclick="setLevel('basic2')" id="lvl-basic2" class="control-btn">BÁSICO 5-8</button>
-                        <button onclick="setLevel('inter')" id="lvl-inter" class="control-btn">INTERMEDIO</button>
+                    <div class="flex justify-between items-center px-1">
+                        <span class="text-[9px] uppercase font-black text-slate-400 tracking-widest">Niveles de Práctica</span>
+                        <div class="flex items-center gap-2 bg-white dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+                            <span class="text-[8px] font-bold text-slate-500">NOTAS:</span>
+                            <input type="number" id="note-count-input" min="1" max="10" value="1" class="w-8 bg-transparent text-center font-bold text-xs text-violet-600 outline-none">
+                        </div>
                     </div>
-                    <div class="control-group grid-3-cols" id="level-row-2">
-                        <button onclick="setLevel('adv1')" id="lvl-adv1" class="control-btn">AVANZADO I</button>
-                        <button onclick="setLevel('adv2')" id="lvl-adv2" class="control-btn">AVANZADO II</button>
-                        <button onclick="setLevel('total')" id="lvl-total" class="control-btn">TOTAL</button>
+                    <!-- 2 ROWS LEVELS (AS REQUESTED) -->
+                    <div class="flex flex-col gap-1.5">
+                        <div class="control-group grid-3-cols" id="level-row-1">
+                            <button onclick="setLevel('basic1')" id="lvl-basic1" class="control-btn active-choice">BÁSICO 1-4</button>
+                            <button onclick="setLevel('basic2')" id="lvl-basic2" class="control-btn">BÁSICO 5-8</button>
+                            <button onclick="setLevel('inter')" id="lvl-inter" class="control-btn">INTERMEDIO</button>
+                        </div>
+                        <div class="control-group grid-3-cols" id="level-row-2">
+                            <button onclick="setLevel('adv1')" id="lvl-adv1" class="control-btn">AVANZADO I</button>
+                            <button onclick="setLevel('adv2')" id="lvl-adv2" class="control-btn">AVANZADO II</button>
+                            <button onclick="setLevel('total')" id="lvl-total" class="control-btn">TOTAL</button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="flex flex-col gap-1.5">
-                <div class="flex justify-between items-center px-1">
-                    <span class="text-[9px] uppercase font-black text-slate-400 tracking-widest">Configuración Tonal</span>
-                    <button onclick="toggleAutoResolve()" id="auto-resolve-btn" class="text-[7px] font-bold uppercase bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded border border-emerald-500/20 transition-all hover:bg-emerald-500/20">Auto-Res: ON</button>
+                <div class="flex flex-col gap-1.5">
+                    <div class="flex justify-between items-center px-1">
+                        <span class="text-[9px] uppercase font-black text-slate-400 tracking-widest">Configuración Tonal</span>
+                        <button onclick="toggleAutoResolve()" id="auto-resolve-btn" class="text-[7px] font-bold uppercase bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded border border-emerald-500/20 transition-all hover:bg-emerald-500/20">Auto-Res: ON</button>
+                    </div>
+                    <div class="control-group grid-3-cols">
+                        <button onclick="setTonalityMode('major')" id="ton-major" class="control-btn active-choice">MAYOR</button>
+                        <button onclick="setTonalityMode('minor')" id="ton-minor" class="control-btn">MENOR</button>
+                        <button onclick="setTonalityMode('combined')" id="ton-combined" class="control-btn">COMBINADO</button>
+                    </div>
+                    <div class="control-group grid-2-cols">
+                        <button onclick="setGlobalMode('melody')" id="mode-mel-btn" class="control-btn active-choice text-xs py-1.5">MELODÍA</button>
+                        <button onclick="setGlobalMode('harmony')" id="mode-har-btn" class="control-btn text-xs py-1.5">ARMONÍA</button>
+                    </div>
                 </div>
-                <div class="control-group grid-3-cols">
-                    <button onclick="setTonalityMode('major')" id="ton-major" class="control-btn active-choice">MAYOR</button>
-                    <button onclick="setTonalityMode('minor')" id="ton-minor" class="control-btn">MENOR</button>
-                    <button onclick="setTonalityMode('combined')" id="ton-combined" class="control-btn">COMBINADO</button>
-                </div>
-                <div class="control-group grid-2-cols">
-                    <button onclick="setGlobalMode('melody')" id="mode-mel-btn" class="control-btn active-choice text-xs py-1.5">MELODÍA</button>
-                    <button onclick="setGlobalMode('harmony')" id="mode-har-btn" class="control-btn text-xs py-1.5">ARMONÍA</button>
-                </div>
-            </div>
 
-            <!-- ACTION LINE 4 ELEMENTS -->
-            <div class="action-line-container">
-                <!-- 1. Tonalidad Badge -->
-                <div id="key-badge" class="compact-btn flex flex-col justify-center items-center">
-                    <span id="key-root" class="text-xs font-black text-violet-400 leading-none">C</span>
-                    <span id="key-quality-label" class="text-[7px] font-bold opacity-60 uppercase tracking-wide leading-none">MAYOR</span>
-                </div>
-                
-                <!-- 2. Nueva Pregunta -->
-                <button id="btn-init" onclick="startGame()" class="compact-btn btn-new-q">
-                    NUEVA PREGUNTA
-                </button>
-                
-                <!-- 3. Sprint -->
-                <button onclick="toggleSprint()" id="sprint-btn" class="compact-btn btn-sprint">
-                    SPRINT
-                </button>
+                <!-- ACTION LINE 4 ELEMENTS (Mobile Optimized) -->
+                <div class="action-line-container">
+                    <!-- 1. Tonalidad Badge -->
+                    <div id="key-badge" class="compact-btn flex flex-col justify-center items-center order-1">
+                        <span id="key-root" class="text-xs font-black text-violet-400 leading-none">C</span>
+                        <span id="key-quality-label" class="text-[7px] font-bold opacity-60 uppercase tracking-wide leading-none">MAYOR</span>
+                    </div>
+                    
+                    <!-- 2. Nueva Pregunta -->
+                    <button id="btn-init" onclick="startGame()" class="compact-btn btn-new-q force-upper order-2">
+                        NUEVA PREGUNTA
+                    </button>
+                    
+                    <!-- 3. Sprint -->
+                    <button onclick="toggleSprint()" id="sprint-btn" class="compact-btn btn-sprint force-upper order-3">
+                        SPRINT
+                    </button>
 
-                <!-- 4. Tiempo -->
-                <div class="timer-container">
-                    <span class="timer-label">TIEMPO</span>
-                    <input type="number" id="sprint-time-input" value="60" class="input-mini">
+                    <!-- 4. Tiempo -->
+                    <div class="timer-container order-4">
+                        <span class="timer-label">TIEMPO</span>
+                        <input type="number" id="sprint-time-input" value="60" class="input-mini">
+                    </div>
                 </div>
-            </div>
-            <!-- Delete button below for optional use -->
-            <div class="flex justify-center">
-                <button id="btn-delete" onclick="deleteLastNote()" class="hidden bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold px-4 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:text-rose-500 active:scale-95 text-[9px] uppercase shadow-sm w-fit">Borrar Última</button>
+                <!-- Delete button below for optional use -->
+                <div class="flex justify-center">
+                    <button id="btn-delete" onclick="deleteLastNote()" class="hidden bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold px-4 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:text-rose-500 active:scale-95 text-[9px] uppercase shadow-sm w-fit">Borrar Última</button>
+                </div>
             </div>
         </div>
 
@@ -350,9 +407,9 @@
         </div>
 
         <!-- PIANO AREA -->
-        <div id="piano-container-fixed" class="mt-auto relative z-30 pb-4">
+        <div id="piano-container-fixed" class="mt-auto relative z-30 pb-2 sm:pb-4">
             <!-- PRACTICE CHIPS -->
-            <div id="practice-module" class="flex flex-col items-center py-3 bg-gradient-to-t from-transparent to-white/50 dark:to-transparent">
+            <div id="practice-module" class="flex flex-col items-center py-2 sm:py-3 bg-gradient-to-t from-transparent to-white/50 dark:to-transparent">
                 <div id="practice-chips-container" class="no-scrollbar"></div>
             </div>
 
@@ -361,7 +418,7 @@
                 <div id="harmony-grid" class="hidden w-full max-w-4xl mx-auto px-2 grid grid-cols-2 gap-2 pb-8 overflow-y-auto max-h-[180px]"></div>
             </div>
             
-            <div class="bg-white dark:bg-slate-900 p-3 flex justify-center items-center gap-8 border-t border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 shrink-0 shadow-inner">
+            <div class="bg-white dark:bg-slate-900 p-2 sm:p-3 flex justify-center items-center gap-6 sm:gap-8 border-t border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 shrink-0 shadow-inner transition-colors duration-300">
                 <button id="btn-repeat-base" class="hidden text-[10px] font-bold uppercase hover:text-violet-500 transition-colors" onclick="playCurrentCadence()">Base (B)</button>
                 <button onclick="toggleImagina()" class="text-[10px] font-bold uppercase hover:text-violet-500 flex items-center gap-2 transition-all">
                     <span id="imagina-dot" class="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-600 transition-colors"></span> Imagina (I)
@@ -371,7 +428,7 @@
         </div>
     </main>
 
-    <footer class="bg-slate-50 dark:bg-slate-950 text-slate-400 text-[10px] py-4 px-6 text-center border-t border-slate-200 dark:border-slate-900 z-50 shrink-0 font-semibold tracking-widest">
+    <footer class="bg-slate-50 dark:bg-slate-950 text-slate-400 text-[9px] sm:text-[10px] py-3 sm:py-4 px-6 text-center border-t border-slate-200 dark:border-slate-900 z-50 shrink-0 font-semibold tracking-widest transition-colors duration-300">
         Desarrollado Por Juan Miguel Rios Redondo
     </footer>
 
@@ -383,18 +440,24 @@
                 <section>
                     <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Metodología</h3>
                     <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300">
-                        <p><strong>1. Sintonía:</strong> Usa los chips inferiores para sentir la gravedad. El piano te mostrará el camino.</p>
-                        <p><strong>2. Unísono:</strong> Identificación con auto-resolución activada.</p>
-                        <p><strong>3. Memoria:</strong> Secuencias de 2 a 10 notas. Sin ayudas visuales.</p>
+                        <p><strong>1. Sintonía (Centro Tonal):</strong> Antes de identificar, siente la gravedad. Usa los chips de práctica inferiores para internalizar cómo cada grado resuelve hacia la tónica.</p>
+                        <p><strong>2. Unísono (Identificación):</strong> Mantén "Auto-Resolución" activado. Al escuchar una nota, canta internamente su resolución hacia la tónica antes de seleccionarla.</p>
+                        <p><strong>3. Memoria (Retención):</strong> Aumenta el número de notas progresivamente. Escucha la frase completa, retenla en tu mente y solo entonces escríbela.</p>
+                        <p><strong>4. Armonía (Color):</strong> Distingue primero la cualidad (Mayor/Menor) y luego la función (Tónica/Dominante). Asocia cada progresión con una emoción.</p>
                     </div>
                 </section>
                 <section>
-                    <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Atajos</h3>
-                    <div class="grid grid-cols-2 gap-y-2 font-mono opacity-70 text-slate-600 dark:text-slate-400">
-                        <div>Espacio/C: Nueva</div>
-                        <div>R/B: Sonido/Base</div>
-                        <div>I/T/S: Imagina/Tema/Sprint</div>
-                        <div>1-6: Niveles</div>
+                    <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Atajos de Teclado</h3>
+                    <div class="grid grid-cols-2 gap-y-2 gap-x-4 font-mono opacity-70 text-slate-600 dark:text-slate-400">
+                        <div>Espacio/C: Nueva Pregunta</div>
+                        <div>R: Repetir Sonido</div>
+                        <div>B: Repetir Base</div>
+                        <div>I: Modo Imagina</div>
+                        <div>T: Cambiar Tema</div>
+                        <div>S: Activar Sprint</div>
+                        <div>H: Ayuda</div>
+                        <div>Backspace: Borrar Nota</div>
+                        <div>1-6: Seleccionar Nivel</div>
                     </div>
                 </section>
                 <button onclick="closeModal()" class="w-full bg-violet-600 hover:bg-violet-700 text-white py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg">Entendido</button>
@@ -404,8 +467,23 @@
 
     <script>
         const KEY_SPELLINGS = {
-            'C':['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'], 'G':['G','Ab','A','Bb','B','C','C#','D','Eb','E','F','F#'], 'D':['D','Eb','E','F','F#','G','G#','A','Bb','B','C','C#'], 'A':['A','Bb','B','C','C#','D','D#','E','F','F#','G','G#'], 'E':['E','F','F#','G','G#','A','A#','B','C','C#','D','D#'], 'B':['B','C','C#','D','D#','E','F','F#','G','G#','A','A#'], 'F':['F','Gb','G','Ab','A','Bb','B','C','Db','D','Eb','E'], 'Bb':['Bb','Cb','C','Db','D','Eb','E','F','Gb','G','Ab','A'], 'Eb':['Eb','Fb','F','Gb','G','Ab','A','Bb','Cb','C','Db','D'], 'Ab':['Ab','Bbb','Bb','Cb','C','Db','D','Eb','Fb','F','Gb','G']
+            'C': ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'], 
+            'G': ['G','Ab','A','Bb','B','C','C#','D','Eb','E','F','F#'], 
+            'D': ['D','Eb','E','F','F#','G','G#','A','Bb','B','C','C#'], 
+            'A': ['A','Bb','B','C','C#','D','Eb','E','F','F#','G','G#'], 
+            'E': ['E','F','F#','G','G#','A','Bb','B','C','C#','D','Eb'], 
+            'B': ['B','C','C#','D','Eb','E','F','F#','G','G#','A','Bb'], 
+            'F': ['F','Gb','G','Ab','A','Bb','B','C','Db','D','Eb','E'], 
+            'Bb':['Bb','B','C','Db','D','Eb','E','F','Gb','G','Ab','A'], 
+            'Eb':['Eb','E','F','Gb','G','Ab','A','Bb','B','C','Db','D'], 
+            'Ab':['Ab','A','Bb','B','C','Db','D','Eb','E','F','Gb','G'] 
         };
+        
+        const ROOT_INDICES = {
+            'C': 0, 'Db': 1, 'C#': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 
+            'F#': 6, 'Gb': 6, 'G': 7, 'Ab': 8, 'G#': 8, 'A': 9, 'Bb': 10, 'B': 11
+        };
+
         const DEGREES = ['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7', '8'];
         const RESOLUTIONS = { 0:[0,-5,0], 1:[1,0], 2:[2,0], 3:[3,2,0], 4:[4,2,0], 5:[5,4,2,0], 6:[6,7,12], 7:[7,12], 8:[8,7,12], 9:[9,11,12], 10:[10,11,12], 11:[11,12], 12:[12,7,12] };
         
@@ -413,7 +491,19 @@
         const MINOR_PROGS = ["i - V - i", "i - iv - V - i", "i - bVI - ii° - V", "ii° - V - i", "i - bVII - bVI - V"];
 
         let audioCtx;
-        let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [] };
+        let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [] };
+
+        // --- CORE AUDIO & TIMEOUT MANAGER ---
+        function registerTimeout(fn, delay) {
+            const id = setTimeout(fn, delay);
+            state.timeouts.push(id);
+            return id;
+        }
+
+        function clearAllTimeouts() {
+            state.timeouts.forEach(id => clearTimeout(id));
+            state.timeouts = [];
+        }
 
         function initAudio() { if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const comp = audioCtx.createDynamicsCompressor(); comp.connect(audioCtx.destination); state.masterOut = comp; } }
         function midiToFreq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
@@ -429,7 +519,7 @@
 
         function setLevel(lvl) { 
             state.level = lvl; 
-            document.querySelectorAll('#level-selection-container .control-btn').forEach(b => b.classList.remove('active-choice')); 
+            document.querySelectorAll('button[id^="lvl-"]').forEach(b => b.classList.remove('active-choice')); 
             document.getElementById(`lvl-${lvl}`)?.classList.add('active-choice'); 
             renderUI(); 
         }
@@ -439,7 +529,15 @@
             document.getElementById(`ton-${mode}`)?.classList.add('active-choice'); 
             renderUI(); 
         }
-        function toggleAutoResolve() { state.autoResolve = !state.autoResolve; document.getElementById('auto-resolve-btn').innerText = `Auto-Resolución: ${state.autoResolve ? 'ON' : 'OFF'}`; }
+        
+        function toggleAutoResolve() { 
+            state.autoResolve = !state.autoResolve; 
+            const btn = document.getElementById('auto-resolve-btn');
+            btn.innerText = `Auto-Res: ${state.autoResolve ? 'ON' : 'OFF'}`;
+            btn.classList.remove('bg-emerald-500/10', 'text-emerald-600', 'border-emerald-500/20', 'hover:bg-emerald-500/20', 'bg-rose-500/10', 'text-rose-600', 'border-rose-500/20', 'hover:bg-rose-500/20');
+            if(state.autoResolve) btn.classList.add('bg-emerald-500/10', 'text-emerald-600', 'border-emerald-500/20', 'hover:bg-emerald-500/20');
+            else btn.classList.add('bg-rose-500/10', 'text-rose-600', 'border-rose-500/20', 'hover:bg-rose-500/20');
+        }
 
         function setGlobalMode(m) {
             stopAllSounds(); state.mode = m;
@@ -454,7 +552,13 @@
         }
 
         function startGame() {
-            stopAllSounds(); initAudio(); resetUI();
+            stopAllSounds(); 
+            clearAllTimeouts(); // CRITICAL: Stop all pending UI updates and restarts
+            initAudio(); 
+            
+            state.target = null; // Prevent interaction with old question
+            resetUI(); // Immediate visual cleanup
+            
             const keys = Object.keys(KEY_SPELLINGS);
             state.keyLabel = keys[Math.floor(Math.random()*keys.length)];
             state.keyIndex = 48 + { 'C':0, 'C#':1, 'Db':1, 'D':2, 'Eb':3, 'E':4, 'F':5, 'F#':6, 'Gb':6, 'G':7, 'Ab':8, 'A':9, 'Bb':10, 'B':11 }[state.keyLabel];
@@ -466,12 +570,15 @@
             if (state.sprint) generateQuestion(); else playCadence(() => generateQuestion());
         }
 
-        function playCadence(cb) { state.isPlaying = true; const r = state.keyIndex; const type = state.currentRoundTonality === 'major' ? 'Maj' : 'Min'; let t = 0; [0, 5, 7, 0].forEach(off => { playChordWithBass(r + off, type, 1.0, t); t += 1.0; }); setTimeout(() => { if(state.isPlaying) { state.isPlaying = false; if(cb) cb(); } }, t * 1000); }
+        function playCadence(cb) { 
+            state.isPlaying = true; const r = state.keyIndex; const type = state.currentRoundTonality === 'major' ? 'Maj' : 'Min'; let t = 0; 
+            [0, 5, 7, 0].forEach(off => { playChordWithBass(r + off, type, 1.0, t); t += 1.0; }); 
+            registerTimeout(() => { if(state.isPlaying) { state.isPlaying = false; if(cb) cb(); } }, t * 1000); 
+        }
 
         function generateQuestion() {
-            // IMMEDIATE CLEANUP
+            // REDUNDANT CLEANUP for safety
             document.getElementById('feedback-ui').classList.add('hidden');
-            document.getElementById('correct-answer-display').innerText = '';
             document.getElementById('correct-answer-display').classList.add('hidden');
             state.userBuffer = [];
 
@@ -535,11 +642,15 @@
                     
                     if(!isCorrect) state.target.sequence.forEach(s => { 
                         const k = document.querySelector(`[data-interval="${s.interval}"]`);
-                        if(k) { k.classList.add('highlight-res'); setTimeout(() => k.classList.remove('highlight-res'), 1800); }
+                        if(k) { k.classList.add('highlight-res'); registerTimeout(() => k.classList.remove('highlight-res'), 1800); }
                     });
 
                     if(state.autoResolve && state.target.sequence.length === 1) executeVisualResolution(state.target.sequence[0].interval, false);
-                    if(isCorrect) { state.score++; document.getElementById('score-val').innerText = state.score; setTimeout(() => startGame(), 1800); }
+                    if(isCorrect) { 
+                        state.score++; 
+                        document.getElementById('score-val').innerText = state.score; 
+                        registerTimeout(() => startGame(), 1800); 
+                    }
                     else if(state.target.sequence.length === 1) { executeVisualResolution(state.target.sequence[0].interval, false); }
                     state.target = null;
                 }
@@ -547,7 +658,11 @@
                 const isCorrect = val === state.target.answer;
                 renderHarmonyOptions(state.target.options, val, state.target.answer);
                 showFeedbackUI(isCorrect);
-                if(isCorrect) { state.score++; document.getElementById('score-val').innerText = state.score; setTimeout(() => startGame(), 2200); }
+                if(isCorrect) { 
+                    state.score++; 
+                    document.getElementById('score-val').innerText = state.score; 
+                    registerTimeout(() => startGame(), 2200); 
+                }
                 else { document.getElementById('correct-answer-display').innerText = `Correcto: ${state.target.answer}`; document.getElementById('correct-answer-display').classList.remove('hidden'); }
                 state.target = null;
             }
@@ -561,24 +676,34 @@
             path.forEach((step, idx) => {
                 const midi = state.keyIndex + step; const dur = (idx === path.length - 1) ? 1.0 : 0.4;
                 playTone(midiToFreq(midi), dur, idx === 0 ? 'triangle' : 'sine', t, 0.2);
-                setTimeout(() => { const k = document.querySelector(`[data-interval="${step}"]`); if(key) { key.classList.add('highlight-res'); setTimeout(() => key.classList.remove('highlight-res'), 400); } }, t * 1000);
+                registerTimeout(() => { 
+                    const k = document.querySelector(`[data-interval="${step}"]`); 
+                    if(k) { k.classList.add('highlight-res'); registerTimeout(() => k.classList.remove('highlight-res'), 400); } 
+                }, t * 1000);
                 t += dur;
             });
-            if(next) setTimeout(() => startGame(), t * 1000 + 400);
+            if(next) registerTimeout(() => startGame(), t * 1000 + 400);
         }
 
         function renderUI() { renderPiano(); renderPracticeChips(); }
         function renderPiano() {
             const stage = document.getElementById('piano-stage'); stage.innerHTML = '';
             const offsets = [0, 0.6, 1, 1.6, 2, 3, 3.6, 4, 4.6, 5, 5.6, 6];
+            const rootOffset = ROOT_INDICES[state.keyLabel] || 0;
+
             for(let i=0; i<25; i++) {
-                const midi = 48 + i; const abs = midi % 12; const relPos = (Math.floor(i/12)*7) + offsets[abs];
-                const btn = document.createElement('button'); btn.className = `piano-key ${[1, 3, 6, 8, 10].includes(abs) ? 'key-black' : 'key-white'}`; 
+                const midi = 48 + i; 
+                const abs = midi % 12;
+                const relPos = (Math.floor(i/12)*7) + offsets[abs];
+                const btn = document.createElement('button'); 
+                btn.className = `piano-key ${[1, 3, 6, 8, 10].includes(abs) ? 'key-black' : 'key-white'}`; 
                 btn.style.left = `calc(${relPos} * (100% / 15))`;
                 const functional = midi - state.keyIndex;
                 if(functional >= 0 && functional <= 12) {
                     btn.setAttribute('data-interval', functional);
-                    btn.innerHTML = `<div class="degree-tag bg-${getFunctionalClass(functional)}">${DEGREES[functional]}</div><div class="note-name color-${getFunctionalClass(functional)}">${KEY_SPELLINGS[state.keyLabel][abs] || 'X'}</div>`;
+                    const spellingIndex = (abs - rootOffset + 12) % 12;
+                    const noteName = KEY_SPELLINGS[state.keyLabel][spellingIndex] || '?';
+                    btn.innerHTML = `<div class="degree-tag bg-${getFunctionalClass(functional)}">${DEGREES[functional]}</div><div class="note-name color-${getFunctionalClass(functional)}">${noteName}</div>`;
                 }
                 btn.onclick = () => { initAudio(); playTone(midiToFreq(midi), 0.5); if(functional >= 0 && functional <= 12) checkAnswer(functional); };
                 stage.appendChild(btn);
@@ -593,7 +718,7 @@
                 card.onclick = () => { 
                     initAudio(); executeVisualResolution(idx, false); 
                     const k = document.querySelector(`[data-interval="${idx}"]`);
-                    if(k) { k.classList.add('highlight-res'); setTimeout(() => k.classList.remove('highlight-res'), 600); }
+                    if(k) { k.classList.add('highlight-res'); registerTimeout(() => k.classList.remove('highlight-res'), 600); }
                 };
                 container.appendChild(card);
             });
@@ -611,9 +736,37 @@
         }
 
         function renderBufferDots(count) { const container = document.getElementById('buffer-dots'); container.innerHTML = ''; for(let i=0; i<count; i++) { const dot = document.createElement('div'); dot.className = 'buffer-dot'; container.appendChild(dot); } document.getElementById('feedback-ui').classList.remove('hidden'); }
-        function showFeedbackUI(ok) { const ui = document.getElementById('feedback-ui'); ui.classList.remove('hidden'); const text = document.getElementById('feedback-text'); text.innerText = ok ? "LOGRADO" : "ERRADO"; text.className = `feedback-text ${ok ? 'text-emerald-500' : 'text-rose-600'} scale-110`; if(!ok) setTimeout(() => ui.classList.add('hidden'), 3500); }
-        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
-        function resetUI() { document.getElementById('feedback-ui').classList.add('hidden'); document.getElementById('correct-answer-display').innerText = ''; document.getElementById('correct-answer-display').classList.add('hidden'); document.getElementById('btn-delete').classList.add('hidden'); state.userBuffer = []; renderUI(); }
+        function showFeedbackUI(ok) { const ui = document.getElementById('feedback-ui'); ui.classList.remove('hidden'); const text = document.getElementById('feedback-text'); text.innerText = ok ? "LOGRADO" : "ERRADO"; text.className = `feedback-text ${ok ? 'text-emerald-500' : 'text-rose-600'} scale-110`; if(!ok) registerTimeout(() => ui.classList.add('hidden'), 3500); }
+        function toggleTheme() { 
+            document.body.classList.toggle('dark-mode'); 
+            document.documentElement.classList.toggle('dark');
+            const sun = document.getElementById('sun-icon');
+            const moon = document.getElementById('moon-icon');
+            if (document.body.classList.contains('dark-mode')) {
+                sun.classList.add('hidden');
+                moon.classList.remove('hidden');
+            } else {
+                sun.classList.remove('hidden');
+                moon.classList.add('hidden');
+            }
+        }
+        function resetUI() { 
+            // Aggressive Cleanup
+            const ui = document.getElementById('feedback-ui');
+            ui.classList.add('hidden');
+            // FIX: Force text clear
+            document.getElementById('feedback-text').innerText = '';
+            
+            document.getElementById('correct-answer-display').innerText = ''; 
+            document.getElementById('correct-answer-display').classList.add('hidden'); 
+            document.getElementById('btn-delete').classList.add('hidden'); 
+            
+            // Clear Harmony Grid explicitly to avoid ghost answers during cadence
+            document.getElementById('harmony-grid').innerHTML = '';
+
+            state.userBuffer = []; 
+            renderUI(); 
+        }
         function toggleImagina() { state.imagina = !state.imagina; document.getElementById('imagina-dot').className = `w-1.5 h-1.5 rounded-full ${state.imagina ? 'bg-emerald-400' : 'bg-slate-700'}`; }
         function repeatTargetSound() { if(state.target) { if(state.mode === 'melody') state.target.sequence.forEach((s, i) => playTone(midiToFreq(s.midi), 0.6, 'triangle', i * 0.8, 0.4)); else playProgression(state.target.answer); } }
         function playCurrentCadence() { if(!state.isPlaying) playCadence(); }
@@ -624,9 +777,9 @@
 
         window.addEventListener('keydown', (e) => { const k = e.key.toLowerCase(); if(k === ' ' || k === 'c') startGame(); if(k === 'r') repeatTargetSound(); if(k === 'b') playCurrentCadence(); if(k === 's') toggleSprint(); if(k === 't') toggleTheme(); if(k === 'h') openModal(); if(k === 'backspace') deleteLastNote(); if(k >= '1' && k <= '6') setLevel(['basic1','basic2','inter','adv1','adv2','total'][parseInt(k)-1]); });
         window.addEventListener('touchstart', () => { if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, {passive: true});
+        
+        // Initial setup
         renderUI();
     </script>
 </body>
 </html>
-
-
