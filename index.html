@@ -17,6 +17,7 @@
                     animation: {
                         'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
                         'bounce-short': 'bounceShort 0.5s ease-in-out',
+                        'confetti': 'confettiDrop 2s ease-in-out forwards',
                     },
                     keyframes: {
                         popIn: {
@@ -26,6 +27,10 @@
                         bounceShort: {
                             '0%, 100%': { transform: 'scale(1)' },
                             '50%': { transform: 'scale(1.2)' }
+                        },
+                        confettiDrop: {
+                            '0%': { transform: 'translateY(-100vh) rotate(0deg)', opacity: '1' },
+                            '100%': { transform: 'translateY(100vh) rotate(720deg)', opacity: '0' }
                         }
                     }
                 }
@@ -120,6 +125,8 @@
         
         .combo-counter { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); font-weight: 900; color: #f59e0b; text-shadow: 0 2px 4px rgba(0,0,0,0.1); opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 160; }
         .combo-active { opacity: 1; transform: translateX(-50%) scale(1.2); }
+
+        .confetti-piece { position: absolute; width: 8px; height: 16px; background: #ffd700; opacity: 0; }
     </style>
 </head>
 <body class="select-none relative">
@@ -209,6 +216,11 @@
         </div>
 
         <div id="buffer-dots" class="buffer-indicator mb-2"></div>
+        
+        <!-- VISUAL FEEDBACK AREA (FOR IMAGINA MODE) -->
+        <div id="feedback-ui" class="hidden absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-center pointer-events-none w-full px-4">
+            <h2 id="feedback-text" class="feedback-text transition-all drop-shadow-lg"></h2>
+        </div>
 
         <!-- PIANO AREA -->
         <div id="piano-container-fixed" class="mt-auto relative z-30 pb-2 sm:pb-4">
@@ -277,19 +289,22 @@
 
     <!-- RESULT MODAL (NEW) -->
     <div id="result-modal" class="modal" style="display: none;">
-        <div class="modal-content animate-pop-in border-4 w-[90%] max-w-sm flex flex-col items-center justify-center text-center" id="result-card">
-            <div id="result-icon" class="text-6xl mb-4"></div>
-            <h2 id="result-title" class="text-3xl font-black uppercase italic mb-2"></h2>
-            <div class="w-full h-px bg-slate-200 dark:bg-slate-700 my-4"></div>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tu respuesta</p>
-            <div id="result-user" class="font-mono text-lg font-bold mb-4 opacity-75"></div>
+        <div class="modal-content animate-pop-in border-4 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden" id="result-card">
+            <!-- Confetti Container -->
+            <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
             
-            <div id="correct-block" class="hidden w-full">
+            <div id="result-icon" class="text-6xl mb-4 z-10"></div>
+            <h2 id="result-title" class="text-3xl font-black uppercase italic mb-2 z-10"></h2>
+            <div class="w-full h-px bg-slate-200 dark:bg-slate-700 my-4 z-10"></div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 z-10">Tu respuesta</p>
+            <div id="result-user" class="font-mono text-lg font-bold mb-4 opacity-75 z-10"></div>
+            
+            <div id="correct-block" class="hidden w-full z-10">
                 <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Correcto</p>
                 <div id="result-correct" class="font-mono text-xl font-black text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg border border-emerald-500/30"></div>
             </div>
 
-            <button onclick="startGame()" id="btn-continue-result" class="mt-8 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white">
+            <button onclick="startGame()" id="btn-continue-result" class="mt-8 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white z-10">
                 Continuar
             </button>
         </div>
@@ -537,16 +552,51 @@
 
         function generateQuestion() {
             state.userBuffer = []; const count = parseInt(document.getElementById('note-count-input').value) || 1;
+            
             if(state.mode === 'melody') {
-                const possible = getPossibleIntervals(); const sequence = []; let t = 0;
-                for(let i=0; i<count; i++) { const interval = possible[Math.floor(Math.random()*possible.length)]; const midi = state.keyIndex + interval; sequence.push({ interval, midi }); playTone(midiToFreq(midi), 0.7, 'triangle', t, 0.4); t += 0.8; }
-                state.target = { type: 'melody', sequence }; renderBufferDots(count); if(count > 1) document.getElementById('btn-delete').classList.remove('hidden');
+                const possible = getPossibleIntervals(); const sequence = []; 
+                for(let i=0; i<count; i++) { 
+                    const interval = possible[Math.floor(Math.random()*possible.length)]; 
+                    const midi = state.keyIndex + interval; 
+                    sequence.push({ interval, midi }); 
+                }
+                state.target = { type: 'melody', sequence }; 
+                renderBufferDots(count); 
+                if(count > 1) document.getElementById('btn-delete').classList.remove('hidden');
             } else {
-                const list = state.currentRoundTonality === 'major' ? MAJOR_PROGS : MINOR_PROGS; const correct = list[Math.floor(Math.random()*list.length)];
+                const list = state.currentRoundTonality === 'major' ? MAJOR_PROGS : MINOR_PROGS; 
+                const correct = list[Math.floor(Math.random()*list.length)];
                 const opts = [correct, ...list.filter(x=>x!==correct).sort(()=>0.5-Math.random()).slice(0,3)].sort(()=>0.5-Math.random());
-                state.target = { type: 'harmony', answer: correct, options: opts }; renderHarmonyOptions(opts); playProgression(correct);
+                state.target = { type: 'harmony', answer: correct, options: opts }; 
+                renderHarmonyOptions(opts); 
             }
-            document.getElementById('btn-repeat-base').classList.toggle('hidden', state.sprint); document.getElementById('btn-repeat-target').classList.remove('hidden');
+
+            // --- IMAGINA LOGIC ---
+            if (state.imagina) {
+                // Visual Prompt
+                const text = state.mode === 'melody' 
+                    ? `Canta: ${state.target.sequence.map(s => DEGREES[s.interval]).join(' - ')}` 
+                    : `Canta: ${state.target.answer}`; 
+                
+                const fb = document.getElementById('feedback-text');
+                fb.innerText = text;
+                fb.className = "feedback-text text-violet-400 text-2xl sm:text-4xl animate-pulse";
+                document.getElementById('feedback-ui').classList.remove('hidden');
+            } else {
+                // Audio Playback
+                if(state.mode === 'melody') {
+                    let t = 0;
+                    state.target.sequence.forEach(s => {
+                        playTone(midiToFreq(s.midi), 0.7, 'triangle', t, 0.4); 
+                        t += 0.8;
+                    });
+                } else {
+                    playProgression(state.target.answer);
+                }
+            }
+
+            document.getElementById('btn-repeat-base').classList.toggle('hidden', state.sprint); 
+            document.getElementById('btn-repeat-target').classList.remove('hidden');
         }
 
         function playProgression(progStr) { 
@@ -626,12 +676,31 @@
                     comboEl.offsetHeight; /* trigger reflow */
                     comboEl.style.animation = 'bounceShort 0.5s ease-in-out';
                 }
+                triggerConfetti(); // FIREWORKS
             } else {
                 state.streak = 0;
                 comboEl.classList.remove('combo-active');
             }
 
             showResultModal(isCorrect, user, correct);
+        }
+
+        function triggerConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = ''; // clear previous
+            
+            const colors = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6'];
+            
+            for(let i=0; i<30; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti-piece';
+                el.style.left = Math.random() * 100 + '%';
+                el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                el.style.animationDelay = Math.random() * 0.5 + 's';
+                el.style.transform = `rotate(${Math.random() * 360}deg)`;
+                el.style.animation = `confettiDrop ${1 + Math.random()}s ease-out forwards`;
+                container.appendChild(el);
+            }
         }
 
         function showResultModal(isCorrect, user, correct) {
@@ -647,25 +716,28 @@
             m.style.display = 'flex';
             
             if(isCorrect) {
-                card.className = "modal-content animate-pop-in border-4 border-emerald-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center";
+                card.className = "modal-content animate-pop-in border-4 border-emerald-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden";
                 icon.innerHTML = "🎉";
                 title.innerText = "¡Excelente!";
-                title.className = "text-3xl font-black uppercase italic mb-2 text-emerald-500";
+                title.className = "text-3xl font-black uppercase italic mb-2 text-emerald-500 z-10";
                 uText.innerText = user;
-                uText.className = "font-mono text-lg font-bold mb-4 text-emerald-600";
+                uText.className = "font-mono text-lg font-bold mb-4 text-emerald-600 z-10";
                 cBlock.classList.add('hidden');
-                btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-emerald-500 hover:bg-emerald-600";
+                btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-emerald-500 hover:bg-emerald-600 z-10";
                 registerTimeout(() => { if(m.style.display === 'flex') { m.style.display = 'none'; startGame(); } }, 1500);
             } else {
-                card.className = "modal-content animate-pop-in border-4 border-rose-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center";
+                card.className = "modal-content animate-pop-in border-4 border-rose-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden";
+                // remove confetti container if incorrect just in case
+                document.getElementById('confetti-container').innerHTML = '';
+                
                 icon.innerHTML = "❌";
                 title.innerText = "Casi...";
-                title.className = "text-3xl font-black uppercase italic mb-2 text-rose-500";
+                title.className = "text-3xl font-black uppercase italic mb-2 text-rose-500 z-10";
                 uText.innerText = user;
-                uText.className = "font-mono text-lg font-bold mb-4 text-rose-600 line-through decoration-2 opacity-70";
+                uText.className = "font-mono text-lg font-bold mb-4 text-rose-600 line-through decoration-2 opacity-70 z-10";
                 cBlock.classList.remove('hidden');
                 cText.innerText = correct;
-                btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-slate-800 hover:bg-slate-700";
+                btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-slate-800 hover:bg-slate-700 z-10";
             }
         }
 
@@ -757,7 +829,14 @@
         function renderHarmonyOptions(opts, clicked = null, correct = null) { const grid = document.getElementById('harmony-grid'); grid.innerHTML = ''; opts.forEach(o => { const btn = document.createElement('button'); const cipher = o.split(' - ').map(r => { const map = {'I':0,'IV':5,'V':7,'vi':9,'ii':2,'iii':4,'vii':11,'vii°':11,'i':0,'iv':5,'bVI':8,'bVII':10,'V/vi':4,'V/V':2,'V/IV':0,'V/ii':9}; const interval = map[r.trim().replace(/7|maj|m|°/g,'')] || 0; const note = getNoteName(state.keyLabel, interval); return note + (r.includes('m') || r.toLowerCase() === r ? 'm' : ''); }).join(' - '); btn.innerHTML = `<div class="cipher-text">${cipher}</div><div class="roman-text opacity-60 text-[7px] font-bold">${o}</div>`; if(clicked) { if(o === correct) btn.className = "p-2 border-2 border-emerald-500 bg-emerald-600/20 text-emerald-400 font-black rounded-xl shadow-lg"; else if(o === clicked) btn.className = "p-2 border-2 border-rose-500 bg-rose-600/20 text-rose-400 opacity-50 rounded-xl"; } else btn.onclick = () => checkAnswer(o); grid.appendChild(btn); }); }
         function renderBufferDots(count) { const container = document.getElementById('buffer-dots'); container.innerHTML = ''; for(let i=0; i<count; i++) { const dot = document.createElement('div'); dot.className = 'buffer-dot'; container.appendChild(dot); } }
         function toggleTheme() { document.body.classList.toggle('dark-mode'); document.documentElement.classList.toggle('dark'); const sun = document.getElementById('sun-icon'); const moon = document.getElementById('moon-icon'); if (document.body.classList.contains('dark-mode')) { sun.classList.add('hidden'); moon.classList.remove('hidden'); } else { sun.classList.remove('hidden'); moon.classList.add('hidden'); } }
-        function resetUI() { document.getElementById('result-modal').style.display = 'none'; document.getElementById('btn-delete').classList.add('hidden'); document.getElementById('harmony-grid').innerHTML = ''; state.userBuffer = []; renderUI(); }
+        function resetUI() { 
+            document.getElementById('result-modal').style.display = 'none'; 
+            document.getElementById('feedback-ui').classList.add('hidden');
+            document.getElementById('btn-delete').classList.add('hidden'); 
+            document.getElementById('harmony-grid').innerHTML = ''; 
+            state.userBuffer = []; 
+            renderUI(); 
+        }
         function toggleImagina() { state.imagina = !state.imagina; document.getElementById('imagina-dot').className = `w-1.5 h-1.5 rounded-full ${state.imagina ? 'bg-emerald-400' : 'bg-slate-700'}`; }
         function repeatTargetSound() { if(state.target) { if(state.mode === 'melody') state.target.sequence.forEach((s, i) => playTone(midiToFreq(s.midi), 0.6, 'triangle', i * 0.8, 0.4)); else playProgression(state.target.answer); } }
         function playCurrentCadence() { if(!state.isPlaying) playCadence(); }
