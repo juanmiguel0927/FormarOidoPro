@@ -83,7 +83,9 @@
         .btn-new-q:active { transform: translateY(2px); border-bottom-width: 1px; }
         .btn-sprint { background: rgba(244, 63, 94, 0.1); color: #e11d48; border-color: rgba(244, 63, 94, 0.3); }
         .btn-sprint.active-sprint { background: #e11d48; color: white; box-shadow: 0 0 15px rgba(225, 29, 72, 0.5); }
-        
+        .btn-routine { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); border: none; border-bottom: 3px solid #047857; }
+        .btn-routine:active { transform: translateY(2px); border-bottom-width: 1px; }
+
         .practice-card { background: var(--card-bg); border: 2px solid var(--border-ui); border-radius: 10px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.2s; color: var(--text-main); }
         .practice-card:hover { transform: translateY(-3px) scale(1.05); border-color: var(--accent); color: var(--accent); }
         @media (min-width: 640px) { .practice-card { width: 36px; height: 36px; font-size: 12px; } }
@@ -148,10 +150,19 @@
     <div id="session-bar-container">
         <div id="session-progress"></div>
     </div>
+    <!-- Session Timer Display -->
+    <div id="session-time-remaining" class="hidden absolute top-1 left-1/2 transform -translate-x-1/2 z-[160] bg-slate-800/80 text-white text-[10px] font-bold px-3 py-1 rounded-b-lg backdrop-blur-sm shadow-md flex items-center gap-2">
+        <span id="session-timer-text">00:00</span>
+        <span class="text-[8px] opacity-70 uppercase" id="session-phase-text">CALENTAMIENTO</span>
+    </div>
 
-    <!-- START MODAL (Nuevo) -->
+    <!-- START MODAL -->
     <div id="start-modal" class="modal" style="display: flex;">
         <div class="modal-content text-center p-8 max-w-sm" id="start-modal-content">
+            <button onclick="closeStartModalOnly()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2">
+                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            
             <!-- Initial View -->
             <div id="start-main-view">
                 <div class="mb-6 flex justify-center">
@@ -163,6 +174,11 @@
                 <p class="text-slate-500 dark:text-slate-400 mb-8 font-semibold text-sm">Elige tu modo de entrenamiento.</p>
                 
                 <div class="space-y-3">
+                    <button id="btn-continue-session" onclick="continueDailySession()" class="hidden w-full bg-orange-500 hover:bg-orange-600 text-white font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Continuar Sesión
+                    </button>
+                    
                     <button onclick="showDailyOptions()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 group">
                         <svg class="w-5 h-5 group-hover:animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         Rutina Diaria
@@ -180,6 +196,7 @@
                 </button>
                 <h2 class="text-2xl font-black text-slate-800 dark:text-white mb-2 mt-2">Configura tu Sesión</h2>
                 <p class="text-slate-500 dark:text-slate-400 mb-6 font-semibold text-xs">La constancia es la clave del éxito.</p>
+                <p class="text-slate-400 dark:text-slate-500 mb-4 font-bold text-[10px] uppercase tracking-wide">Racha Diaria: <span id="streak-modal-val" class="text-orange-500 text-lg">0</span> Días</p>
                 
                 <div class="space-y-4">
                     <button onclick="selectGameMode('daily', 'minimal')" class="w-full bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-500 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 p-4 rounded-xl text-left transition-all group">
@@ -214,7 +231,7 @@
             <button onclick="openStats()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 hover:border-violet-400 transition-colors" title="Estadísticas"><svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></button>
             <div id="sprint-timer-box" class="hidden flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/30 px-2 sm:px-3 py-1 rounded-full"><span id="timer-val" class="text-rose-500 font-mono text-xs font-bold">01:00</span></div>
             <button onclick="openModal()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 hover:border-violet-400 transition-colors" title="Ayuda (H)"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>
-            <button onclick="toggleTheme()" class="theme-toggle" title="Tema (T)"><svg id="sun-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 010-1.414zm4.707 4.707a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.414A1 1 0 016.464 5l.707.707a1 1 0 01-1.414 1.414l-.707-.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg><svg id="moon-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg></button>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Tema (T)"><svg id="sun-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.414A1 1 0 016.464 5l.707.707a1 1 0 01-1.414 1.414l-.707-.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg><svg id="moon-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg></button>
             <div class="bg-white dark:bg-slate-800 px-2 sm:px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-mono text-violet-600 dark:text-violet-400 font-bold text-xs shadow-sm"><span id="score-val">0</span></div>
         </div>
     </header>
@@ -425,6 +442,14 @@
                 </div>
             </div>
 
+            <!-- CHART AREA (NEW) -->
+            <div class="mb-6">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Progreso Reciente</p>
+                <div class="w-full h-32 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-2 flex items-end justify-between gap-1" id="chart-container">
+                    <!-- Bars injected via JS -->
+                </div>
+            </div>
+
             <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-xl border border-violet-100 dark:border-violet-800 mb-6">
                 <h4 class="font-bold text-violet-600 dark:text-violet-400 text-xs uppercase mb-2 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -475,14 +500,20 @@
         }
 
         let audioCtx;
-        let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, streak: 0, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [], username: '' };
+        // Global state structure
+        let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, streak: 0, dailyStreak: 0, lastPracticeDate: null, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [], username: '' };
         
+        // Session state structure
         let sessionState = {
             active: false,
-            queue: [],
-            currentIndex: 0,
+            type: 'minimal',
+            startTime: 0,
+            totalDuration: 0,
+            timeLeft: 0,
             correctCount: 0,
-            phase: 'warmup' // warmup, core, challenge
+            totalQuestions: 0,
+            timerId: null,
+            phase: 'warmup'
         };
 
         // INIT LOAD
@@ -491,7 +522,57 @@
             if(saved) state.history = JSON.parse(saved);
             const savedUser = localStorage.getItem('formarOidoPro_username');
             if(savedUser) state.username = savedUser;
-        } catch(e){ console.log('No history'); }
+            
+            const savedStreak = localStorage.getItem('formarOidoPro_dailyStreak');
+            const savedDate = localStorage.getItem('formarOidoPro_lastDate');
+            if(savedStreak) state.dailyStreak = parseInt(savedStreak);
+            if(savedDate) state.lastPracticeDate = savedDate;
+            
+            checkDailyStreak(); 
+
+            // Load interrupted session
+            const savedSession = localStorage.getItem('formarOidoPro_session');
+            if (savedSession) {
+                const parsedSession = JSON.parse(savedSession);
+                if (parsedSession.active && parsedSession.timeLeft > 0) {
+                    sessionState = parsedSession;
+                    // Show continue button
+                    document.getElementById('btn-continue-session').classList.remove('hidden');
+                }
+            }
+        } catch(e){ console.log('Storage Error', e); }
+
+        function saveSessionState() {
+            localStorage.setItem('formarOidoPro_session', JSON.stringify(sessionState));
+        }
+
+        function clearSessionState() {
+            localStorage.removeItem('formarOidoPro_session');
+            sessionState.active = false;
+        }
+
+        function checkDailyStreak() {
+            if (!state.lastPracticeDate) return;
+            const today = new Date().toDateString();
+            const last = new Date(state.lastPracticeDate).toDateString();
+            if (today !== last) {
+                const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+                if (yesterday.toDateString() !== last) {
+                    state.dailyStreak = 0; localStorage.setItem('formarOidoPro_dailyStreak', 0);
+                }
+            }
+        }
+
+        function updateDailyStreak() {
+            const today = new Date().toDateString();
+            const last = state.lastPracticeDate ? new Date(state.lastPracticeDate).toDateString() : null;
+            if (today !== last) {
+                state.dailyStreak++;
+                state.lastPracticeDate = new Date().toISOString();
+                localStorage.setItem('formarOidoPro_dailyStreak', state.dailyStreak);
+                localStorage.setItem('formarOidoPro_lastDate', state.lastPracticeDate);
+            }
+        }
 
         function registerTimeout(fn, delay) { const id = setTimeout(fn, delay); state.timeouts.push(id); return id; }
         function clearAllTimeouts() { state.timeouts.forEach(id => clearTimeout(id)); state.timeouts = []; }
@@ -505,62 +586,19 @@
         function stopAllSounds() { state.activeOscillators.forEach(osc => { try { osc.stop(); } catch(e) {} }); state.activeOscillators = []; state.isPlaying = false; }
         
         // --- VOICE LEADING ENGINE ---
-        function getChordIntervals(type) {
-            if (type === 'Maj') return [0, 4, 7];
-            if (type === 'Min') return [0, 3, 7];
-            if (type === 'Dim') return [0, 3, 6];
-            return [0, 4, 7];
-        }
-
+        function getChordIntervals(type) { if (type === 'Maj') return [0, 4, 7]; if (type === 'Min') return [0, 3, 7]; if (type === 'Dim') return [0, 3, 6]; return [0, 4, 7]; }
         function getBestVoicing(prevVoicing, currentRoot, currentType, currentBass) {
-            const intervals = getChordIntervals(currentType);
-            const targetPCs = intervals.map(i => (currentRoot + i) % 12);
-            if (!prevVoicing) {
-                let base = currentRoot;
-                while (base < 55) base += 12; 
-                return intervals.map(i => base + i);
-            }
-            const prevNotes = prevVoicing.notes;
-            const prevBass = prevVoicing.bass;
-            const prevPCs = prevNotes.map(n => n % 12);
-            const commonPCs = prevPCs.filter(p => targetPCs.includes(p));
-            const hasCommon = commonPCs.length > 0;
-            let forceDirection = 0; 
-            if (!hasCommon) {
-                if (currentBass > prevBass) forceDirection = -1;
-                else if (currentBass < prevBass) forceDirection = 1;
-            }
-            let candidates = [];
-            for (let r = currentRoot - 12; r <= currentRoot + 36; r += 12) {
-                candidates.push([r, r + intervals[1], r + intervals[2]]); 
-                candidates.push([r + intervals[1], r + intervals[2], r + 12]);
-                candidates.push([r + intervals[2], r + 12, r + intervals[1] + 12]); 
-            }
-            let bestCand = candidates[0];
-            let minCost = Infinity;
-            candidates.forEach(cand => {
-                cand.sort((a,b) => a - b);
-                let dist = 0;
-                let directionScore = 0;
-                for(let i=0; i<3; i++) {
-                    let d = cand[i] - prevNotes[i];
-                    dist += Math.abs(d);
-                    if (forceDirection === 1 && d < 0) directionScore += 50; 
-                    if (forceDirection === -1 && d > 0) directionScore += 50;
-                }
-                const center = cand[1];
-                const rangePenalty = Math.abs(center - 66) * 0.5;
-                const totalCost = dist + directionScore + rangePenalty;
-                if (totalCost < minCost) { minCost = totalCost; bestCand = cand; }
-            });
+            const intervals = getChordIntervals(currentType); const targetPCs = intervals.map(i => (currentRoot + i) % 12);
+            if (!prevVoicing) { let base = currentRoot; while (base < 55) base += 12; return intervals.map(i => base + i); }
+            const prevNotes = prevVoicing.notes; const prevBass = prevVoicing.bass; const prevPCs = prevNotes.map(n => n % 12);
+            const commonPCs = prevPCs.filter(p => targetPCs.includes(p)); const hasCommon = commonPCs.length > 0;
+            let forceDirection = 0; if (!hasCommon) { if (currentBass > prevBass) forceDirection = -1; else if (currentBass < prevBass) forceDirection = 1; }
+            let candidates = []; for (let r = currentRoot - 12; r <= currentRoot + 36; r += 12) { candidates.push([r, r + intervals[1], r + intervals[2]]); candidates.push([r + intervals[1], r + intervals[2], r + 12]); candidates.push([r + intervals[2], r + 12, r + intervals[1] + 12]); }
+            let bestCand = candidates[0]; let minCost = Infinity;
+            candidates.forEach(cand => { cand.sort((a,b) => a - b); let dist = 0; let directionScore = 0; for(let i=0; i<3; i++) { let d = cand[i] - prevNotes[i]; dist += Math.abs(d); if (forceDirection === 1 && d < 0) directionScore += 50; if (forceDirection === -1 && d > 0) directionScore += 50; } const center = cand[1]; const rangePenalty = Math.abs(center - 66) * 0.5; const totalCost = dist + directionScore + rangePenalty; if (totalCost < minCost) { minCost = totalCost; bestCand = cand; } });
             return bestCand;
         }
-
-        function playVoicedChord(bass, voicing, dur, start) {
-            playTone(midiToFreq(bass), dur, 'sine', start, 0.4);
-            playTone(midiToFreq(bass), dur * 0.6, 'triangle', start, 0.2);
-            voicing.forEach(n => { playTone(midiToFreq(n), dur, 'triangle', start, 0.1); });
-        }
+        function playVoicedChord(bass, voicing, dur, start) { playTone(midiToFreq(bass), dur, 'sine', start, 0.4); playTone(midiToFreq(bass), dur * 0.6, 'triangle', start, 0.2); voicing.forEach(n => { playTone(midiToFreq(n), dur, 'triangle', start, 0.1); }); }
 
         function getFunctionalClass(idx) { if ([0, 12].includes(idx)) return 'tonic'; if ([4, 7, 3].includes(idx)) return 'stable'; if ([1, 3, 6, 8, 10].includes(idx)) return 'tension'; return 'unstable'; }
         function setLevel(lvl) { state.level = lvl; document.querySelectorAll('button[id^="lvl-"]').forEach(b => b.classList.remove('active-choice')); document.getElementById(`lvl-${lvl}`)?.classList.add('active-choice'); renderUI(); }
@@ -570,112 +608,146 @@
 
         // --- GAME MODES & MODALS ---
         function showStartModal() {
+            // Unmute Audio context just in case
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            else if (!audioCtx) initAudio();
             document.getElementById('start-modal').style.display = 'flex';
-            backToMainStart(); // Reset to main view
+            backToMainStart();
         }
-
-        function showDailyOptions() {
-            document.getElementById('start-main-view').classList.add('hidden');
-            document.getElementById('start-daily-view').classList.remove('hidden');
-        }
-
-        function backToMainStart() {
-            document.getElementById('start-daily-view').classList.add('hidden');
-            document.getElementById('start-main-view').classList.remove('hidden');
-        }
-
+        function closeStartModalOnly() { document.getElementById('start-modal').style.display = 'none'; }
+        function showDailyOptions() { document.getElementById('start-main-view').classList.add('hidden'); document.getElementById('start-daily-view').classList.remove('hidden'); }
+        function backToMainStart() { document.getElementById('start-daily-view').classList.add('hidden'); document.getElementById('start-main-view').classList.remove('hidden'); }
+        
         function selectGameMode(mode, subType) {
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             else if (!audioCtx) initAudio();
-
             document.getElementById('start-modal').style.display = 'none';
-            if (mode === 'daily') {
-                startDailySession(subType);
-            } else {
-                startGame();
-            }
+            if (mode === 'daily') startDailySession(subType);
+            else { clearSessionState(); startGame(); }
         }
 
-        // --- DAILY COACH LOGIC (REVISED) ---
-        function startDailySession(type = 'minimal') {
-            sessionState.active = true;
-            sessionState.queue = generateDailyQueue(type);
-            sessionState.currentIndex = 0;
-            sessionState.correctCount = 0;
-            sessionState.phase = 'warmup';
+        // --- DAILY COACH LOGIC (TIME BASED) ---
+        function continueDailySession() {
+            if (!sessionState.active) return;
+            selectGameMode('daily-resume'); // Trigger modal close
+            startSessionTimer();
+            document.getElementById('session-bar-container').style.display = 'block';
+            document.getElementById('session-time-remaining').classList.remove('hidden');
+            updateSessionProgress();
+            // Just load next
+            loadSessionQuestion();
+        }
+
+        function startDailySession(type) {
+            if (type !== undefined) {
+                // New Session
+                const duration = type === 'minimal' ? 300 : 1200; 
+                sessionState = {
+                    active: true,
+                    type: type,
+                    startTime: Date.now(),
+                    totalDuration: duration,
+                    timeLeft: duration,
+                    correctCount: 0,
+                    totalQuestions: 0,
+                    timerId: null,
+                    phase: 'warmup'
+                };
+            }
+            // If resuming, sessionState is already loaded
             
+            document.getElementById('session-time-remaining').classList.remove('hidden');
+            startSessionTimer();
             document.getElementById('session-bar-container').style.display = 'block';
             updateSessionProgress();
             
             loadSessionQuestion();
         }
-
-        function generateDailyQueue(type) {
-            let queue = [];
-            const easyKeys = ['C', 'G'];
-            const mediumKeys = ['D', 'F', 'Bb', 'A'];
-            const hardKeys = ['B', 'F#', 'Db', 'Eb'];
-
-            if (type === 'minimal') {
-                // Total 13 Qs
-                // Warmup (3): C Major, Melody, Basic
-                for(let i=0; i<3; i++) queue.push({ type: 'melody', level: 'basic1', key: 'C', tonality: 'major' });
-                
-                // Core (7): Mixed Keys, Current Level
-                for(let i=0; i<7; i++) {
-                    const mode = i % 2 === 0 ? 'melody' : 'harmony';
-                    const k = mediumKeys[Math.floor(Math.random() * mediumKeys.length)];
-                    queue.push({ type: mode, level: 'basic2', key: k, tonality: 'major' });
+        
+        function startSessionTimer() {
+            if (sessionState.timerId) clearInterval(sessionState.timerId);
+            updateSessionTimerUI();
+            sessionState.timerId = setInterval(() => {
+                sessionState.timeLeft--;
+                saveSessionState(); // Persist every second
+                updateSessionTimerUI();
+                if (sessionState.timeLeft <= 0) {
+                    clearInterval(sessionState.timerId);
+                    endDailySession();
                 }
-                
-                // Challenge (3): Harder keys
-                for(let i=0; i<3; i++) {
-                    const k = hardKeys[Math.floor(Math.random() * hardKeys.length)];
-                    queue.push({ type: 'harmony', level: 'basic2', key: k, tonality: 'combined' });
-                }
+            }, 1000);
+        }
+        
+        function updateSessionTimerUI() {
+            const mins = Math.floor(sessionState.timeLeft / 60);
+            const secs = sessionState.timeLeft % 60;
+            document.getElementById('session-timer-text').innerText = `${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`;
+            document.getElementById('session-phase-text').innerText = getSessionPhaseText();
+        }
+        
+        function getSessionPhaseText() {
+            const elapsed = sessionState.totalDuration - sessionState.timeLeft;
+            const progress = elapsed / sessionState.totalDuration;
+            if (progress < 0.2) return "CALENTAMIENTO";
+            if (progress < 0.8) return "NÚCLEO";
+            return "DESAFÍO";
+        }
 
-            } else {
-                // OPTIMAL: Total ~40 Qs
-                // Warmup (5)
-                for(let i=0; i<5; i++) queue.push({ type: 'melody', level: 'basic1', key: easyKeys[i%2], tonality: 'major' });
-
-                // Melody Focus (10)
-                for(let i=0; i<10; i++) {
-                    const k = [...easyKeys, ...mediumKeys][Math.floor(Math.random() * 6)];
-                    queue.push({ type: 'melody', level: 'basic2', key: k, tonality: 'major' });
-                }
-
-                // Harmony Focus (10)
-                for(let i=0; i<10; i++) {
-                    const k = [...easyKeys, ...mediumKeys][Math.floor(Math.random() * 6)];
-                    queue.push({ type: 'harmony', level: 'basic1', key: k, tonality: 'combined' });
-                }
-
-                // Mixed/Imagina (10) - Simulated by random standard mixed
-                for(let i=0; i<10; i++) {
-                    const mode = Math.random() > 0.5 ? 'melody' : 'harmony';
-                    queue.push({ type: mode, level: 'inter', key: mediumKeys[0], tonality: 'major' });
-                }
-
-                // Challenge (5)
-                for(let i=0; i<5; i++) {
-                    const k = hardKeys[Math.floor(Math.random() * hardKeys.length)];
-                    queue.push({ type: 'harmony', level: 'inter', key: k, tonality: 'combined' });
-                }
-            }
+        function getDynamicQuestion() {
+            // Dynamic Generation based on Time Phase and User Streak
+            const elapsed = sessionState.totalDuration - sessionState.timeLeft;
+            const progress = elapsed / sessionState.totalDuration;
             
-            return queue;
+            // Streak Difficulty Multiplier
+            const streak = state.dailyStreak || 0;
+            const levels = ['basic1', 'basic2', 'inter', 'adv1', 'adv2'];
+            
+            // Define available keys based on streak
+            let keys = ['C', 'G'];
+            if (streak >= 4) keys = [...keys, 'F', 'D', 'Bb'];
+            if (streak >= 11) keys = ['C','G','D','A','E','B','F','Bb','Eb','Ab']; // All
+            
+            // Base Level based on streak
+            let baseLvlIdx = 0;
+            if (streak >= 4) baseLvlIdx = 1;
+            if (streak >= 15) baseLvlIdx = 2;
+            if (streak >= 30) baseLvlIdx = 3;
+            
+            // Phase Logic
+            let qLevel = levels[baseLvlIdx];
+            let qType = 'melody';
+            let qKey = 'C';
+            let qTonality = 'major';
+
+            if (progress < 0.2) { 
+                // Warmup: Easy keys, Melody, base level
+                qType = 'melody';
+                qKey = keys[Math.floor(Math.random() * Math.min(2, keys.length))]; // C or G
+                qTonality = 'major';
+            } else if (progress < 0.8) {
+                // Core: Mixed, Full keys, Current Level
+                qType = Math.random() > 0.5 ? 'melody' : 'harmony';
+                qKey = keys[Math.floor(Math.random() * keys.length)];
+                qTonality = 'combined';
+            } else {
+                // Challenge: Harder
+                qType = 'harmony';
+                qKey = keys[Math.floor(Math.random() * keys.length)];
+                qTonality = 'combined';
+                // Bump level if possible
+                const boost = Math.min(baseLvlIdx + 1, levels.length - 1);
+                qLevel = levels[boost];
+            }
+
+            return { type: qType, level: qLevel, key: qKey, tonality: qTonality };
         }
 
         function loadSessionQuestion() {
-            if (sessionState.currentIndex >= sessionState.queue.length) {
-                endDailySession();
-                return;
-            }
+            if (sessionState.timeLeft <= 0) return;
 
-            const q = sessionState.queue[sessionState.currentIndex];
+            const q = getDynamicQuestion();
             
-            // Apply settings
+            // Apply settings temporarily
             state.level = q.level;
             state.keyLabel = q.key;
             state.keyIndex = 48 + ROOT_INDICES[q.key];
@@ -690,21 +762,26 @@
         }
 
         function updateSessionProgress() {
-            const pct = (sessionState.currentIndex / sessionState.queue.length) * 100;
+            const elapsed = sessionState.totalDuration - sessionState.timeLeft;
+            const pct = (elapsed / sessionState.totalDuration) * 100;
             document.getElementById('session-progress').style.width = `${pct}%`;
         }
 
         function endDailySession() {
-            sessionState.active = false;
+            clearSessionState();
+            clearInterval(sessionState.timerId);
+            document.getElementById('session-time-remaining').classList.add('hidden');
             document.getElementById('session-bar-container').style.display = 'none';
             document.getElementById('session-summary-modal').style.display = 'flex';
-            document.getElementById('session-final-score').innerText = `${sessionState.correctCount}/${sessionState.queue.length}`;
-            saveHistory(true, "Rutina Diaria Completada");
+            document.getElementById('session-final-score').innerText = `${sessionState.correctCount}/${sessionState.totalQuestions}`;
+            
+            updateDailyStreak(); 
+            saveHistory(true, `Rutina Completada (${sessionState.type})`);
         }
 
         function closeSessionSummary() {
             document.getElementById('session-summary-modal').style.display = 'none';
-            startGame(); // Return to normal mode
+            startGame(); // Return to normal
         }
 
         // --- MAIN GAME LOGIC ---
@@ -713,7 +790,6 @@
             stopAllSounds(); clearAllTimeouts(); initAudio(); 
             state.target = null; resetUI(); 
             
-            // Only randomize if NOT in a structured session
             if (!sessionState.active) {
                 const keys = ['C','G','D','A','E','B','F','Bb','Eb','Ab'];
                 state.keyLabel = keys[Math.floor(Math.random()*keys.length)];
@@ -725,7 +801,6 @@
                 renderUI();
                 if (state.sprint) generateQuestion(); else playCadence(() => generateQuestion());
             } else {
-                // If session is active but startGame called (e.g. continue button), load next Q
                 loadSessionQuestion();
             }
         }
@@ -772,9 +847,7 @@
                 renderHarmonyOptions(opts); 
             }
 
-            // --- IMAGINA LOGIC ---
             if (state.imagina) {
-                // Visual Prompt
                 const text = state.mode === 'melody' 
                     ? `Canta: ${state.target.sequence.map(s => DEGREES[s.interval]).join(' - ')}` 
                     : `Canta: ${state.target.answer}`; 
@@ -784,7 +857,6 @@
                 fb.className = "feedback-text text-violet-400 text-2xl sm:text-4xl animate-pulse";
                 document.getElementById('feedback-ui').classList.remove('hidden');
             } else {
-                // Audio Playback
                 if(state.mode === 'melody') {
                     let t = 0;
                     state.target.sequence.forEach(s => {
@@ -862,14 +934,13 @@
         function handleResult(isCorrect, user, correct, detail) {
             saveHistory(isCorrect, detail);
             
-            // Session Logic update
             if (sessionState.active) {
+                sessionState.totalQuestions++;
                 if (isCorrect) sessionState.correctCount++;
-                sessionState.currentIndex++;
+                saveSessionState();
                 updateSessionProgress();
             }
 
-            // GAMIFICATION LOGIC
             const comboEl = document.getElementById('combo-display');
             if(isCorrect) { 
                 state.score++; 
@@ -930,7 +1001,6 @@
                 cBlock.classList.add('hidden');
                 btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-emerald-500 hover:bg-emerald-600 z-10";
                 
-                // Auto advance if session active or just normal play
                 registerTimeout(() => { if(m.style.display === 'flex') { m.style.display = 'none'; startGame(); } }, 1500);
             } else {
                 card.className = "modal-content animate-pop-in border-4 border-rose-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden";
@@ -947,7 +1017,6 @@
             }
         }
 
-        // Wrapper to handle continue button in Session Mode
         function handleContinue() {
             document.getElementById('result-modal').style.display = 'none';
             startGame();
@@ -964,19 +1033,41 @@
             const correct = h.filter(x => x.correct).length;
             const acc = total ? Math.round((correct/total)*100) : 0;
             document.getElementById('stat-accuracy').innerText = acc + "%";
-            document.getElementById('stat-streak').innerText = state.streak + " 🔥";
+            document.getElementById('stat-streak').innerText = state.dailyStreak + " 🔥";
             document.getElementById('username-input').value = state.username || '';
 
+            // Generate Chart
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '';
+            // Get last 14 entries reverse
+            const recent = h.slice(0, 14).reverse();
+            if (recent.length === 0) {
+                chartContainer.innerHTML = '<p class="w-full text-center text-[10px] text-slate-400">Sin datos aún</p>';
+            } else {
+                recent.forEach(x => {
+                    const bar = document.createElement('div');
+                    bar.className = `flex-1 rounded-t-sm ${x.correct ? 'bg-emerald-400' : 'bg-rose-400'}`;
+                    bar.style.height = x.correct ? '80%' : '30%';
+                    chartContainer.appendChild(bar);
+                });
+            }
+
+            // Suggestion Logic
             let suggestion = "Continua practicando para generar datos.";
             if(total > 5) {
                 const mel = h.filter(x=>x.mode==='melody');
                 const har = h.filter(x=>x.mode==='harmony');
                 const melAcc = mel.length ? mel.filter(x=>x.correct).length/mel.length : 1;
                 const harAcc = har.length ? har.filter(x=>x.correct).length/har.length : 1;
-                if(melAcc < harAcc && melAcc < 0.8) suggestion = "Tu oído armónico es fuerte. Enfócate en intervalos melódicos simples.";
-                else if(harAcc < melAcc && harAcc < 0.8) suggestion = "Tienes buena memoria melódica. Refuerza la identificación de progresiones.";
-                else if(acc > 90) suggestion = "¡Imparable! Es hora de subir al nivel Avanzado o Sprint.";
-                else suggestion = "Mantén el ritmo. Trata de cantar la nota antes de responder.";
+                
+                // Pros/Cons analysis
+                const pro = melAcc > harAcc ? "Melodía" : "Armonía";
+                const con = melAcc > harAcc ? "Armonía" : "Melodía";
+
+                if(melAcc < harAcc && melAcc < 0.8) suggestion = `Pro: ${pro}. Contra: ${con}. Enfócate en intervalos.`;
+                else if(harAcc < melAcc && harAcc < 0.8) suggestion = `Pro: ${pro}. Contra: ${con}. Refuerza progresiones.`;
+                else if(acc > 90) suggestion = "¡Nivel Experto! Sube la dificultad en Ajustes.";
+                else suggestion = "Mantén el ritmo. Canta antes de responder.";
             }
             document.getElementById('stat-suggestion').innerText = suggestion;
 
@@ -984,7 +1075,17 @@
             h.slice(0, 10).forEach(x => {
                 const row = document.createElement('div');
                 row.className = "flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-2 rounded text-[10px]";
-                row.innerHTML = `<span class="font-bold ${x.correct ? 'text-emerald-500' : 'text-rose-500'}">${x.correct ? 'ACIERTO' : 'FALLO'}</span> <span class="opacity-60">${x.mode} - ${x.detail}</span>`;
+                
+                const dateObj = new Date(x.date);
+                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                row.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="font-bold ${x.correct ? 'text-emerald-500' : 'text-rose-500'}">${x.correct ? 'ACIERTO' : 'FALLO'}</span>
+                        <span class="text-[8px] text-slate-400">${timeStr}</span>
+                    </div>
+                    <span class="opacity-60 text-right w-2/3 truncate">${x.mode} - ${x.detail}</span>
+                `;
                 list.appendChild(row);
             });
             document.getElementById('stats-modal').style.display = 'flex';
