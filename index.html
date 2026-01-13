@@ -16,11 +16,16 @@
                     screens: { 'xs': '380px' },
                     animation: {
                         'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                        'bounce-short': 'bounceShort 0.5s ease-in-out',
                     },
                     keyframes: {
                         popIn: {
                             '0%': { opacity: '0', transform: 'scale(0.8) translateY(20px)' },
                             '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+                        },
+                        bounceShort: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.2)' }
                         }
                     }
                 }
@@ -112,6 +117,9 @@
         .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .combo-counter { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); font-weight: 900; color: #f59e0b; text-shadow: 0 2px 4px rgba(0,0,0,0.1); opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 160; }
+        .combo-active { opacity: 1; transform: translateX(-50%) scale(1.2); }
     </style>
 </head>
 <body class="select-none relative">
@@ -121,6 +129,8 @@
             <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
         </div>
     </div>
+    
+    <div id="combo-display" class="combo-counter text-xl">COMBO x2</div>
 
     <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-2 sm:p-3 flex justify-between items-center shadow-sm z-[150] shrink-0 transition-colors duration-300 relative">
         <div class="flex items-center gap-2 sm:gap-3">
@@ -341,15 +351,70 @@
     </div>
 
     <script>
-        const KEY_SPELLINGS = { 'C': ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'], 'G': ['G','Ab','A','Bb','B','C','C#','D','Eb','E','F','F#'], 'D': ['D','Eb','E','F','F#','G','G#','A','Bb','B','C','C#'], 'A': ['A','Bb','B','C','C#','D','Eb','E','F','F#','G','G#'], 'E': ['E','F','F#','G','G#','A','Bb','B','C','C#','D','Eb'], 'B': ['B','C','C#','D','Eb','E','F','F#','G','G#','A','Bb'], 'F': ['F','Gb','G','Ab','A','Bb','B','C','Db','D','Eb','E'], 'Bb':['Bb','B','C','Db','D','Eb','E','F','Gb','G','Ab','A'], 'Eb':['Eb','E','F','Gb','G','Ab','A','Bb','B','C','Db','D'], 'Ab':['Ab','A','Bb','B','C','Db','D','Eb','E','F','Gb','G'] };
+        // SMART NOTE NAMING ENGINE
+        const BASE_NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+        const BASE_VALS = { 'C':0, 'D':2, 'E':4, 'F':5, 'G':7, 'A':9, 'B':11 };
+
         const ROOT_INDICES = { 'C': 0, 'Db': 1, 'C#': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'Ab': 8, 'G#': 8, 'A': 9, 'Bb': 10, 'B': 11 };
         const DEGREES = ['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7', '8'];
         const RESOLUTIONS = { 0:[0,-5,0], 1:[1,0], 2:[2,0], 3:[3,2,0], 4:[4,2,0], 5:[5,4,2,0], 6:[6,7,12], 7:[7,12], 8:[8,7,12], 9:[9,11,12], 10:[10,11,12], 11:[11,12], 12:[12,7,12] };
         const MAJOR_PROGS = ["I - V - I", "I - IV - I", "I - IV - V - I", "I - vi - ii - V", "ii - V - I", "I - IV - vii° - iii - vi - ii - V - I"];
         const MINOR_PROGS = ["i - V - i", "i - iv - V - i", "i - bVI - ii° - V", "ii° - V - i", "i - bVII - bVI - V"];
 
+        function getNoteName(rootName, semitonesFromRoot) {
+            // Map semitone interval to diatonic degree shift (0-6)
+            // 0=1st, 1=2nd, 2=3rd, 3=4th, 4=5th, 5=6th, 6=7th
+            const semitoneToDegreeShift = {
+                0: 0, // 1
+                1: 1, // b2
+                2: 1, // 2
+                3: 2, // b3
+                4: 2, // 3
+                5: 3, // 4
+                6: 3, // #4
+                7: 4, // 5
+                8: 5, // b6
+                9: 5, // 6
+                10: 6, // b7
+                11: 6  // 7
+            };
+
+            // Parse Root
+            let rootLetter = rootName.charAt(0);
+            let rootAccidental = rootName.slice(1);
+            let rootBaseVal = BASE_VALS[rootLetter];
+            let rootMod = (rootAccidental === '#') ? 1 : (rootAccidental === 'b' ? -1 : 0);
+            let rootAbs = (rootBaseVal + rootMod + 12) % 12;
+
+            // Target Absolute Pitch
+            let targetAbs = (rootAbs + semitonesFromRoot) % 12;
+
+            // Determine Target Letter based on Scale Degree
+            let rootIdx = BASE_NOTES.indexOf(rootLetter);
+            let degreeShift = semitoneToDegreeShift[semitonesFromRoot];
+            if (degreeShift === undefined) degreeShift = 0; // Fallback
+            let targetIdx = (rootIdx + degreeShift) % 7;
+            let targetLetter = BASE_NOTES[targetIdx];
+            
+            // Calculate necessary accidental
+            let targetBaseVal = BASE_VALS[targetLetter];
+            let diff = targetAbs - targetBaseVal;
+            
+            // Normalize diff to -6 to +6 range
+            while (diff > 6) diff -= 12;
+            while (diff < -6) diff += 12;
+            
+            let acc = "";
+            if (diff === 1) acc = "#";
+            else if (diff === 2) acc = "x";
+            else if (diff === -1) acc = "b";
+            else if (diff === -2) acc = "bb";
+            
+            return targetLetter + acc;
+        }
+
         let audioCtx;
-        let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [], username: '' };
+        let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, streak: 0, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [], username: '' };
 
         // INIT LOAD
         try {
@@ -369,7 +434,65 @@
             osc.connect(g); g.connect(state.masterOut); osc.start(t); osc.stop(t + dur); state.activeOscillators.push(osc);
         }
         function stopAllSounds() { state.activeOscillators.forEach(osc => { try { osc.stop(); } catch(e) {} }); state.activeOscillators = []; state.isPlaying = false; }
-        function playChordWithBass(root, type, dur, start, vol=0.08) { const isMin = type.toLowerCase().includes('i') || type.includes('m') || type.includes('°'); const intervals = isMin ? [0, 3, 7] : [0, 4, 7]; playTone(midiToFreq(root - 12), dur, 'sine', start, 0.28); intervals.forEach(i => playTone(midiToFreq(root + i), dur, 'triangle', start, vol)); }
+        
+        // --- VOICE LEADING ENGINE ---
+        function getChordIntervals(type) {
+            if (type === 'Maj') return [0, 4, 7];
+            if (type === 'Min') return [0, 3, 7];
+            if (type === 'Dim') return [0, 3, 6];
+            return [0, 4, 7];
+        }
+
+        function getBestVoicing(prevVoicing, currentRoot, currentType, currentBass) {
+            const intervals = getChordIntervals(currentType);
+            const targetPCs = intervals.map(i => (currentRoot + i) % 12);
+            if (!prevVoicing) {
+                let base = currentRoot;
+                while (base < 55) base += 12; 
+                return intervals.map(i => base + i);
+            }
+            const prevNotes = prevVoicing.notes;
+            const prevBass = prevVoicing.bass;
+            const prevPCs = prevNotes.map(n => n % 12);
+            const commonPCs = prevPCs.filter(p => targetPCs.includes(p));
+            const hasCommon = commonPCs.length > 0;
+            let forceDirection = 0; 
+            if (!hasCommon) {
+                if (currentBass > prevBass) forceDirection = -1;
+                else if (currentBass < prevBass) forceDirection = 1;
+            }
+            let candidates = [];
+            for (let r = currentRoot - 12; r <= currentRoot + 36; r += 12) {
+                candidates.push([r, r + intervals[1], r + intervals[2]]); 
+                candidates.push([r + intervals[1], r + intervals[2], r + 12]);
+                candidates.push([r + intervals[2], r + 12, r + intervals[1] + 12]); 
+            }
+            let bestCand = candidates[0];
+            let minCost = Infinity;
+            candidates.forEach(cand => {
+                cand.sort((a,b) => a - b);
+                let dist = 0;
+                let directionScore = 0;
+                for(let i=0; i<3; i++) {
+                    let d = cand[i] - prevNotes[i];
+                    dist += Math.abs(d);
+                    if (forceDirection === 1 && d < 0) directionScore += 50; 
+                    if (forceDirection === -1 && d > 0) directionScore += 50;
+                }
+                const center = cand[1];
+                const rangePenalty = Math.abs(center - 66) * 0.5;
+                const totalCost = dist + directionScore + rangePenalty;
+                if (totalCost < minCost) { minCost = totalCost; bestCand = cand; }
+            });
+            return bestCand;
+        }
+
+        function playVoicedChord(bass, voicing, dur, start) {
+            playTone(midiToFreq(bass), dur, 'sine', start, 0.4);
+            playTone(midiToFreq(bass), dur * 0.6, 'triangle', start, 0.2);
+            voicing.forEach(n => { playTone(midiToFreq(n), dur, 'triangle', start, 0.1); });
+        }
+
         function getFunctionalClass(idx) { if ([0, 12].includes(idx)) return 'tonic'; if ([4, 7, 3].includes(idx)) return 'stable'; if ([1, 3, 6, 8, 10].includes(idx)) return 'tension'; return 'unstable'; }
         function setLevel(lvl) { state.level = lvl; document.querySelectorAll('button[id^="lvl-"]').forEach(b => b.classList.remove('active-choice')); document.getElementById(`lvl-${lvl}`)?.classList.add('active-choice'); renderUI(); }
         function setTonalityMode(mode) { state.tonalityMode = mode; document.querySelectorAll('button[id^="ton-"]').forEach(b => b.classList.remove('active-choice')); document.getElementById(`ton-${mode}`)?.classList.add('active-choice'); renderUI(); }
@@ -379,15 +502,38 @@
         function startGame() {
             stopAllSounds(); clearAllTimeouts(); initAudio(); 
             state.target = null; resetUI(); 
-            const keys = Object.keys(KEY_SPELLINGS); state.keyLabel = keys[Math.floor(Math.random()*keys.length)];
-            state.keyIndex = 48 + { 'C':0, 'C#':1, 'Db':1, 'D':2, 'Eb':3, 'E':4, 'F':5, 'F#':6, 'Gb':6, 'G':7, 'Ab':8, 'A':9, 'Bb':10, 'B':11 }[state.keyLabel];
+            // KEYS to use. C, G, D, A, E, B, F, Bb, Eb, Ab. 
+            // Avoid extreme keys like F# or C# for now to keep it simple, or add them.
+            // Let's use the ones we have defined logic for implicitly via getNoteName (all).
+            const keys = ['C','G','D','A','E','B','F','Bb','Eb','Ab'];
+            state.keyLabel = keys[Math.floor(Math.random()*keys.length)];
+            state.keyIndex = 48 + ROOT_INDICES[state.keyLabel];
             state.currentRoundTonality = state.tonalityMode === 'combined' ? (Math.random() > 0.5 ? 'major' : 'minor') : state.tonalityMode;
             document.getElementById('key-root').innerText = state.keyLabel; document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR';
             document.getElementById('key-badge').classList.remove('hidden'); renderUI();
             if (state.sprint) generateQuestion(); else playCadence(() => generateQuestion());
         }
 
-        function playCadence(cb) { state.isPlaying = true; const r = state.keyIndex; const type = state.currentRoundTonality === 'major' ? 'Maj' : 'Min'; let t = 0; [0, 5, 7, 0].forEach(off => { playChordWithBass(r + off, type, 1.0, t); t += 1.0; }); registerTimeout(() => { if(state.isPlaying) { state.isPlaying = false; if(cb) cb(); } }, t * 1000); }
+        function playCadence(cb) { 
+            state.isPlaying = true; 
+            const type = state.currentRoundTonality === 'major' ? 'Maj' : 'Min'; 
+            let t = 0; 
+            let prevVoicing = null;
+            const degrees = [0, 5, 7, 0];
+            degrees.forEach(deg => {
+                const root = state.keyIndex + deg;
+                let bass = root;
+                while (bass >= 48) bass -= 12; 
+                if (bass < 36) bass += 12;
+                const chordType = (deg === 5 || deg === 0 || (deg === 7 && type === 'Maj')) ? 'Maj' : (type === 'Min' ? 'Min' : 'Maj'); 
+                const finalType = (deg === 7) ? 'Maj' : (deg === 0 || deg === 5 ? type : 'Maj'); 
+                const voicing = getBestVoicing(prevVoicing, root, finalType, bass);
+                playVoicedChord(bass, voicing, 1.0, t);
+                prevVoicing = { notes: voicing, bass: bass };
+                t += 1.0; 
+            }); 
+            registerTimeout(() => { if(state.isPlaying) { state.isPlaying = false; if(cb) cb(); } }, t * 1000); 
+        }
 
         function generateQuestion() {
             state.userBuffer = []; const count = parseInt(document.getElementById('note-count-input').value) || 1;
@@ -403,7 +549,23 @@
             document.getElementById('btn-repeat-base').classList.toggle('hidden', state.sprint); document.getElementById('btn-repeat-target').classList.remove('hidden');
         }
 
-        function playProgression(progStr) { const chords = progStr.split(' - '); const map = { 'I':0, 'ii':2, 'iii':4, 'IV':5, 'V':7, 'vi':9, 'vii':11, 'vii°':11, 'i':0, 'ii°':2, 'III':3, 'iv':5, 'v':7, 'VI':8, 'VII':10, 'bII':1, 'bIII':3, '#IV':6, 'bVI':8, 'bVII':10, 'V/vi':4, 'V/V':2, 'V/IV':0, 'V/ii':9 }; let t = 0; chords.forEach((c) => { const root = state.keyIndex + (map[c.trim().replace(/7|maj|m|°/g, '')] || 0); const ty = (c.includes('m') || c.toLowerCase() === c) ? 'Min' : 'Maj'; playChordWithBass(root, ty, 1.2, t); t += 1.2; }); }
+        function playProgression(progStr) { 
+            const chords = progStr.split(' - '); 
+            const map = { 'I':0, 'ii':2, 'iii':4, 'IV':5, 'V':7, 'vi':9, 'vii':11, 'vii°':11, 'i':0, 'ii°':2, 'III':3, 'iv':5, 'v':7, 'VI':8, 'VII':10, 'bII':1, 'bIII':3, '#IV':6, 'bVI':8, 'bVII':10, 'V/vi':4, 'V/V':2, 'V/IV':0, 'V/ii':9 }; 
+            let t = 0; 
+            let prevVoicing = null;
+            chords.forEach((c) => { 
+                const root = state.keyIndex + (map[c.trim().replace(/7|maj|m|°/g, '')] || 0); 
+                const ty = (c.includes('m') || c.toLowerCase() === c) ? 'Min' : 'Maj'; 
+                let bass = root;
+                while (bass >= 48) bass -= 12;
+                if (bass < 36) bass += 12;
+                const voicing = getBestVoicing(prevVoicing, root, ty, bass);
+                playVoicedChord(bass, voicing, 1.2, t);
+                prevVoicing = { notes: voicing, bass: bass };
+                t += 1.2; 
+            }); 
+        }
 
         function getPossibleIntervals() {
             const isMin = state.currentRoundTonality === 'minor';
@@ -431,7 +593,6 @@
                     userAns = state.userBuffer.map(s => DEGREES[s]).join(' - ');
                     correctAns = state.target.sequence.map(s => DEGREES[s.interval]).join(' - ');
                     detail = correctAns;
-                    
                     if(state.autoResolve && state.target.sequence.length === 1) executeVisualResolution(state.target.sequence[0].interval, false);
                     handleResult(isCorrect, userAns, correctAns, detail);
                     state.target = null;
@@ -449,7 +610,27 @@
 
         function handleResult(isCorrect, user, correct, detail) {
             saveHistory(isCorrect, detail);
-            if(isCorrect) { state.score++; document.getElementById('score-val').innerText = state.score; }
+            
+            // GAMIFICATION LOGIC
+            const comboEl = document.getElementById('combo-display');
+            if(isCorrect) { 
+                state.score++; 
+                state.streak++;
+                document.getElementById('score-val').innerText = state.score; 
+                
+                if(state.streak > 1) {
+                    comboEl.innerText = `COMBO x${state.streak} 🔥`;
+                    comboEl.classList.add('combo-active');
+                    // Add bounce animation
+                    comboEl.style.animation = 'none';
+                    comboEl.offsetHeight; /* trigger reflow */
+                    comboEl.style.animation = 'bounceShort 0.5s ease-in-out';
+                }
+            } else {
+                state.streak = 0;
+                comboEl.classList.remove('combo-active');
+            }
+
             showResultModal(isCorrect, user, correct);
         }
 
@@ -474,10 +655,7 @@
                 uText.className = "font-mono text-lg font-bold mb-4 text-emerald-600";
                 cBlock.classList.add('hidden');
                 btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-emerald-500 hover:bg-emerald-600";
-                
-                // Auto close if correct
                 registerTimeout(() => { if(m.style.display === 'flex') { m.style.display = 'none'; startGame(); } }, 1500);
-
             } else {
                 card.className = "modal-content animate-pop-in border-4 border-rose-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center";
                 icon.innerHTML = "❌";
@@ -485,10 +663,8 @@
                 title.className = "text-3xl font-black uppercase italic mb-2 text-rose-500";
                 uText.innerText = user;
                 uText.className = "font-mono text-lg font-bold mb-4 text-rose-600 line-through decoration-2 opacity-70";
-                
                 cBlock.classList.remove('hidden');
                 cText.innerText = correct;
-                
                 btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-slate-800 hover:bg-slate-700";
             }
         }
@@ -498,29 +674,21 @@
             localStorage.setItem('formarOidoPro_username', val);
         }
 
-        // STATS LOGIC
         function openStats() {
             const h = state.history;
             const total = h.length;
             const correct = h.filter(x => x.correct).length;
             const acc = total ? Math.round((correct/total)*100) : 0;
-            
-            // Streak calculation
-            let streak = 0;
-            for(let i=0; i<h.length; i++) { if(h[i].correct) streak++; else break; }
-
             document.getElementById('stat-accuracy').innerText = acc + "%";
-            document.getElementById('stat-streak').innerText = streak + " 🔥";
+            document.getElementById('stat-streak').innerText = state.streak + " 🔥";
             document.getElementById('username-input').value = state.username || '';
 
-            // Suggestion Logic
             let suggestion = "Continua practicando para generar datos.";
             if(total > 5) {
                 const mel = h.filter(x=>x.mode==='melody');
                 const har = h.filter(x=>x.mode==='harmony');
                 const melAcc = mel.length ? mel.filter(x=>x.correct).length/mel.length : 1;
                 const harAcc = har.length ? har.filter(x=>x.correct).length/har.length : 1;
-                
                 if(melAcc < harAcc && melAcc < 0.8) suggestion = "Tu oído armónico es fuerte. Enfócate en intervalos melódicos simples.";
                 else if(harAcc < melAcc && harAcc < 0.8) suggestion = "Tienes buena memoria melódica. Refuerza la identificación de progresiones.";
                 else if(acc > 90) suggestion = "¡Imparable! Es hora de subir al nivel Avanzado o Sprint.";
@@ -528,7 +696,6 @@
             }
             document.getElementById('stat-suggestion').innerText = suggestion;
 
-            // List
             const list = document.getElementById('history-list'); list.innerHTML = '';
             h.slice(0, 10).forEach(x => {
                 const row = document.createElement('div');
@@ -536,14 +703,12 @@
                 row.innerHTML = `<span class="font-bold ${x.correct ? 'text-emerald-500' : 'text-rose-500'}">${x.correct ? 'ACIERTO' : 'FALLO'}</span> <span class="opacity-60">${x.mode} - ${x.detail}</span>`;
                 list.appendChild(row);
             });
-
             document.getElementById('stats-modal').style.display = 'flex';
         }
 
         function resetStats() { state.history = []; localStorage.removeItem('formarOidoPro_history'); openStats(); }
         function closeStats() { document.getElementById('stats-modal').style.display = 'none'; }
 
-        // EXPORT / IMPORT
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.history));
             const downloadAnchorNode = document.createElement('a');
@@ -587,9 +752,9 @@
         function deleteLastNote() { if(state.userBuffer.length > 0) { const dots = document.querySelectorAll('.buffer-dot'); dots[state.userBuffer.length - 1].classList.remove('active'); state.userBuffer.pop(); } }
         function executeVisualResolution(degreeIdx, next, delay = 0) { if(parseInt(document.getElementById('note-count-input').value) > 1 && next) return; const path = RESOLUTIONS[degreeIdx] || [degreeIdx]; let t = delay / 1000; path.forEach((step, idx) => { const midi = state.keyIndex + step; const dur = (idx === path.length - 1) ? 1.0 : 0.4; playTone(midiToFreq(midi), dur, idx === 0 ? 'triangle' : 'sine', t, 0.2); registerTimeout(() => { const k = document.querySelector(`[data-interval="${step}"]`); if(k) { k.classList.add('highlight-res'); registerTimeout(() => k.classList.remove('highlight-res'), 400); } }, t * 1000); t += dur; }); if(next) registerTimeout(() => startGame(), t * 1000 + 400); }
         function renderUI() { renderPiano(); renderPracticeChips(); }
-        function renderPiano() { const stage = document.getElementById('piano-stage'); stage.innerHTML = ''; const offsets = [0, 0.6, 1, 1.6, 2, 3, 3.6, 4, 4.6, 5, 5.6, 6]; const rootOffset = ROOT_INDICES[state.keyLabel] || 0; for(let i=0; i<25; i++) { const midi = 48 + i; const abs = midi % 12; const relPos = (Math.floor(i/12)*7) + offsets[abs]; const btn = document.createElement('button'); btn.className = `piano-key ${[1, 3, 6, 8, 10].includes(abs) ? 'key-black' : 'key-white'}`; btn.style.left = `calc(${relPos} * (100% / 15))`; const functional = midi - state.keyIndex; if(functional >= 0 && functional <= 12) { btn.setAttribute('data-interval', functional); const spellingIndex = (abs - rootOffset + 12) % 12; const noteName = KEY_SPELLINGS[state.keyLabel][spellingIndex] || '?'; btn.innerHTML = `<div class="degree-tag bg-${getFunctionalClass(functional)}">${DEGREES[functional]}</div><div class="note-name color-${getFunctionalClass(functional)}">${noteName}</div>`; } btn.onclick = () => { initAudio(); playTone(midiToFreq(midi), 0.5); if(functional >= 0 && functional <= 12) checkAnswer(functional); }; stage.appendChild(btn); } }
+        function renderPiano() { const stage = document.getElementById('piano-stage'); stage.innerHTML = ''; const offsets = [0, 0.6, 1, 1.6, 2, 3, 3.6, 4, 4.6, 5, 5.6, 6]; const rootOffset = ROOT_INDICES[state.keyLabel] || 0; for(let i=0; i<25; i++) { const midi = 48 + i; const abs = midi % 12; const relPos = (Math.floor(i/12)*7) + offsets[abs]; const btn = document.createElement('button'); btn.className = `piano-key ${[1, 3, 6, 8, 10].includes(abs) ? 'key-black' : 'key-white'}`; btn.style.left = `calc(${relPos} * (100% / 15))`; const functional = midi - state.keyIndex; if(functional >= 0 && functional <= 12) { btn.setAttribute('data-interval', functional); const noteName = getNoteName(state.keyLabel, functional); btn.innerHTML = `<div class="degree-tag bg-${getFunctionalClass(functional)}">${DEGREES[functional]}</div><div class="note-name color-${getFunctionalClass(functional)}">${noteName}</div>`; } btn.onclick = () => { initAudio(); playTone(midiToFreq(midi), 0.5); if(functional >= 0 && functional <= 12) checkAnswer(functional); }; stage.appendChild(btn); } }
         function renderPracticeChips() { const container = document.getElementById('practice-chips-container'); container.innerHTML = ''; const list = getPossibleIntervals(); list.forEach(idx => { const card = document.createElement('div'); card.className = `practice-card bg-${getFunctionalClass(idx)} text-white`; card.innerHTML = DEGREES[idx]; card.onclick = () => { initAudio(); executeVisualResolution(idx, false); const k = document.querySelector(`[data-interval="${idx}"]`); if(k) { k.classList.add('highlight-res'); registerTimeout(() => k.classList.remove('highlight-res'), 600); } }; container.appendChild(card); }); }
-        function renderHarmonyOptions(opts, clicked = null, correct = null) { const grid = document.getElementById('harmony-grid'); grid.innerHTML = ''; opts.forEach(o => { const btn = document.createElement('button'); const cipher = o.split(' - ').map(r => { const map = {'I':0,'IV':5,'V':7,'vi':9,'ii':2,'iii':4,'vii':11,'vii°':11,'i':0,'iv':5,'bVI':8,'bVII':10,'V/vi':4,'V/V':2,'V/IV':0,'V/ii':9}; const note = KEY_SPELLINGS[state.keyLabel][map[r.trim().replace(/7|maj|m|°/g,'')] || 0]; return note + (r.includes('m') || r.toLowerCase() === r ? 'm' : ''); }).join(' - '); btn.innerHTML = `<div class="cipher-text">${cipher}</div><div class="roman-text opacity-60 text-[7px] font-bold">${o}</div>`; if(clicked) { if(o === correct) btn.className = "p-2 border-2 border-emerald-500 bg-emerald-600/20 text-emerald-400 font-black rounded-xl shadow-lg"; else if(o === clicked) btn.className = "p-2 border-2 border-rose-500 bg-rose-600/20 text-rose-400 opacity-50 rounded-xl"; } else btn.onclick = () => checkAnswer(o); grid.appendChild(btn); }); }
+        function renderHarmonyOptions(opts, clicked = null, correct = null) { const grid = document.getElementById('harmony-grid'); grid.innerHTML = ''; opts.forEach(o => { const btn = document.createElement('button'); const cipher = o.split(' - ').map(r => { const map = {'I':0,'IV':5,'V':7,'vi':9,'ii':2,'iii':4,'vii':11,'vii°':11,'i':0,'iv':5,'bVI':8,'bVII':10,'V/vi':4,'V/V':2,'V/IV':0,'V/ii':9}; const interval = map[r.trim().replace(/7|maj|m|°/g,'')] || 0; const note = getNoteName(state.keyLabel, interval); return note + (r.includes('m') || r.toLowerCase() === r ? 'm' : ''); }).join(' - '); btn.innerHTML = `<div class="cipher-text">${cipher}</div><div class="roman-text opacity-60 text-[7px] font-bold">${o}</div>`; if(clicked) { if(o === correct) btn.className = "p-2 border-2 border-emerald-500 bg-emerald-600/20 text-emerald-400 font-black rounded-xl shadow-lg"; else if(o === clicked) btn.className = "p-2 border-2 border-rose-500 bg-rose-600/20 text-rose-400 opacity-50 rounded-xl"; } else btn.onclick = () => checkAnswer(o); grid.appendChild(btn); }); }
         function renderBufferDots(count) { const container = document.getElementById('buffer-dots'); container.innerHTML = ''; for(let i=0; i<count; i++) { const dot = document.createElement('div'); dot.className = 'buffer-dot'; container.appendChild(dot); } }
         function toggleTheme() { document.body.classList.toggle('dark-mode'); document.documentElement.classList.toggle('dark'); const sun = document.getElementById('sun-icon'); const moon = document.getElementById('moon-icon'); if (document.body.classList.contains('dark-mode')) { sun.classList.add('hidden'); moon.classList.remove('hidden'); } else { sun.classList.remove('hidden'); moon.classList.add('hidden'); } }
         function resetUI() { document.getElementById('result-modal').style.display = 'none'; document.getElementById('btn-delete').classList.add('hidden'); document.getElementById('harmony-grid').innerHTML = ''; state.userBuffer = []; renderUI(); }
@@ -604,11 +769,10 @@
         window.addEventListener('keydown', (e) => { const k = e.key.toLowerCase(); if(document.getElementById('result-modal').style.display === 'flex' && (k === 'enter' || k === ' ')) { document.getElementById('result-modal').style.display = 'none'; startGame(); return; } if(k === ' ' || k === 'c') startGame(); if(k === 'r') repeatTargetSound(); if(k === 'b') playCurrentCadence(); if(k === 's') toggleSprint(); if(k === 't') toggleTheme(); if(k === 'h') openModal(); if(k === 'backspace') deleteLastNote(); if(k >= '1' && k <= '6') setLevel(['basic1','basic2','inter','adv1','adv2','total'][parseInt(k)-1]); });
         window.addEventListener('touchstart', () => { if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, {passive: true});
         
-        // PULL TO REFRESH LOGIC
         let touchStart = 0;
         let ptrdist = 0;
         const ptrElement = document.getElementById('ptr-indicator');
-        const scrollContainer = document.getElementById('inner-scroll-content'); // The scrollable div
+        const scrollContainer = document.getElementById('inner-scroll-content'); 
 
         scrollContainer.addEventListener('touchstart', e => {
             if (scrollContainer.scrollTop === 0) {
