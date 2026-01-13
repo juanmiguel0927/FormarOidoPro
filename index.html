@@ -18,6 +18,7 @@
                         'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
                         'bounce-short': 'bounceShort 0.5s ease-in-out',
                         'confetti': 'confettiDrop 2s ease-in-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
                         popIn: {
@@ -82,6 +83,8 @@
         .btn-new-q:active { transform: translateY(2px); border-bottom-width: 1px; }
         .btn-sprint { background: rgba(244, 63, 94, 0.1); color: #e11d48; border-color: rgba(244, 63, 94, 0.3); }
         .btn-sprint.active-sprint { background: #e11d48; color: white; box-shadow: 0 0 15px rgba(225, 29, 72, 0.5); }
+        .btn-routine { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); border: none; border-bottom: 3px solid #047857; }
+        .btn-routine:active { transform: translateY(2px); border-bottom-width: 1px; }
 
         .practice-card { background: var(--card-bg); border: 2px solid var(--border-ui); border-radius: 10px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.2s; color: var(--text-main); }
         .practice-card:hover { transform: translateY(-3px) scale(1.05); border-color: var(--accent); color: var(--accent); }
@@ -127,6 +130,10 @@
         .combo-active { opacity: 1; transform: translateX(-50%) scale(1.2); }
 
         .confetti-piece { position: absolute; width: 8px; height: 16px; background: #ffd700; opacity: 0; }
+        
+        /* Session Progress Bar */
+        #session-bar-container { width: 100%; height: 4px; background: rgba(0,0,0,0.05); position: absolute; top: 0; left: 0; z-index: 160; display: none; }
+        #session-progress { height: 100%; background: #10b981; width: 0%; transition: width 0.3s ease; }
     </style>
 </head>
 <body class="select-none relative">
@@ -138,6 +145,34 @@
     </div>
     
     <div id="combo-display" class="combo-counter text-xl">COMBO x2</div>
+    
+    <!-- Session Progress Bar -->
+    <div id="session-bar-container">
+        <div id="session-progress"></div>
+    </div>
+
+    <!-- START MODAL (Nuevo) -->
+    <div id="start-modal" class="modal" style="display: flex;">
+        <div class="modal-content text-center p-8 max-w-sm">
+            <div class="mb-6 flex justify-center">
+                <div class="bg-violet-600 p-4 rounded-2xl shadow-xl">
+                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+                </div>
+            </div>
+            <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-2">Formar Oído <span class="text-violet-500">Pro</span></h2>
+            <p class="text-slate-500 dark:text-slate-400 mb-8 font-semibold text-sm">Elige tu modo de entrenamiento para hoy.</p>
+            
+            <div class="space-y-3">
+                <button onclick="selectGameMode('daily')" class="w-full btn-routine font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 group">
+                    <svg class="w-5 h-5 group-hover:animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Rutina Diaria
+                </button>
+                <button onclick="selectGameMode('free')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+                    Entrenamiento Libre
+                </button>
+            </div>
+        </div>
+    </div>
 
     <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-2 sm:p-3 flex justify-between items-center shadow-sm z-[150] shrink-0 transition-colors duration-300 relative">
         <div class="flex items-center gap-2 sm:gap-3">
@@ -157,6 +192,7 @@
         
         <div class="overflow-y-auto max-h-[calc(100vh-200px)] no-scrollbar z-10 shrink-0 w-full" id="inner-scroll-content">
             <div class="p-2 sm:p-5 flex flex-col gap-3 sm:gap-4 max-w-4xl mx-auto w-full">
+                
                 <!-- LEVELS & CONFIG -->
                 <div class="flex flex-col gap-1.5">
                     <div class="flex justify-between items-center px-1">
@@ -304,9 +340,23 @@
                 <div id="result-correct" class="font-mono text-xl font-black text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg border border-emerald-500/30"></div>
             </div>
 
-            <button onclick="startGame()" id="btn-continue-result" class="mt-8 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white z-10">
+            <button onclick="handleContinue()" id="btn-continue-result" class="mt-8 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white z-10">
                 Continuar
             </button>
+        </div>
+    </div>
+
+    <!-- SESSION SUMMARY MODAL -->
+    <div id="session-summary-modal" class="modal" style="display: none;">
+        <div class="modal-content animate-pop-in text-center p-8 border-2 border-emerald-500">
+            <h2 class="text-3xl font-black text-emerald-500 mb-2">¡SESIÓN COMPLETADA!</h2>
+            <p class="text-slate-500 mb-6 font-bold">Has dado un paso más hacia la maestría.</p>
+            <div class="text-6xl mb-6">🏆</div>
+            <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl mb-6">
+                <p class="text-xs uppercase text-slate-400 font-bold tracking-widest">Aciertos</p>
+                <p id="session-final-score" class="text-4xl font-black text-slate-700 dark:text-white">10/13</p>
+            </div>
+            <button onclick="closeSessionSummary()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black uppercase tracking-widest text-xs shadow-lg">Finalizar</button>
         </div>
     </div>
 
@@ -377,59 +427,34 @@
         const MINOR_PROGS = ["i - V - i", "i - iv - V - i", "i - bVI - ii° - V", "ii° - V - i", "i - bVII - bVI - V"];
 
         function getNoteName(rootName, semitonesFromRoot) {
-            // Map semitone interval to diatonic degree shift (0-6)
-            // 0=1st, 1=2nd, 2=3rd, 3=4th, 4=5th, 5=6th, 6=7th
-            const semitoneToDegreeShift = {
-                0: 0, // 1
-                1: 1, // b2
-                2: 1, // 2
-                3: 2, // b3
-                4: 2, // 3
-                5: 3, // 4
-                6: 3, // #4
-                7: 4, // 5
-                8: 5, // b6
-                9: 5, // 6
-                10: 6, // b7
-                11: 6  // 7
-            };
-
-            // Parse Root
+            const semitoneToDegreeShift = { 0:0, 1:1, 2:1, 3:2, 4:2, 5:3, 6:3, 7:4, 8:5, 9:5, 10:6, 11:6 };
             let rootLetter = rootName.charAt(0);
             let rootAccidental = rootName.slice(1);
             let rootBaseVal = BASE_VALS[rootLetter];
             let rootMod = (rootAccidental === '#') ? 1 : (rootAccidental === 'b' ? -1 : 0);
             let rootAbs = (rootBaseVal + rootMod + 12) % 12;
-
-            // Target Absolute Pitch
             let targetAbs = (rootAbs + semitonesFromRoot) % 12;
-
-            // Determine Target Letter based on Scale Degree
             let rootIdx = BASE_NOTES.indexOf(rootLetter);
-            let degreeShift = semitoneToDegreeShift[semitonesFromRoot];
-            if (degreeShift === undefined) degreeShift = 0; // Fallback
+            let degreeShift = semitoneToDegreeShift[semitonesFromRoot] !== undefined ? semitoneToDegreeShift[semitonesFromRoot] : 0;
             let targetIdx = (rootIdx + degreeShift) % 7;
             let targetLetter = BASE_NOTES[targetIdx];
-            
-            // Calculate necessary accidental
             let targetBaseVal = BASE_VALS[targetLetter];
             let diff = targetAbs - targetBaseVal;
-            
-            // Normalize diff to -6 to +6 range
-            while (diff > 6) diff -= 12;
-            while (diff < -6) diff += 12;
-            
-            let acc = "";
-            if (diff === 1) acc = "#";
-            else if (diff === 2) acc = "x";
-            else if (diff === -1) acc = "b";
-            else if (diff === -2) acc = "bb";
-            
+            while (diff > 6) diff -= 12; while (diff < -6) diff += 12;
+            let acc = ""; if (diff === 1) acc = "#"; else if (diff === 2) acc = "x"; else if (diff === -1) acc = "b"; else if (diff === -2) acc = "bb";
             return targetLetter + acc;
         }
 
         let audioCtx;
         let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, streak: 0, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [], username: '' };
+        
+        let sessionState = {
+            active: false,
+            queue: [],
+            currentIndex: 0,
+            correctCount: 0,
+            phase: 'warmup' // warmup, core, challenge
+        };
 
         // INIT LOAD
         try {
@@ -514,19 +539,125 @@
         function toggleAutoResolve() { state.autoResolve = !state.autoResolve; const btn = document.getElementById('auto-resolve-btn'); btn.innerText = `Auto-Res: ${state.autoResolve ? 'ON' : 'OFF'}`; btn.className = `text-[7px] font-bold uppercase px-2 py-0.5 rounded border transition-all ${state.autoResolve ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20 hover:bg-rose-500/20'}`; }
         function setGlobalMode(m) { stopAllSounds(); state.mode = m; document.getElementById('mode-mel-btn')?.classList.toggle('active-choice', m === 'melody'); document.getElementById('mode-har-btn')?.classList.toggle('active-choice', m === 'harmony'); const isH = m === 'harmony'; document.getElementById('practice-module')?.classList.toggle('hidden', isH); document.getElementById('piano-stage')?.classList.toggle('hidden', isH); document.getElementById('harmony-grid')?.classList.toggle('hidden', !isH); resetUI(); }
 
+        // --- GAME MODES ---
+        function selectGameMode(mode) {
+            // Unmute Audio context on user gesture
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            else if (!audioCtx) initAudio();
+
+            document.getElementById('start-modal').style.display = 'none';
+            if (mode === 'daily') {
+                startDailySession();
+            } else {
+                startGame();
+            }
+        }
+
+        // --- DAILY COACH LOGIC ---
+        function startDailySession() {
+            sessionState.active = true;
+            sessionState.queue = generateDailyQueue();
+            sessionState.currentIndex = 0;
+            sessionState.correctCount = 0;
+            sessionState.phase = 'warmup';
+            
+            document.getElementById('session-bar-container').style.display = 'block';
+            updateSessionProgress();
+            
+            // Start first question
+            loadSessionQuestion();
+        }
+
+        function generateDailyQueue() {
+            let queue = [];
+            
+            // Phase 1: Warmup (3 Qs) - C Major, Basic 1, Melody
+            for(let i=0; i<3; i++) {
+                queue.push({ type: 'melody', level: 'basic1', key: 'C', tonality: 'major' });
+            }
+            
+            // Phase 2: Core (7 Qs) - Current Level, Random Key, Mixed Mode
+            for(let i=0; i<7; i++) {
+                const mode = Math.random() > 0.5 ? 'melody' : 'harmony';
+                const keys = ['C','G','D','A','E','B','F','Bb','Eb','Ab'];
+                const k = keys[Math.floor(Math.random() * keys.length)];
+                queue.push({ type: mode, level: state.level, key: k, tonality: 'combined' });
+            }
+            
+            // Phase 3: Challenge (3 Qs) - Harder Key or Higher Level
+            const hardKeys = ['B', 'F#', 'Db'];
+            for(let i=0; i<3; i++) {
+                const k = hardKeys[Math.floor(Math.random() * hardKeys.length)] || 'C';
+                queue.push({ type: 'harmony', level: state.level, key: k, tonality: 'combined' });
+            }
+            
+            return queue;
+        }
+
+        function loadSessionQuestion() {
+            if (sessionState.currentIndex >= sessionState.queue.length) {
+                endDailySession();
+                return;
+            }
+
+            const q = sessionState.queue[sessionState.currentIndex];
+            
+            // Apply settings temporarily
+            state.level = q.level;
+            state.keyLabel = q.key;
+            state.keyIndex = 48 + ROOT_INDICES[q.key];
+            state.currentRoundTonality = q.tonality === 'combined' ? (Math.random() > 0.5 ? 'major' : 'minor') : q.tonality;
+            
+            // Force Mode UI update without full reset
+            setGlobalMode(q.type); 
+            
+            // Update UI elements manually to match temp state
+            document.getElementById('key-root').innerText = state.keyLabel;
+            document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR';
+            
+            // Play
+            playCadence(() => generateQuestion());
+        }
+
+        function updateSessionProgress() {
+            const pct = (sessionState.currentIndex / sessionState.queue.length) * 100;
+            document.getElementById('session-progress').style.width = `${pct}%`;
+        }
+
+        function endDailySession() {
+            sessionState.active = false;
+            document.getElementById('session-bar-container').style.display = 'none';
+            document.getElementById('session-summary-modal').style.display = 'flex';
+            document.getElementById('session-final-score').innerText = `${sessionState.correctCount}/${sessionState.queue.length}`;
+            saveHistory(true, "Rutina Diaria Completada");
+        }
+
+        function closeSessionSummary() {
+            document.getElementById('session-summary-modal').style.display = 'none';
+            startGame(); // Return to normal mode
+        }
+
+        // --- MAIN GAME LOGIC ---
+
         function startGame() {
             stopAllSounds(); clearAllTimeouts(); initAudio(); 
             state.target = null; resetUI(); 
-            // KEYS to use. C, G, D, A, E, B, F, Bb, Eb, Ab. 
-            // Avoid extreme keys like F# or C# for now to keep it simple, or add them.
-            // Let's use the ones we have defined logic for implicitly via getNoteName (all).
-            const keys = ['C','G','D','A','E','B','F','Bb','Eb','Ab'];
-            state.keyLabel = keys[Math.floor(Math.random()*keys.length)];
-            state.keyIndex = 48 + ROOT_INDICES[state.keyLabel];
-            state.currentRoundTonality = state.tonalityMode === 'combined' ? (Math.random() > 0.5 ? 'major' : 'minor') : state.tonalityMode;
-            document.getElementById('key-root').innerText = state.keyLabel; document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR';
-            document.getElementById('key-badge').classList.remove('hidden'); renderUI();
-            if (state.sprint) generateQuestion(); else playCadence(() => generateQuestion());
+            
+            // Only randomize if NOT in a structured session
+            if (!sessionState.active) {
+                const keys = ['C','G','D','A','E','B','F','Bb','Eb','Ab'];
+                state.keyLabel = keys[Math.floor(Math.random()*keys.length)];
+                state.keyIndex = 48 + ROOT_INDICES[state.keyLabel];
+                state.currentRoundTonality = state.tonalityMode === 'combined' ? (Math.random() > 0.5 ? 'major' : 'minor') : state.tonalityMode;
+                document.getElementById('key-root').innerText = state.keyLabel; 
+                document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR';
+                document.getElementById('key-badge').classList.remove('hidden'); 
+                renderUI();
+                if (state.sprint) generateQuestion(); else playCadence(() => generateQuestion());
+            } else {
+                // If session is active but startGame called (e.g. continue button), load next Q
+                loadSessionQuestion();
+            }
         }
 
         function playCadence(cb) { 
@@ -661,6 +792,13 @@
         function handleResult(isCorrect, user, correct, detail) {
             saveHistory(isCorrect, detail);
             
+            // Session Logic update
+            if (sessionState.active) {
+                if (isCorrect) sessionState.correctCount++;
+                sessionState.currentIndex++;
+                updateSessionProgress();
+            }
+
             // GAMIFICATION LOGIC
             const comboEl = document.getElementById('combo-display');
             if(isCorrect) { 
@@ -671,12 +809,11 @@
                 if(state.streak > 1) {
                     comboEl.innerText = `COMBO x${state.streak} 🔥`;
                     comboEl.classList.add('combo-active');
-                    // Add bounce animation
                     comboEl.style.animation = 'none';
-                    comboEl.offsetHeight; /* trigger reflow */
+                    comboEl.offsetHeight; 
                     comboEl.style.animation = 'bounceShort 0.5s ease-in-out';
                 }
-                triggerConfetti(); // FIREWORKS
+                triggerConfetti(); 
             } else {
                 state.streak = 0;
                 comboEl.classList.remove('combo-active');
@@ -687,10 +824,8 @@
 
         function triggerConfetti() {
             const container = document.getElementById('confetti-container');
-            container.innerHTML = ''; // clear previous
-            
+            container.innerHTML = ''; 
             const colors = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6'];
-            
             for(let i=0; i<30; i++) {
                 const el = document.createElement('div');
                 el.className = 'confetti-piece';
@@ -724,10 +859,11 @@
                 uText.className = "font-mono text-lg font-bold mb-4 text-emerald-600 z-10";
                 cBlock.classList.add('hidden');
                 btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-emerald-500 hover:bg-emerald-600 z-10";
+                
+                // Auto advance if session active or just normal play
                 registerTimeout(() => { if(m.style.display === 'flex') { m.style.display = 'none'; startGame(); } }, 1500);
             } else {
                 card.className = "modal-content animate-pop-in border-4 border-rose-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden";
-                // remove confetti container if incorrect just in case
                 document.getElementById('confetti-container').innerHTML = '';
                 
                 icon.innerHTML = "❌";
@@ -739,6 +875,12 @@
                 cText.innerText = correct;
                 btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-slate-800 hover:bg-slate-700 z-10";
             }
+        }
+
+        // Wrapper to handle continue button in Session Mode
+        function handleContinue() {
+            document.getElementById('result-modal').style.display = 'none';
+            startGame();
         }
 
         function updateUsername(val) {
@@ -846,7 +988,6 @@
         function startTimer() { clearInterval(state.timerId); state.timerId = setInterval(() => { state.timeLeft--; document.getElementById('timer-val').innerText = `00:${state.timeLeft < 10 ? '0' : ''}${state.timeLeft}`; if (state.timeLeft <= 0) { clearInterval(state.timerId); state.sprint = false; document.getElementById('sprint-timer-box').classList.add('hidden'); } }, 1000); }
 
         window.addEventListener('keydown', (e) => { const k = e.key.toLowerCase(); if(document.getElementById('result-modal').style.display === 'flex' && (k === 'enter' || k === ' ')) { document.getElementById('result-modal').style.display = 'none'; startGame(); return; } if(k === ' ' || k === 'c') startGame(); if(k === 'r') repeatTargetSound(); if(k === 'b') playCurrentCadence(); if(k === 's') toggleSprint(); if(k === 't') toggleTheme(); if(k === 'h') openModal(); if(k === 'backspace') deleteLastNote(); if(k >= '1' && k <= '6') setLevel(['basic1','basic2','inter','adv1','adv2','total'][parseInt(k)-1]); });
-        window.addEventListener('touchstart', () => { if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, {passive: true});
         
         let touchStart = 0;
         let ptrdist = 0;
@@ -880,6 +1021,7 @@
             ptrdist = 0;
         });
 
+        // Initialize UI but wait for modal selection to start audio/game
         renderUI();
     </script>
 </body>
