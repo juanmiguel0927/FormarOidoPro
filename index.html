@@ -44,6 +44,10 @@
 
         body { font-family: 'Nunito', sans-serif; background: var(--bg-main); color: var(--text-main); height: 100vh; margin: 0; display: flex; flex-direction: column; transition: background 0.4s ease, color 0.4s ease; overflow: hidden; -webkit-user-select: none; user-select: none; }
 
+        /* PULL TO REFRESH INDICATOR */
+        #ptr-indicator { pointer-events: none; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s; transform: translateY(-100%); opacity: 0; z-index: 200; position: absolute; top: 10px; left: 0; width: 100%; display: flex; justify-content: center; }
+        .ptr-spinner { width: 30px; height: 30px; border-radius: 50%; background: var(--card-bg); box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; border: 2px solid var(--accent); color: var(--accent); }
+
         /* PIANO & UI ELEMENTS */
         .piano-viewport { width: 100%; overflow-x: auto; padding: 10px 10px 25px 10px; background: var(--bg-piano); border-top: 2px solid var(--border-ui); display: flex; justify-content: flex-start; scrollbar-width: none; box-shadow: inset 0 4px 6px rgba(0,0,0,0.05); transition: background 0.4s ease, border-color 0.4s ease; -webkit-overflow-scrolling: touch; }
         @media (min-width: 640px) { .piano-viewport { justify-content: center; } }
@@ -110,9 +114,15 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="select-none">
+<body class="select-none relative">
 
-    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-2 sm:p-3 flex justify-between items-center shadow-sm z-[150] shrink-0 transition-colors duration-300">
+    <div id="ptr-indicator">
+        <div class="ptr-spinner">
+            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        </div>
+    </div>
+
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-2 sm:p-3 flex justify-between items-center shadow-sm z-[150] shrink-0 transition-colors duration-300 relative">
         <div class="flex items-center gap-2 sm:gap-3">
             <div class="bg-violet-600 p-1.5 rounded-xl shadow-md"><svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg></div>
             <h1 class="font-black text-xs sm:text-sm tracking-tight uppercase italic text-slate-800 dark:text-white leading-tight">Formar <br class="block sm:hidden">Oído <span class="text-violet-500">Pro</span></h1>
@@ -126,9 +136,9 @@
         </div>
     </header>
 
-    <main class="flex-1 flex flex-col relative overflow-hidden bg-gradient-to-b from-transparent to-slate-100/50 dark:to-black/20">
+    <main id="main-scroll-container" class="flex-1 flex flex-col relative overflow-hidden bg-gradient-to-b from-transparent to-slate-100/50 dark:to-black/20">
         
-        <div class="overflow-y-auto max-h-[calc(100vh-200px)] no-scrollbar z-10 shrink-0 w-full">
+        <div class="overflow-y-auto max-h-[calc(100vh-200px)] no-scrollbar z-10 shrink-0 w-full" id="inner-scroll-content">
             <div class="p-2 sm:p-5 flex flex-col gap-3 sm:gap-4 max-w-4xl mx-auto w-full">
                 <!-- LEVELS & CONFIG -->
                 <div class="flex flex-col gap-1.5">
@@ -283,6 +293,23 @@
                 <button onclick="closeStats()" class="text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
             
+            <!-- USERNAME INPUT (OPTION 4) -->
+            <div class="mb-6">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nombre del Estudiante</label>
+                <input type="text" id="username-input" placeholder="Tu Nombre" oninput="updateUsername(this.value)" class="w-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-lg p-3 outline-none border border-transparent focus:border-violet-500 transition-all">
+            </div>
+
+            <div class="flex gap-2 mb-6">
+                <button onclick="exportData()" class="flex-1 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold uppercase py-2.5 rounded-lg shadow transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Exportar
+                </button>
+                <button onclick="importData()" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 text-[10px] font-bold uppercase py-2.5 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    Importar
+                </button>
+            </div>
+
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-center border border-slate-200 dark:border-slate-700">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Precisión Global</p>
@@ -322,12 +349,14 @@
         const MINOR_PROGS = ["i - V - i", "i - iv - V - i", "i - bVI - ii° - V", "ii° - V - i", "i - bVII - bVI - V"];
 
         let audioCtx;
-        let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [] };
+        let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [], username: '' };
 
         // INIT LOAD
         try {
             const saved = localStorage.getItem('formarOidoPro_history');
             if(saved) state.history = JSON.parse(saved);
+            const savedUser = localStorage.getItem('formarOidoPro_username');
+            if(savedUser) state.username = savedUser;
         } catch(e){ console.log('No history'); }
 
         function registerTimeout(fn, delay) { const id = setTimeout(fn, delay); state.timeouts.push(id); return id; }
@@ -464,6 +493,11 @@
             }
         }
 
+        function updateUsername(val) {
+            state.username = val;
+            localStorage.setItem('formarOidoPro_username', val);
+        }
+
         // STATS LOGIC
         function openStats() {
             const h = state.history;
@@ -477,6 +511,7 @@
 
             document.getElementById('stat-accuracy').innerText = acc + "%";
             document.getElementById('stat-streak').innerText = streak + " 🔥";
+            document.getElementById('username-input').value = state.username || '';
 
             // Suggestion Logic
             let suggestion = "Continua practicando para generar datos.";
@@ -508,6 +543,47 @@
         function resetStats() { state.history = []; localStorage.removeItem('formarOidoPro_history'); openStats(); }
         function closeStats() { document.getElementById('stats-modal').style.display = 'none'; }
 
+        // EXPORT / IMPORT
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.history));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            const name = state.username || 'oido';
+            const safeName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            downloadAnchorNode.setAttribute("download", `entrenamiento_${safeName}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.readAsText(file,'UTF-8');
+                reader.onload = readerEvent => {
+                    try {
+                        const content = JSON.parse(readerEvent.target.result);
+                        if (Array.isArray(content)) {
+                            state.history = content;
+                            localStorage.setItem('formarOidoPro_history', JSON.stringify(state.history));
+                            alert('Datos importados correctamente.');
+                            openStats();
+                        } else {
+                            alert('Archivo inválido.');
+                        }
+                    } catch (error) {
+                        alert('Error al leer el archivo.');
+                    }
+                }
+            }
+            input.click();
+        }
+
         function deleteLastNote() { if(state.userBuffer.length > 0) { const dots = document.querySelectorAll('.buffer-dot'); dots[state.userBuffer.length - 1].classList.remove('active'); state.userBuffer.pop(); } }
         function executeVisualResolution(degreeIdx, next, delay = 0) { if(parseInt(document.getElementById('note-count-input').value) > 1 && next) return; const path = RESOLUTIONS[degreeIdx] || [degreeIdx]; let t = delay / 1000; path.forEach((step, idx) => { const midi = state.keyIndex + step; const dur = (idx === path.length - 1) ? 1.0 : 0.4; playTone(midiToFreq(midi), dur, idx === 0 ? 'triangle' : 'sine', t, 0.2); registerTimeout(() => { const k = document.querySelector(`[data-interval="${step}"]`); if(k) { k.classList.add('highlight-res'); registerTimeout(() => k.classList.remove('highlight-res'), 400); } }, t * 1000); t += dur; }); if(next) registerTimeout(() => startGame(), t * 1000 + 400); }
         function renderUI() { renderPiano(); renderPracticeChips(); }
@@ -528,6 +604,39 @@
         window.addEventListener('keydown', (e) => { const k = e.key.toLowerCase(); if(document.getElementById('result-modal').style.display === 'flex' && (k === 'enter' || k === ' ')) { document.getElementById('result-modal').style.display = 'none'; startGame(); return; } if(k === ' ' || k === 'c') startGame(); if(k === 'r') repeatTargetSound(); if(k === 'b') playCurrentCadence(); if(k === 's') toggleSprint(); if(k === 't') toggleTheme(); if(k === 'h') openModal(); if(k === 'backspace') deleteLastNote(); if(k >= '1' && k <= '6') setLevel(['basic1','basic2','inter','adv1','adv2','total'][parseInt(k)-1]); });
         window.addEventListener('touchstart', () => { if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, {passive: true});
         
+        // PULL TO REFRESH LOGIC
+        let touchStart = 0;
+        let ptrdist = 0;
+        const ptrElement = document.getElementById('ptr-indicator');
+        const scrollContainer = document.getElementById('inner-scroll-content'); // The scrollable div
+
+        scrollContainer.addEventListener('touchstart', e => {
+            if (scrollContainer.scrollTop === 0) {
+                touchStart = e.touches[0].clientY;
+            }
+        }, {passive: true});
+
+        scrollContainer.addEventListener('touchmove', e => {
+            const y = e.touches[0].clientY;
+            if (scrollContainer.scrollTop === 0 && y > touchStart) {
+                ptrdist = y - touchStart;
+                if (ptrdist > 80) ptrdist = 80;
+                ptrElement.style.transform = `translateY(${ptrdist - 60}px)`; 
+                ptrElement.style.opacity = Math.min(1, ptrdist / 60);
+            }
+        }, {passive: true});
+
+        scrollContainer.addEventListener('touchend', () => {
+            if (ptrdist > 60) {
+                location.reload(); 
+            } else {
+                ptrElement.style.transform = 'translateY(-100%)';
+                ptrElement.style.opacity = '0';
+            }
+            touchStart = 0;
+            ptrdist = 0;
+        });
+
         renderUI();
     </script>
 </body>
