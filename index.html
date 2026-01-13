@@ -83,9 +83,7 @@
         .btn-new-q:active { transform: translateY(2px); border-bottom-width: 1px; }
         .btn-sprint { background: rgba(244, 63, 94, 0.1); color: #e11d48; border-color: rgba(244, 63, 94, 0.3); }
         .btn-sprint.active-sprint { background: #e11d48; color: white; box-shadow: 0 0 15px rgba(225, 29, 72, 0.5); }
-        .btn-routine { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); border: none; border-bottom: 3px solid #047857; }
-        .btn-routine:active { transform: translateY(2px); border-bottom-width: 1px; }
-
+        
         .practice-card { background: var(--card-bg); border: 2px solid var(--border-ui); border-radius: 10px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.2s; color: var(--text-main); }
         .practice-card:hover { transform: translateY(-3px) scale(1.05); border-color: var(--accent); color: var(--accent); }
         @media (min-width: 640px) { .practice-card { width: 36px; height: 36px; font-size: 12px; } }
@@ -153,23 +151,53 @@
 
     <!-- START MODAL (Nuevo) -->
     <div id="start-modal" class="modal" style="display: flex;">
-        <div class="modal-content text-center p-8 max-w-sm">
-            <div class="mb-6 flex justify-center">
-                <div class="bg-violet-600 p-4 rounded-2xl shadow-xl">
-                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+        <div class="modal-content text-center p-8 max-w-sm" id="start-modal-content">
+            <!-- Initial View -->
+            <div id="start-main-view">
+                <div class="mb-6 flex justify-center">
+                    <div class="bg-violet-600 p-4 rounded-2xl shadow-xl">
+                        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+                    </div>
+                </div>
+                <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-2">Formar Oído <span class="text-violet-500">Pro</span></h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-8 font-semibold text-sm">Elige tu modo de entrenamiento.</p>
+                
+                <div class="space-y-3">
+                    <button onclick="showDailyOptions()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 group">
+                        <svg class="w-5 h-5 group-hover:animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Rutina Diaria
+                    </button>
+                    <button onclick="selectGameMode('free')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+                        Entrenamiento Libre
+                    </button>
                 </div>
             </div>
-            <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-2">Formar Oído <span class="text-violet-500">Pro</span></h2>
-            <p class="text-slate-500 dark:text-slate-400 mb-8 font-semibold text-sm">Elige tu modo de entrenamiento para hoy.</p>
-            
-            <div class="space-y-3">
-                <button onclick="selectGameMode('daily')" class="w-full btn-routine font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 group">
-                    <svg class="w-5 h-5 group-hover:animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    Rutina Diaria
+
+            <!-- Daily Options View -->
+            <div id="start-daily-view" class="hidden">
+                <button onclick="backToMainStart()" class="absolute top-6 left-6 text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 </button>
-                <button onclick="selectGameMode('free')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
-                    Entrenamiento Libre
-                </button>
+                <h2 class="text-2xl font-black text-slate-800 dark:text-white mb-2 mt-2">Configura tu Sesión</h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-6 font-semibold text-xs">La constancia es la clave del éxito.</p>
+                
+                <div class="space-y-4">
+                    <button onclick="selectGameMode('daily', 'minimal')" class="w-full bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-500 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 p-4 rounded-xl text-left transition-all group">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-black text-emerald-700 dark:text-emerald-400 uppercase text-sm">Sesión Mínima</span>
+                            <span class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">5 min</span>
+                        </div>
+                        <p class="text-xs text-emerald-600/80 dark:text-emerald-400/70 font-semibold leading-tight">Activación rápida. Ideal para días ocupados. Mantén la racha.</p>
+                    </button>
+
+                    <button onclick="selectGameMode('daily', 'optimal')" class="w-full bg-violet-100 dark:bg-violet-900/30 border-2 border-violet-500 hover:bg-violet-200 dark:hover:bg-violet-900/50 p-4 rounded-xl text-left transition-all">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-black text-violet-700 dark:text-violet-400 uppercase text-sm">Sesión Óptima</span>
+                            <span class="bg-violet-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">20 min</span>
+                        </div>
+                        <p class="text-xs text-violet-600/80 dark:text-violet-400/70 font-semibold leading-tight">Entrenamiento profundo. Calentamiento, melodía, armonía y desafío.</p>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -180,6 +208,9 @@
             <h1 class="font-black text-xs sm:text-sm tracking-tight uppercase italic text-slate-800 dark:text-white leading-tight">Formar <br class="block sm:hidden">Oído <span class="text-violet-500">Pro</span></h1>
         </div>
         <div class="flex items-center gap-2 sm:gap-3">
+            <!-- NEW ROUTINE BUTTON IN HEADER -->
+            <button onclick="showStartModal()" class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full border border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 transition-colors" title="Rutina Diaria"><svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></button>
+            
             <button onclick="openStats()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 hover:border-violet-400 transition-colors" title="Estadísticas"><svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></button>
             <div id="sprint-timer-box" class="hidden flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/30 px-2 sm:px-3 py-1 rounded-full"><span id="timer-val" class="text-rose-500 font-mono text-xs font-bold">01:00</span></div>
             <button onclick="openModal()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 hover:border-violet-400 transition-colors" title="Ayuda (H)"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>
@@ -297,25 +328,23 @@
                     </div>
                 </section>
                 <section>
+                    <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Mapa de Ruta (Tiempo Recomendado)</h3>
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300">
+                        <ul class="list-disc pl-3 space-y-1">
+                            <li><strong>Constancia:</strong> 15 min diarios > 2h a la semana. El cerebro necesita dormir para asimilar.</li>
+                            <li><strong>Mes 1-3:</strong> Reconocer intervalos simples y color de acordes (Mayor/Menor).</li>
+                            <li><strong>Mes 3-6:</strong> Progresiones básicas (I-IV-V) y melodías cortas.</li>
+                            <li><strong>Año 1+:</strong> Fluidez auditiva y armonía avanzada.</li>
+                        </ul>
+                    </div>
+                </section>
+                <section>
                     <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Atajos</h3>
                     <div class="grid grid-cols-2 gap-y-2 gap-x-4 font-mono opacity-70 text-slate-600 dark:text-slate-400">
                         <div>Espacio/C: Nueva</div> <div>R/B: Sonido/Base</div>
                         <div>I: Imagina</div> <div>T: Tema</div>
                         <div>S: Sprint</div> <div>H: Ayuda</div>
                         <div>Bksp: Borrar</div> <div>1-6: Nivel</div>
-                    </div>
-                </section>
-                <section>
-                    <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Autoevaluación</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-slate-600 dark:text-slate-400 leading-relaxed">
-                        <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
-                            <h4 class="font-black text-[9px] uppercase text-slate-400 mb-2">¿Cómo vas?</h4>
-                            <ul class="list-disc pl-3 space-y-1 opacity-80">
-                                <li><strong>Lvl 1:</strong> Necesitas referencia cte.</li>
-                                <li><strong>Lvl 2:</strong> Calculas mentalmente.</li>
-                                <li><strong>Fluidez:</strong> Reconocimiento inst.</li>
-                            </ul>
-                        </div>
                     </div>
                 </section>
                 <button onclick="closeModal()" class="w-full bg-violet-600 hover:bg-violet-700 text-white py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg">Entendido</button>
@@ -539,24 +568,38 @@
         function toggleAutoResolve() { state.autoResolve = !state.autoResolve; const btn = document.getElementById('auto-resolve-btn'); btn.innerText = `Auto-Res: ${state.autoResolve ? 'ON' : 'OFF'}`; btn.className = `text-[7px] font-bold uppercase px-2 py-0.5 rounded border transition-all ${state.autoResolve ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20 hover:bg-rose-500/20'}`; }
         function setGlobalMode(m) { stopAllSounds(); state.mode = m; document.getElementById('mode-mel-btn')?.classList.toggle('active-choice', m === 'melody'); document.getElementById('mode-har-btn')?.classList.toggle('active-choice', m === 'harmony'); const isH = m === 'harmony'; document.getElementById('practice-module')?.classList.toggle('hidden', isH); document.getElementById('piano-stage')?.classList.toggle('hidden', isH); document.getElementById('harmony-grid')?.classList.toggle('hidden', !isH); resetUI(); }
 
-        // --- GAME MODES ---
-        function selectGameMode(mode) {
-            // Unmute Audio context on user gesture
+        // --- GAME MODES & MODALS ---
+        function showStartModal() {
+            document.getElementById('start-modal').style.display = 'flex';
+            backToMainStart(); // Reset to main view
+        }
+
+        function showDailyOptions() {
+            document.getElementById('start-main-view').classList.add('hidden');
+            document.getElementById('start-daily-view').classList.remove('hidden');
+        }
+
+        function backToMainStart() {
+            document.getElementById('start-daily-view').classList.add('hidden');
+            document.getElementById('start-main-view').classList.remove('hidden');
+        }
+
+        function selectGameMode(mode, subType) {
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             else if (!audioCtx) initAudio();
 
             document.getElementById('start-modal').style.display = 'none';
             if (mode === 'daily') {
-                startDailySession();
+                startDailySession(subType);
             } else {
                 startGame();
             }
         }
 
-        // --- DAILY COACH LOGIC ---
-        function startDailySession() {
+        // --- DAILY COACH LOGIC (REVISED) ---
+        function startDailySession(type = 'minimal') {
             sessionState.active = true;
-            sessionState.queue = generateDailyQueue();
+            sessionState.queue = generateDailyQueue(type);
             sessionState.currentIndex = 0;
             sessionState.correctCount = 0;
             sessionState.phase = 'warmup';
@@ -564,31 +607,61 @@
             document.getElementById('session-bar-container').style.display = 'block';
             updateSessionProgress();
             
-            // Start first question
             loadSessionQuestion();
         }
 
-        function generateDailyQueue() {
+        function generateDailyQueue(type) {
             let queue = [];
-            
-            // Phase 1: Warmup (3 Qs) - C Major, Basic 1, Melody
-            for(let i=0; i<3; i++) {
-                queue.push({ type: 'melody', level: 'basic1', key: 'C', tonality: 'major' });
-            }
-            
-            // Phase 2: Core (7 Qs) - Current Level, Random Key, Mixed Mode
-            for(let i=0; i<7; i++) {
-                const mode = Math.random() > 0.5 ? 'melody' : 'harmony';
-                const keys = ['C','G','D','A','E','B','F','Bb','Eb','Ab'];
-                const k = keys[Math.floor(Math.random() * keys.length)];
-                queue.push({ type: mode, level: state.level, key: k, tonality: 'combined' });
-            }
-            
-            // Phase 3: Challenge (3 Qs) - Harder Key or Higher Level
-            const hardKeys = ['B', 'F#', 'Db'];
-            for(let i=0; i<3; i++) {
-                const k = hardKeys[Math.floor(Math.random() * hardKeys.length)] || 'C';
-                queue.push({ type: 'harmony', level: state.level, key: k, tonality: 'combined' });
+            const easyKeys = ['C', 'G'];
+            const mediumKeys = ['D', 'F', 'Bb', 'A'];
+            const hardKeys = ['B', 'F#', 'Db', 'Eb'];
+
+            if (type === 'minimal') {
+                // Total 13 Qs
+                // Warmup (3): C Major, Melody, Basic
+                for(let i=0; i<3; i++) queue.push({ type: 'melody', level: 'basic1', key: 'C', tonality: 'major' });
+                
+                // Core (7): Mixed Keys, Current Level
+                for(let i=0; i<7; i++) {
+                    const mode = i % 2 === 0 ? 'melody' : 'harmony';
+                    const k = mediumKeys[Math.floor(Math.random() * mediumKeys.length)];
+                    queue.push({ type: mode, level: 'basic2', key: k, tonality: 'major' });
+                }
+                
+                // Challenge (3): Harder keys
+                for(let i=0; i<3; i++) {
+                    const k = hardKeys[Math.floor(Math.random() * hardKeys.length)];
+                    queue.push({ type: 'harmony', level: 'basic2', key: k, tonality: 'combined' });
+                }
+
+            } else {
+                // OPTIMAL: Total ~40 Qs
+                // Warmup (5)
+                for(let i=0; i<5; i++) queue.push({ type: 'melody', level: 'basic1', key: easyKeys[i%2], tonality: 'major' });
+
+                // Melody Focus (10)
+                for(let i=0; i<10; i++) {
+                    const k = [...easyKeys, ...mediumKeys][Math.floor(Math.random() * 6)];
+                    queue.push({ type: 'melody', level: 'basic2', key: k, tonality: 'major' });
+                }
+
+                // Harmony Focus (10)
+                for(let i=0; i<10; i++) {
+                    const k = [...easyKeys, ...mediumKeys][Math.floor(Math.random() * 6)];
+                    queue.push({ type: 'harmony', level: 'basic1', key: k, tonality: 'combined' });
+                }
+
+                // Mixed/Imagina (10) - Simulated by random standard mixed
+                for(let i=0; i<10; i++) {
+                    const mode = Math.random() > 0.5 ? 'melody' : 'harmony';
+                    queue.push({ type: mode, level: 'inter', key: mediumKeys[0], tonality: 'major' });
+                }
+
+                // Challenge (5)
+                for(let i=0; i<5; i++) {
+                    const k = hardKeys[Math.floor(Math.random() * hardKeys.length)];
+                    queue.push({ type: 'harmony', level: 'inter', key: k, tonality: 'combined' });
+                }
             }
             
             return queue;
@@ -602,20 +675,17 @@
 
             const q = sessionState.queue[sessionState.currentIndex];
             
-            // Apply settings temporarily
+            // Apply settings
             state.level = q.level;
             state.keyLabel = q.key;
             state.keyIndex = 48 + ROOT_INDICES[q.key];
             state.currentRoundTonality = q.tonality === 'combined' ? (Math.random() > 0.5 ? 'major' : 'minor') : q.tonality;
             
-            // Force Mode UI update without full reset
             setGlobalMode(q.type); 
             
-            // Update UI elements manually to match temp state
             document.getElementById('key-root').innerText = state.keyLabel;
             document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR';
             
-            // Play
             playCadence(() => generateQuestion());
         }
 
