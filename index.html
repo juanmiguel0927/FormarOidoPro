@@ -231,7 +231,7 @@
             <button onclick="openStats()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 hover:border-violet-400 transition-colors" title="Estadísticas"><svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></button>
             <div id="sprint-timer-box" class="hidden flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/30 px-2 sm:px-3 py-1 rounded-full"><span id="timer-val" class="text-rose-500 font-mono text-xs font-bold">01:00</span></div>
             <button onclick="openModal()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 hover:border-violet-400 transition-colors" title="Ayuda (H)"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>
-            <button onclick="toggleTheme()" class="theme-toggle" title="Tema (T)"><svg id="sun-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.414A1 1 0 016.464 5l.707.707a1 1 0 01-1.414 1.414l-.707-.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg><svg id="moon-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg></button>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Tema (T)"><svg id="sun-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.414A1 1 0 016.464 5l.707.707a1 1 0 01-1.414 1.414l-.707-.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg><svg id="moon-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg></button>
             <div class="bg-white dark:bg-slate-800 px-2 sm:px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-mono text-violet-600 dark:text-violet-400 font-bold text-xs shadow-sm"><span id="score-val">0</span></div>
         </div>
     </header>
@@ -394,13 +394,31 @@
 
     <!-- SESSION SUMMARY MODAL -->
     <div id="session-summary-modal" class="modal" style="display: none;">
-        <div class="modal-content animate-pop-in text-center p-8 border-2 border-emerald-500">
+        <div class="modal-content animate-pop-in text-center p-8 border-2 border-emerald-500 max-w-sm">
             <h2 class="text-3xl font-black text-emerald-500 mb-2">¡SESIÓN COMPLETADA!</h2>
             <p class="text-slate-500 mb-6 font-bold">Has dado un paso más hacia la maestría.</p>
             <div class="text-6xl mb-6">🏆</div>
             <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl mb-6">
-                <p class="text-xs uppercase text-slate-400 font-bold tracking-widest">Aciertos</p>
-                <p id="session-final-score" class="text-4xl font-black text-slate-700 dark:text-white">10/13</p>
+                <p class="text-xs uppercase text-slate-400 font-bold tracking-widest mb-2">Resumen de Sesión</p>
+                <p id="session-final-score" class="text-4xl font-black text-slate-700 dark:text-white mb-4">10/13</p>
+                
+                <!-- Detailed Breakdown -->
+                <div class="grid grid-cols-2 gap-4 text-left w-full mb-6">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800">
+                        <h4 class="font-bold text-blue-600 dark:text-blue-400 text-[10px] uppercase mb-2 border-b border-blue-200 pb-1">Melodía</h4>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-emerald-500 font-bold">✓ <span id="summary-mel-correct">0</span></span>
+                            <span class="text-rose-500 font-bold">✗ <span id="summary-mel-wrong">0</span></span>
+                        </div>
+                    </div>
+                    <div class="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-100 dark:border-purple-800">
+                        <h4 class="font-bold text-purple-600 dark:text-purple-400 text-[10px] uppercase mb-2 border-b border-purple-200 pb-1">Armonía</h4>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-emerald-500 font-bold">✓ <span id="summary-har-correct">0</span></span>
+                            <span class="text-rose-500 font-bold">✗ <span id="summary-har-wrong">0</span></span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <button onclick="closeSessionSummary()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black uppercase tracking-widest text-xs shadow-lg">Finalizar</button>
         </div>
@@ -513,7 +531,8 @@
             correctCount: 0,
             totalQuestions: 0,
             timerId: null,
-            phase: 'warmup'
+            phase: 'warmup',
+            stats: { melCorrect: 0, melTotal: 0, harCorrect: 0, harTotal: 0 }
         };
 
         // INIT LOAD
@@ -600,9 +619,33 @@
         }
         function playVoicedChord(bass, voicing, dur, start) { playTone(midiToFreq(bass), dur, 'sine', start, 0.4); playTone(midiToFreq(bass), dur * 0.6, 'triangle', start, 0.2); voicing.forEach(n => { playTone(midiToFreq(n), dur, 'triangle', start, 0.1); }); }
 
-        function getFunctionalClass(idx) { if ([0, 12].includes(idx)) return 'tonic'; if ([4, 7, 3].includes(idx)) return 'stable'; if ([1, 3, 6, 8, 10].includes(idx)) return 'tension'; return 'unstable'; }
+        function getFunctionalClass(idx) { 
+            const isMin = state.currentRoundTonality === 'minor';
+            if (idx === 0 || idx === 12) return 'tonic';
+            if (idx === 7) return 'stable';
+            if (isMin) {
+                if ([3].includes(idx)) return 'stable';
+            } else {
+                if ([4].includes(idx)) return 'stable';
+            }
+            return 'unstable'; 
+        }
+
         function setLevel(lvl) { state.level = lvl; document.querySelectorAll('button[id^="lvl-"]').forEach(b => b.classList.remove('active-choice')); document.getElementById(`lvl-${lvl}`)?.classList.add('active-choice'); renderUI(); }
-        function setTonalityMode(mode) { state.tonalityMode = mode; document.querySelectorAll('button[id^="ton-"]').forEach(b => b.classList.remove('active-choice')); document.getElementById(`ton-${mode}`)?.classList.add('active-choice'); renderUI(); }
+        
+        function setTonalityMode(mode) { 
+            state.tonalityMode = mode; 
+            document.querySelectorAll('button[id^="ton-"]').forEach(b => b.classList.remove('active-choice')); 
+            document.getElementById(`ton-${mode}`)?.classList.add('active-choice'); 
+
+            // IMMEDIATE UPDATE
+            if (mode === 'major') state.currentRoundTonality = 'major';
+            else if (mode === 'minor') state.currentRoundTonality = 'minor';
+            
+            document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR';
+            renderUI(); 
+        }
+
         function toggleAutoResolve() { state.autoResolve = !state.autoResolve; const btn = document.getElementById('auto-resolve-btn'); btn.innerText = `Auto-Res: ${state.autoResolve ? 'ON' : 'OFF'}`; btn.className = `text-[7px] font-bold uppercase px-2 py-0.5 rounded border transition-all ${state.autoResolve ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20 hover:bg-rose-500/20'}`; }
         function setGlobalMode(m) { stopAllSounds(); state.mode = m; document.getElementById('mode-mel-btn')?.classList.toggle('active-choice', m === 'melody'); document.getElementById('mode-har-btn')?.classList.toggle('active-choice', m === 'harmony'); const isH = m === 'harmony'; document.getElementById('practice-module')?.classList.toggle('hidden', isH); document.getElementById('piano-stage')?.classList.toggle('hidden', isH); document.getElementById('harmony-grid')?.classList.toggle('hidden', !isH); resetUI(); }
 
@@ -651,7 +694,8 @@
                     correctCount: 0,
                     totalQuestions: 0,
                     timerId: null,
-                    phase: 'warmup'
+                    phase: 'warmup',
+                    stats: { melCorrect: 0, melTotal: 0, harCorrect: 0, harTotal: 0 }
                 };
             }
             // If resuming, sessionState is already loaded
@@ -772,8 +816,15 @@
             clearInterval(sessionState.timerId);
             document.getElementById('session-time-remaining').classList.add('hidden');
             document.getElementById('session-bar-container').style.display = 'none';
-            document.getElementById('session-summary-modal').style.display = 'flex';
+            
+            // Update Summary UI
             document.getElementById('session-final-score').innerText = `${sessionState.correctCount}/${sessionState.totalQuestions}`;
+            document.getElementById('summary-mel-correct').innerText = sessionState.stats.melCorrect;
+            document.getElementById('summary-mel-wrong').innerText = sessionState.stats.melTotal - sessionState.stats.melCorrect;
+            document.getElementById('summary-har-correct').innerText = sessionState.stats.harCorrect;
+            document.getElementById('summary-har-wrong').innerText = sessionState.stats.harTotal - sessionState.stats.harCorrect;
+            
+            document.getElementById('session-summary-modal').style.display = 'flex';
             
             updateDailyStreak(); 
             saveHistory(true, `Rutina Completada (${sessionState.type})`);
@@ -892,8 +943,17 @@
 
         function getPossibleIntervals() {
             const isMin = state.currentRoundTonality === 'minor';
-            if (state.level === 'basic1') return isMin ? [0, 2, 3, 5] : [0, 2, 4, 5]; if (state.level === 'basic2') return isMin ? [7, 8, 10, 12] : [7, 9, 11, 12];
-            if (state.level === 'inter') return [0, 2, 3, 4, 5, 7, 9, 11, 12]; if (state.level === 'adv1') return [0, 1, 2, 3, 4, 5]; if (state.level === 'adv2') return [6, 7, 8, 9, 10, 11, 12];
+            if (state.level === 'basic1') {
+                return isMin ? [0, 2, 3, 5] : [0, 2, 4, 5];
+            }
+            if (state.level === 'basic2') {
+                return isMin ? [7, 8, 10, 12] : [7, 9, 11, 12];
+            }
+            if (state.level === 'inter') {
+                return isMin ? [0, 2, 3, 5, 7, 8, 10, 12] : [0, 2, 4, 5, 7, 9, 11, 12];
+            }
+            if (state.level === 'adv1') return [0, 1, 2, 3, 4, 5]; 
+            if (state.level === 'adv2') return [6, 7, 8, 9, 10, 11, 12];
             return Array.from({length: 13}, (_, i) => i);
         }
 
@@ -937,6 +997,16 @@
             if (sessionState.active) {
                 sessionState.totalQuestions++;
                 if (isCorrect) sessionState.correctCount++;
+                
+                const isMelody = state.mode === 'melody';
+                if (isMelody) {
+                    sessionState.stats.melTotal++;
+                    if (isCorrect) sessionState.stats.melCorrect++;
+                } else {
+                    sessionState.stats.harTotal++;
+                    if (isCorrect) sessionState.stats.harCorrect++;
+                }
+
                 saveSessionState();
                 updateSessionProgress();
             }
