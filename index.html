@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Formar Oído Pro </title>
+    <title>Formar Oído Pro - Trainer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -60,9 +60,9 @@
         .ptr-spinner { width: 30px; height: 30px; border-radius: 50%; background: var(--card-bg); box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; border: 2px solid var(--accent); color: var(--accent); }
 
         /* PIANO & UI ELEMENTS */
-        .piano-viewport { width: 100%; overflow-x: auto; padding: 10px 10px 25px 10px; background: var(--bg-piano); border-top: 2px solid var(--border-ui); display: flex; justify-content: flex-start; scrollbar-width: none; box-shadow: inset 0 4px 6px rgba(0,0,0,0.05); transition: background 0.4s ease, border-color 0.4s ease; -webkit-overflow-scrolling: touch; }
+        .piano-viewport { width: 100%; overflow-x: auto; padding: 10px 10px 20px 10px; background: var(--bg-piano); border-top: 2px solid var(--border-ui); display: flex; justify-content: flex-start; scrollbar-width: none; box-shadow: inset 0 4px 6px rgba(0,0,0,0.05); transition: background 0.4s ease, border-color 0.4s ease; -webkit-overflow-scrolling: touch; }
         @media (min-width: 640px) { .piano-viewport { justify-content: center; } }
-        .piano-stage { position: relative; height: 140px; min-width: 600px; width: 100%; max-width: 920px; margin: 0 auto; flex-shrink: 0; }
+        .piano-stage { position: relative; height: 120px; min-width: 600px; width: 100%; max-width: 920px; margin: 0 auto; flex-shrink: 0; }
         
         .key-white { position: absolute; top: 0; width: calc(100% / 15); height: 100%; background: linear-gradient(to bottom, #ffffff 0%, #f1f5f9 100%); border: 1px solid #cbd5e1; border-bottom: 4px solid #94a3b8; border-radius: 0 0 6px 6px; z-index: 1; cursor: pointer; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 8px; -webkit-tap-highlight-color: transparent; transition: transform 0.1s; }
         .key-white:active { transform: scale(0.98); border-bottom-width: 2px; }
@@ -75,13 +75,11 @@
         .control-btn { padding: 8px 2px; border-radius: 10px; font-size: 9px; font-weight: 800; color: #64748b; cursor: pointer; border: 1px solid transparent; background: transparent; transition: all 0.2s; text-align: center; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.05em; overflow: hidden; text-overflow: ellipsis; }
         .active-choice { background: var(--accent) !important; color: white !important; box-shadow: var(--active-glow) !important; border-color: rgba(255,255,255,0.2) !important; transform: scale(1.02); font-weight: 900 !important; }
 
-        .action-line-container { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; align-items: center; }
-        @media (min-width: 640px) { .action-line-container { grid-template-columns: 1fr 1.5fr 1fr 0.8fr; } }
-        .compact-btn { background: var(--card-bg); border: 1px solid var(--border-ui); border-radius: 12px; padding: 0 8px; font-size: 10px; font-weight: 800; color: #64748b; text-align: center; white-space: nowrap; display: flex; align-items: center; justify-content: center; height: 42px; transition: all 0.1s; }
-        .force-upper { text-transform: uppercase; letter-spacing: 0.05em; }
-        .btn-new-q { background: var(--accent); color: white; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3); border: none; border-bottom: 3px solid #6d28d9; }
-        .btn-new-q:active { transform: translateY(2px); border-bottom-width: 1px; }
-        .btn-sprint { background: rgba(244, 63, 94, 0.1); color: #e11d48; border-color: rgba(244, 63, 94, 0.3); }
+        /* Action Line Adjusted */
+        .action-line-container { display: flex; gap: 8px; width: 100%; align-items: center; justify-content: space-between; }
+        .compact-badge { background: var(--card-bg); border: 1px solid var(--border-ui); border-radius: 12px; padding: 0 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 42px; min-width: 60px; }
+        
+        .btn-sprint { background: rgba(244, 63, 94, 0.1); color: #e11d48; border: 1px solid rgba(244, 63, 94, 0.3); padding: 0 12px; border-radius: 12px; height: 42px; font-weight: 800; font-size: 10px; text-transform: uppercase; transition: all 0.2s; }
         .btn-sprint.active-sprint { background: #e11d48; color: white; box-shadow: 0 0 15px rgba(225, 29, 72, 0.5); }
         .btn-routine { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); border: none; border-bottom: 3px solid #047857; }
         .btn-routine:active { transform: translateY(2px); border-bottom-width: 1px; }
@@ -99,9 +97,8 @@
         .bg-unstable { background: var(--c-unstable) !important; color: white !important; border: none; }
         .bg-tension { background: var(--c-tension) !important; color: white !important; border: none; }
 
-        .degree-tag { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 8px; }
-        .note-name { font-size: 8px; font-weight: 800; font-family: 'Fira Code', monospace; margin-top: 3px; text-transform: none; }
-        @media (min-width: 640px) { .degree-tag { width: 20px; height: 20px; font-size: 9px; } .note-name { font-size: 9px; } }
+        .degree-tag { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 7px; }
+        .note-name { font-size: 7px; font-weight: 800; font-family: 'Fira Code', monospace; margin-top: 2px; text-transform: none; }
         
         .highlight-res { background: #fbbf24 !important; z-index: 60 !important; transform: scale(1.05); border-color: #f59e0b !important; box-shadow: 0 0 15px #f59e0b !important; }
         .buffer-indicator { display: flex; gap: 6px; margin-top: 10px; justify-content: center; }
@@ -118,7 +115,7 @@
         .modal-content { background: var(--card-bg); color: var(--text-main); max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; border-radius: 24px; padding: 24px; border: 1px solid var(--border-ui); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
 
         .input-mini { width: 100%; height: 100%; background: transparent; text-align: center; font-weight: 900; font-size: 11px; color: var(--accent); outline: none; border: none; }
-        .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--card-bg); border: 1px solid var(--border-ui); border-radius: 12px; height: 42px; }
+        .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--card-bg); border: 1px solid var(--border-ui); border-radius: 12px; height: 42px; min-width: 60px; }
         .timer-label { font-size: 7px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: -2px; }
         #practice-chips-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; padding: 4px; width: 100%; }
         .theme-toggle { cursor: pointer; padding: 8px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border-ui); display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: #64748b; }
@@ -128,267 +125,204 @@
         
         .combo-counter { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); font-weight: 900; color: #f59e0b; text-shadow: 0 2px 4px rgba(0,0,0,0.1); opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 160; }
         .combo-active { opacity: 1; transform: translateX(-50%) scale(1.2); }
-
         .confetti-piece { position: absolute; width: 8px; height: 16px; background: #ffd700; opacity: 0; }
         
-        /* Session Progress Bar */
         #session-bar-container { width: 100%; height: 4px; background: rgba(0,0,0,0.05); position: absolute; top: 0; left: 0; z-index: 160; display: none; }
         #session-progress { height: 100%; background: #10b981; width: 0%; transition: width 0.3s ease; }
+
+        /* NEW BOTTOM DOCK STYLES */
+        .bottom-dock { padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 20px rgba(0,0,0,0.05); }
+        .dock-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; transition: all 0.1s; cursor: pointer; height: 52px; position: relative; overflow: hidden; }
+        .dock-btn:active { transform: scale(0.95); }
+        .btn-main-action { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
     </style>
 </head>
-<body class="select-none relative">
+<body class="select-none relative flex flex-col h-screen overflow-hidden">
 
-    <div id="ptr-indicator">
-        <div class="ptr-spinner">
-            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-        </div>
-    </div>
+    <div id="ptr-indicator"><div class="ptr-spinner"><svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div></div>
     
     <div id="combo-display" class="combo-counter text-xl">COMBO x2</div>
-    
-    <!-- Session Progress Bar -->
-    <div id="session-bar-container">
-        <div id="session-progress"></div>
-    </div>
-    <!-- Session Timer Display -->
+    <div id="session-bar-container"><div id="session-progress"></div></div>
     <div id="session-time-remaining" class="hidden absolute top-1 left-1/2 transform -translate-x-1/2 z-[160] bg-slate-800/80 text-white text-[10px] font-bold px-3 py-1 rounded-b-lg backdrop-blur-sm shadow-md flex items-center gap-2">
-        <span id="session-timer-text">00:00</span>
-        <span class="text-[8px] opacity-70 uppercase" id="session-phase-text">CALENTAMIENTO</span>
+        <span id="session-timer-text">00:00</span><span class="text-[8px] opacity-70 uppercase" id="session-phase-text">CALENTAMIENTO</span>
+        <button onclick="requestEndSession()" class="ml-2 text-rose-400 hover:text-rose-500 font-bold text-xs">✕</button>
     </div>
 
     <!-- START MODAL -->
     <div id="start-modal" class="modal" style="display: flex;">
         <div class="modal-content text-center p-8 max-w-sm" id="start-modal-content">
-            <button onclick="closeStartModalOnly()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2">
-                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-            
-            <!-- Initial View -->
+            <button onclick="closeStartModalOnly()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
             <div id="start-main-view">
-                <div class="mb-6 flex justify-center">
-                    <div class="bg-violet-600 p-4 rounded-2xl shadow-xl">
-                        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-                    </div>
-                </div>
+                <div class="mb-6 flex justify-center"><div class="bg-violet-600 p-4 rounded-2xl shadow-xl"><svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg></div></div>
                 <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-2">Formar Oído <span class="text-violet-500">Pro</span></h2>
                 <p class="text-slate-500 dark:text-slate-400 mb-8 font-semibold text-sm">Elige tu modo de entrenamiento.</p>
-                
                 <div class="space-y-3">
-                    <button id="btn-continue-session" onclick="continueDailySession()" class="hidden w-full bg-orange-500 hover:bg-orange-600 text-white font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Continuar Sesión
-                    </button>
-                    
-                    <button onclick="showDailyOptions()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 group">
-                        <svg class="w-5 h-5 group-hover:animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Rutina Diaria
-                    </button>
-                    <button onclick="selectGameMode('free')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
-                        Entrenamiento Libre
-                    </button>
+                    <button id="btn-continue-session" onclick="continueDailySession()" class="hidden w-full bg-orange-500 hover:bg-orange-600 text-white font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Continuar Sesión</button>
+                    <button onclick="showDailyOptions()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 group"><svg class="w-5 h-5 group-hover:animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Rutina Diaria</button>
+                    <button onclick="selectGameMode('free')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Entrenamiento Libre</button>
                 </div>
             </div>
-
-            <!-- Daily Options View -->
             <div id="start-daily-view" class="hidden">
-                <button onclick="backToMainStart()" class="absolute top-6 left-6 text-slate-400 hover:text-slate-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                </button>
+                <button onclick="backToMainStart()" class="absolute top-6 left-6 text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg></button>
                 <h2 class="text-2xl font-black text-slate-800 dark:text-white mb-2 mt-2">Configura tu Sesión</h2>
                 <p class="text-slate-500 dark:text-slate-400 mb-6 font-semibold text-xs">La constancia es la clave del éxito.</p>
                 <p class="text-slate-400 dark:text-slate-500 mb-4 font-bold text-[10px] uppercase tracking-wide">Racha Diaria: <span id="streak-modal-val" class="text-orange-500 text-lg">0</span> Días</p>
-                
                 <div class="space-y-4">
-                    <button onclick="selectGameMode('daily', 'minimal')" class="w-full bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-500 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 p-4 rounded-xl text-left transition-all group">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-black text-emerald-700 dark:text-emerald-400 uppercase text-sm">Sesión Mínima</span>
-                            <span class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">5 min</span>
-                        </div>
-                        <p class="text-xs text-emerald-600/80 dark:text-emerald-400/70 font-semibold leading-tight">Activación rápida. Ideal para días ocupados. Mantén la racha.</p>
-                    </button>
-
-                    <button onclick="selectGameMode('daily', 'optimal')" class="w-full bg-violet-100 dark:bg-violet-900/30 border-2 border-violet-500 hover:bg-violet-200 dark:hover:bg-violet-900/50 p-4 rounded-xl text-left transition-all">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-black text-violet-700 dark:text-violet-400 uppercase text-sm">Sesión Óptima</span>
-                            <span class="bg-violet-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">20 min</span>
-                        </div>
-                        <p class="text-xs text-violet-600/80 dark:text-violet-400/70 font-semibold leading-tight">Entrenamiento profundo. Calentamiento, melodía, armonía y desafío.</p>
-                    </button>
+                    <button onclick="selectGameMode('daily', 'minimal')" class="w-full bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-500 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 p-4 rounded-xl text-left transition-all group"><div class="flex justify-between items-center mb-1"><span class="font-black text-emerald-700 dark:text-emerald-400 uppercase text-sm">Sesión Mínima</span><span class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">5 min</span></div><p class="text-xs text-emerald-600/80 dark:text-emerald-400/70 font-semibold leading-tight">Activación rápida. Ideal para días ocupados. Mantén la racha.</p></button>
+                    <button onclick="selectGameMode('daily', 'optimal')" class="w-full bg-violet-100 dark:bg-violet-900/30 border-2 border-violet-500 hover:bg-violet-200 dark:hover:bg-violet-900/50 p-4 rounded-xl text-left transition-all"><div class="flex justify-between items-center mb-1"><span class="font-black text-violet-700 dark:text-violet-400 uppercase text-sm">Sesión Óptima</span><span class="bg-violet-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">20 min</span></div><p class="text-xs text-violet-600/80 dark:text-violet-400/70 font-semibold leading-tight">Entrenamiento profundo. Calentamiento, melodía, armonía y desafío.</p></button>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- CONFIRM EXIT MODAL -->
+    <div id="confirm-exit-modal" class="modal" style="display: none; z-index: 600;">
+        <div class="modal-content text-center p-8 max-w-xs border-2 border-rose-500">
+            <h2 class="text-xl font-black text-rose-500 mb-4">¿Abandonar Sesión?</h2>
+            <p class="text-slate-500 dark:text-slate-400 mb-6 text-sm">Si sales ahora, la sesión actual se guardará como incompleta o se perderá si es práctica libre.</p>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmExit()" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-3 rounded-lg font-bold text-xs uppercase">Cancelar</button>
+                <button onclick="confirmExitSession()" class="flex-1 bg-rose-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-lg">Salir</button>
+            </div>
+        </div>
+    </div>
 
-    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-2 sm:p-3 flex justify-between items-center shadow-sm z-[150] shrink-0 transition-colors duration-300 relative">
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-2 sm:p-3 flex justify-between items-center shadow-sm z-[150] shrink-0 transition-colors duration-300">
         <div class="flex items-center gap-2 sm:gap-3">
             <div class="bg-violet-600 p-1.5 rounded-xl shadow-md"><svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg></div>
             <h1 class="font-black text-xs sm:text-sm tracking-tight uppercase italic text-slate-800 dark:text-white leading-tight">Formar <br class="block sm:hidden">Oído <span class="text-violet-500">Pro</span></h1>
         </div>
         <div class="flex items-center gap-2 sm:gap-3">
-            <!-- NEW ROUTINE BUTTON IN HEADER -->
             <button onclick="showStartModal()" class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full border border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 transition-colors" title="Rutina Diaria"><svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></button>
-            
             <button onclick="openStats()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 hover:border-violet-400 transition-colors" title="Estadísticas"><svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></button>
-            <div id="sprint-timer-box" class="hidden flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/30 px-2 sm:px-3 py-1 rounded-full"><span id="timer-val" class="text-rose-500 font-mono text-xs font-bold">01:00</span></div>
             <button onclick="openModal()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 hover:border-violet-400 transition-colors" title="Ayuda (H)"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>
-            <button onclick="toggleTheme()" class="theme-toggle" title="Tema (T)"><svg id="sun-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.414A1 1 0 016.464 5l.707.707a1 1 0 01-1.414 1.414l-.707-.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg><svg id="moon-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg></button>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Tema (T)"><svg id="sun-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 010-1.414zm4.707 4.707a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.414A1 1 0 016.464 5l.707.707a1 1 0 01-1.414 1.414l-.707-.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg><svg id="moon-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg></button>
             <div class="bg-white dark:bg-slate-800 px-2 sm:px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-mono text-violet-600 dark:text-violet-400 font-bold text-xs shadow-sm"><span id="score-val">0</span></div>
         </div>
     </header>
 
-    <main id="main-scroll-container" class="flex-1 flex flex-col relative overflow-hidden bg-gradient-to-b from-transparent to-slate-100/50 dark:to-black/20">
-        
-        <div class="overflow-y-auto max-h-[calc(100vh-200px)] no-scrollbar z-10 shrink-0 w-full" id="inner-scroll-content">
-            <div class="p-2 sm:p-5 flex flex-col gap-3 sm:gap-4 max-w-4xl mx-auto w-full">
-                
-                <!-- LEVELS & CONFIG -->
+    <!-- MAIN SCROLLABLE CONTENT -->
+    <main id="main-scroll-container" class="flex-1 relative overflow-y-auto no-scrollbar bg-gradient-to-b from-transparent to-slate-100/50 dark:to-black/20 pb-[100px]">
+        <div class="p-2 sm:p-5 flex flex-col gap-3 sm:gap-4 max-w-4xl mx-auto w-full">
+            
+            <!-- CONFIG PANEL -->
+            <div class="flex flex-col gap-1.5">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-[9px] uppercase font-black text-slate-400 tracking-widest">Niveles de Práctica</span>
+                    <div class="flex items-center gap-2 bg-white dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <span class="text-[8px] font-bold text-slate-500">NOTAS:</span>
+                        <input type="number" id="note-count-input" min="1" max="10" value="1" class="w-8 bg-transparent text-center font-bold text-xs text-violet-600 outline-none">
+                    </div>
+                </div>
                 <div class="flex flex-col gap-1.5">
-                    <div class="flex justify-between items-center px-1">
-                        <span class="text-[9px] uppercase font-black text-slate-400 tracking-widest">Niveles de Práctica</span>
-                        <div class="flex items-center gap-2 bg-white dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <span class="text-[8px] font-bold text-slate-500">NOTAS:</span>
-                            <input type="number" id="note-count-input" min="1" max="10" value="1" class="w-8 bg-transparent text-center font-bold text-xs text-violet-600 outline-none">
-                        </div>
+                    <div class="control-group grid-3-cols" id="level-row-1">
+                        <button onclick="setLevel('basic1')" id="lvl-basic1" class="control-btn active-choice">BÁSICO 1-4</button>
+                        <button onclick="setLevel('basic2')" id="lvl-basic2" class="control-btn">BÁSICO 5-8</button>
+                        <button onclick="setLevel('inter')" id="lvl-inter" class="control-btn">INTERMEDIO</button>
                     </div>
-                    <div class="flex flex-col gap-1.5">
-                        <div class="control-group grid-3-cols" id="level-row-1">
-                            <button onclick="setLevel('basic1')" id="lvl-basic1" class="control-btn active-choice">BÁSICO 1-4</button>
-                            <button onclick="setLevel('basic2')" id="lvl-basic2" class="control-btn">BÁSICO 5-8</button>
-                            <button onclick="setLevel('inter')" id="lvl-inter" class="control-btn">INTERMEDIO</button>
-                        </div>
-                        <div class="control-group grid-3-cols" id="level-row-2">
-                            <button onclick="setLevel('adv1')" id="lvl-adv1" class="control-btn">AVANZADO I</button>
-                            <button onclick="setLevel('adv2')" id="lvl-adv2" class="control-btn">AVANZADO II</button>
-                            <button onclick="setLevel('total')" id="lvl-total" class="control-btn">TOTAL</button>
-                        </div>
+                    <div class="control-group grid-3-cols" id="level-row-2">
+                        <button onclick="setLevel('adv1')" id="lvl-adv1" class="control-btn">AVANZADO I</button>
+                        <button onclick="setLevel('adv2')" id="lvl-adv2" class="control-btn">AVANZADO II</button>
+                        <button onclick="setLevel('total')" id="lvl-total" class="control-btn">TOTAL</button>
                     </div>
-                </div>
-
-                <div class="flex flex-col gap-1.5">
-                    <div class="flex justify-between items-center px-1">
-                        <span class="text-[9px] uppercase font-black text-slate-400 tracking-widest">Configuración Tonal</span>
-                        <button onclick="toggleAutoResolve()" id="auto-resolve-btn" class="text-[7px] font-bold uppercase bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded border border-emerald-500/20 transition-all hover:bg-emerald-500/20">Auto-Res: ON</button>
-                    </div>
-                    <div class="control-group grid-3-cols">
-                        <button onclick="setTonalityMode('major')" id="ton-major" class="control-btn active-choice">MAYOR</button>
-                        <button onclick="setTonalityMode('minor')" id="ton-minor" class="control-btn">MENOR</button>
-                        <button onclick="setTonalityMode('combined')" id="ton-combined" class="control-btn">COMBINADO</button>
-                    </div>
-                    <div class="control-group grid-2-cols">
-                        <button onclick="setGlobalMode('melody')" id="mode-mel-btn" class="control-btn active-choice text-xs py-1.5">MELODÍA</button>
-                        <button onclick="setGlobalMode('harmony')" id="mode-har-btn" class="control-btn text-xs py-1.5">ARMONÍA</button>
-                    </div>
-                </div>
-
-                <!-- ACTION LINE -->
-                <div class="action-line-container">
-                    <div id="key-badge" class="compact-btn flex flex-col justify-center items-center order-1">
-                        <span id="key-root" class="text-xs font-black text-violet-400 leading-none">C</span>
-                        <span id="key-quality-label" class="text-[7px] font-bold opacity-60 uppercase tracking-wide leading-none">MAYOR</span>
-                    </div>
-                    <button id="btn-init" onclick="startGame()" class="compact-btn btn-new-q force-upper order-2">NUEVA PREGUNTA</button>
-                    <button onclick="toggleSprint()" id="sprint-btn" class="compact-btn btn-sprint force-upper order-3">SPRINT</button>
-                    <div class="timer-container order-4">
-                        <span class="timer-label">TIEMPO</span>
-                        <input type="number" id="sprint-time-input" value="60" class="input-mini">
-                    </div>
-                </div>
-                <div class="flex justify-center">
-                    <button id="btn-delete" onclick="deleteLastNote()" class="hidden bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold px-4 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:text-rose-500 active:scale-95 text-[9px] uppercase shadow-sm w-fit">Borrar Última</button>
                 </div>
             </div>
-        </div>
 
-        <div id="buffer-dots" class="buffer-indicator mb-2"></div>
-        
-        <!-- VISUAL FEEDBACK AREA (FOR IMAGINA MODE) -->
-        <div id="feedback-ui" class="hidden absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-center pointer-events-none w-full px-4">
-            <h2 id="feedback-text" class="feedback-text transition-all drop-shadow-lg"></h2>
-        </div>
+            <div class="flex flex-col gap-1.5">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-[9px] uppercase font-black text-slate-400 tracking-widest">Configuración Tonal</span>
+                    <button onclick="toggleAutoResolve()" id="auto-resolve-btn" class="text-[7px] font-bold uppercase bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded border border-emerald-500/20 transition-all hover:bg-emerald-500/20">Auto-Res: ON</button>
+                </div>
+                <div class="control-group grid-3-cols">
+                    <button onclick="setTonalityMode('major')" id="ton-major" class="control-btn active-choice">MAYOR</button>
+                    <button onclick="setTonalityMode('minor')" id="ton-minor" class="control-btn">MENOR</button>
+                    <button onclick="setTonalityMode('combined')" id="ton-combined" class="control-btn">COMBINADO</button>
+                </div>
+                <div class="control-group grid-2-cols">
+                    <button onclick="setGlobalMode('melody')" id="mode-mel-btn" class="control-btn active-choice text-xs py-1.5">MELODÍA</button>
+                    <button onclick="setGlobalMode('harmony')" id="mode-har-btn" class="control-btn text-xs py-1.5">ARMONÍA</button>
+                </div>
+            </div>
 
-        <!-- PIANO AREA -->
-        <div id="piano-container-fixed" class="mt-auto relative z-30 pb-2 sm:pb-4">
-            <div id="practice-module" class="flex flex-col items-center py-2 sm:py-3 bg-gradient-to-t from-transparent to-white/50 dark:to-transparent">
+            <!-- ACTION LINE REFACTORED -->
+            <div class="action-line-container">
+                <div id="key-badge" class="compact-badge">
+                    <span id="key-root" class="text-xs font-black text-violet-400 leading-none">C</span>
+                    <span id="key-quality-label" class="text-[7px] font-bold opacity-60 uppercase tracking-wide leading-none">MAYOR</span>
+                </div>
+                <button onclick="toggleSprint()" id="sprint-btn" class="btn-sprint flex items-center justify-center flex-1 max-w-[100px]">SPRINT</button>
+                <div class="timer-container">
+                    <span class="timer-label">TIEMPO</span>
+                    <input type="number" id="sprint-time-input" value="60" class="input-mini">
+                </div>
+            </div>
+            
+            <div class="flex justify-center">
+                <button id="btn-delete" onclick="deleteLastNote()" class="hidden bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold px-4 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:text-rose-500 active:scale-95 text-[9px] uppercase shadow-sm w-fit">Borrar Última</button>
+            </div>
+            
+            <div id="buffer-dots" class="buffer-indicator"></div>
+            
+             <!-- PRACTICE CHIPS AREA IN SCROLLABLE ZONE -->
+            <div id="practice-module" class="flex flex-col items-center py-2 sm:py-3 w-full">
                 <div id="practice-chips-container" class="no-scrollbar"></div>
             </div>
-            <div class="piano-viewport no-scrollbar">
-                <div id="piano-stage" class="piano-stage"></div>
-                <div id="harmony-grid" class="hidden w-full max-w-4xl mx-auto px-2 grid grid-cols-2 gap-2 pb-8 overflow-y-auto max-h-[180px]"></div>
-            </div>
-            <div class="bg-white dark:bg-slate-900 p-2 sm:p-3 flex justify-center items-center gap-6 sm:gap-8 border-t border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 shrink-0 shadow-inner transition-colors duration-300">
-                <button id="btn-repeat-base" class="hidden text-[10px] font-bold uppercase hover:text-violet-500 transition-colors" onclick="playCurrentCadence()">Base (B)</button>
-                <button onclick="toggleImagina()" class="text-[10px] font-bold uppercase hover:text-violet-500 flex items-center gap-2 transition-all">
-                    <span id="imagina-dot" class="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-600 transition-colors"></span> Imagina (I)
-                </button>
-                <button id="btn-repeat-target" class="hidden text-[10px] font-bold uppercase hover:text-violet-500 transition-colors" onclick="repeatTargetSound()">Sonido (R)</button>
-            </div>
+             <div id="harmony-grid" class="hidden w-full px-1 grid grid-cols-2 gap-2 pb-4"></div>
         </div>
     </main>
+    
+    <!-- VISUAL FEEDBACK -->
+    <div id="feedback-ui" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-center pointer-events-none w-full px-4">
+        <h2 id="feedback-text" class="feedback-text transition-all drop-shadow-lg"></h2>
+    </div>
 
-    <!-- FOOTER -->
-    <footer class="bg-slate-50 dark:bg-slate-950 text-slate-400 text-[9px] sm:text-[10px] py-3 sm:py-4 px-6 text-center border-t border-slate-200 dark:border-slate-900 z-50 shrink-0 font-semibold tracking-widest transition-colors duration-300">
-        Desarrollado Por Juan Miguel Rios Redondo
-    </footer>
-
-    <!-- HELP MODAL -->
-    <div id="help-modal" class="modal" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 class="text-2xl font-black mb-6 text-violet-600 dark:text-violet-400 uppercase italic text-center border-b border-slate-200 dark:border-slate-700 pb-3">Guía Maestra</h2>
-            <div class="space-y-6 text-xs text-left">
-                <section>
-                    <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Metodología</h3>
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300">
-                        <p><strong>1. Sintonía:</strong> Siente la gravedad tonal con los chips de práctica.</p>
-                        <p><strong>2. Unísono:</strong> Canta internamente la resolución.</p>
-                        <p><strong>3. Memoria:</strong> Retén la frase completa antes de escribir.</p>
-                        <p><strong>4. Armonía:</strong> Distingue Color (May/Men) y Función (Tónica/Dom).</p>
+    <!-- FIXED BOTTOM DOCK -->
+    <div class="fixed bottom-0 left-0 w-full z-[200] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 bottom-dock">
+        <!-- Piano Stage -->
+        <div class="piano-viewport no-scrollbar">
+            <div id="piano-stage" class="piano-stage"></div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="flex items-center justify-between px-3 py-2 gap-2 bg-slate-50 dark:bg-slate-950/50">
+            <div class="flex gap-2">
+                <button id="btn-repeat-base" onclick="playCurrentCadence()" class="dock-btn w-14 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+                    <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                    <span class="text-[8px] font-black tracking-widest">BASE</span>
+                </button>
+                <button onclick="toggleImagina()" id="btn-imagina" class="dock-btn w-14 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+                    <div id="imagina-icon-container" class="relative">
+                        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                        <div id="imagina-dot-active" class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-violet-500 hidden"></div>
                     </div>
-                </section>
-                <section>
-                    <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Mapa de Ruta (Tiempo Recomendado)</h3>
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300">
-                        <ul class="list-disc pl-3 space-y-1">
-                            <li><strong>Constancia:</strong> 15 min diarios > 2h a la semana. El cerebro necesita dormir para asimilar.</li>
-                            <li><strong>Mes 1-3:</strong> Reconocer intervalos simples y color de acordes (Mayor/Menor).</li>
-                            <li><strong>Mes 3-6:</strong> Progresiones básicas (I-IV-V) y melodías cortas.</li>
-                            <li><strong>Año 1+:</strong> Fluidez auditiva y armonía avanzada.</li>
-                        </ul>
-                    </div>
-                </section>
-                <section>
-                    <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Atajos</h3>
-                    <div class="grid grid-cols-2 gap-y-2 gap-x-4 font-mono opacity-70 text-slate-600 dark:text-slate-400">
-                        <div>Espacio/C: Nueva</div> <div>R/B: Sonido/Base</div>
-                        <div>I: Imagina</div> <div>T: Tema</div>
-                        <div>S: Sprint</div> <div>H: Ayuda</div>
-                        <div>Bksp: Borrar</div> <div>1-6: Nivel</div>
-                    </div>
-                </section>
-                <button onclick="closeModal()" class="w-full bg-violet-600 hover:bg-violet-700 text-white py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg">Entendido</button>
+                    <span class="text-[8px] font-black tracking-widest">IMAGINA</span>
+                </button>
+                <button id="btn-repeat-target" onclick="repeatTargetSound()" class="dock-btn w-14 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+                    <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                    <span class="text-[8px] font-black tracking-widest">SONIDO</span>
+                </button>
             </div>
+            
+            <button id="btn-init" onclick="startGame()" class="dock-btn btn-main-action flex-1 ml-2">
+                <span class="text-sm font-black tracking-tighter leading-none">NUEVA<br>PREGUNTA</span>
+            </button>
         </div>
     </div>
 
-    <!-- RESULT MODAL (NEW) -->
+    <!-- RESULT MODAL -->
     <div id="result-modal" class="modal" style="display: none;">
         <div class="modal-content animate-pop-in border-4 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden" id="result-card">
-            <!-- Confetti Container -->
             <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
-            
             <div id="result-icon" class="text-6xl mb-4 z-10"></div>
             <h2 id="result-title" class="text-3xl font-black uppercase italic mb-2 z-10"></h2>
             <div class="w-full h-px bg-slate-200 dark:bg-slate-700 my-4 z-10"></div>
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 z-10">Tu respuesta</p>
             <div id="result-user" class="font-mono text-lg font-bold mb-4 opacity-75 z-10"></div>
-            
             <div id="correct-block" class="hidden w-full z-10">
                 <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Correcto</p>
                 <div id="result-correct" class="font-mono text-xl font-black text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg border border-emerald-500/30"></div>
             </div>
-
-            <button onclick="handleContinue()" id="btn-continue-result" class="mt-8 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white z-10">
-                Continuar
-            </button>
+            <button onclick="handleContinue()" id="btn-continue-result" class="mt-8 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white z-10">Continuar</button>
         </div>
     </div>
 
@@ -401,97 +335,65 @@
             <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl mb-6">
                 <p class="text-xs uppercase text-slate-400 font-bold tracking-widest mb-2">Resumen de Sesión</p>
                 <p id="session-final-score" class="text-4xl font-black text-slate-700 dark:text-white mb-4">10/13</p>
-                
-                <!-- Detailed Breakdown -->
                 <div class="grid grid-cols-2 gap-4 text-left w-full mb-6">
                     <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800">
                         <h4 class="font-bold text-blue-600 dark:text-blue-400 text-[10px] uppercase mb-2 border-b border-blue-200 pb-1">Melodía</h4>
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="text-emerald-500 font-bold">✓ <span id="summary-mel-correct">0</span></span>
-                            <span class="text-rose-500 font-bold">✗ <span id="summary-mel-wrong">0</span></span>
-                        </div>
+                        <div class="flex justify-between items-center text-xs"><span class="text-emerald-500 font-bold">✓ <span id="summary-mel-correct">0</span></span><span class="text-rose-500 font-bold">✗ <span id="summary-mel-wrong">0</span></span></div>
                     </div>
                     <div class="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-100 dark:border-purple-800">
                         <h4 class="font-bold text-purple-600 dark:text-purple-400 text-[10px] uppercase mb-2 border-b border-purple-200 pb-1">Armonía</h4>
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="text-emerald-500 font-bold">✓ <span id="summary-har-correct">0</span></span>
-                            <span class="text-rose-500 font-bold">✗ <span id="summary-har-wrong">0</span></span>
-                        </div>
+                        <div class="flex justify-between items-center text-xs"><span class="text-emerald-500 font-bold">✓ <span id="summary-har-correct">0</span></span><span class="text-rose-500 font-bold">✗ <span id="summary-har-wrong">0</span></span></div>
                     </div>
                 </div>
             </div>
             <button onclick="closeSessionSummary()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black uppercase tracking-widest text-xs shadow-lg">Finalizar</button>
         </div>
     </div>
+    
+    <!-- CONFIRM EXIT MODAL -->
+    <div id="confirm-exit-modal" class="modal" style="display: none; z-index: 600;">
+        <div class="modal-content text-center p-8 max-w-xs border-2 border-rose-500">
+            <h2 class="text-xl font-black text-rose-500 mb-4">¿Abandonar Sesión?</h2>
+            <p class="text-slate-500 dark:text-slate-400 mb-6 text-sm">Si sales ahora, la sesión actual se guardará como incompleta o se perderá si es práctica libre.</p>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmExit()" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-3 rounded-lg font-bold text-xs uppercase">Cancelar</button>
+                <button onclick="confirmExitSession()" class="flex-1 bg-rose-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-lg">Salir</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- STATS MODAL (NEW) -->
+    <!-- STATS MODAL -->
     <div id="stats-modal" class="modal" onclick="closeStats()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-6 border-b border-slate-200 dark:border-slate-700 pb-3">
                 <h2 class="text-2xl font-black text-violet-600 dark:text-violet-400 uppercase italic">Tu Progreso</h2>
                 <button onclick="closeStats()" class="text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
-            
-            <!-- USERNAME INPUT (OPTION 4) -->
-            <div class="mb-6">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nombre del Estudiante</label>
-                <input type="text" id="username-input" placeholder="Tu Nombre" oninput="updateUsername(this.value)" class="w-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-lg p-3 outline-none border border-transparent focus:border-violet-500 transition-all">
-            </div>
-
-            <div class="flex gap-2 mb-6">
-                <button onclick="exportData()" class="flex-1 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold uppercase py-2.5 rounded-lg shadow transition-colors flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    Exportar
-                </button>
-                <button onclick="importData()" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 text-[10px] font-bold uppercase py-2.5 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 transition-colors flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                    Importar
-                </button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-center border border-slate-200 dark:border-slate-700">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Precisión Global</p>
-                    <p id="stat-accuracy" class="text-3xl font-black text-slate-700 dark:text-white mt-1">-%</p>
-                </div>
-                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-center border border-slate-200 dark:border-slate-700">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Racha Actual</p>
-                    <p id="stat-streak" class="text-3xl font-black text-orange-500 mt-1">0 🔥</p>
-                </div>
-            </div>
-
-            <!-- CHART AREA (NEW) -->
-            <div class="mb-6">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Progreso Reciente</p>
-                <div class="w-full h-32 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-2 flex items-end justify-between gap-1" id="chart-container">
-                    <!-- Bars injected via JS -->
-                </div>
-            </div>
-
-            <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-xl border border-violet-100 dark:border-violet-800 mb-6">
-                <h4 class="font-bold text-violet-600 dark:text-violet-400 text-xs uppercase mb-2 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    Área de Mejora Sugerida
-                </h4>
-                <p id="stat-suggestion" class="text-sm text-slate-600 dark:text-slate-300 leading-snug">
-                    Aún no hay suficientes datos. ¡Sigue practicando!
-                </p>
-            </div>
-
+            <div class="mb-6"><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nombre del Estudiante</label><input type="text" id="username-input" placeholder="Tu Nombre" oninput="updateUsername(this.value)" class="w-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-lg p-3 outline-none border border-transparent focus:border-violet-500 transition-all"></div>
+            <div class="flex gap-2 mb-6"><button onclick="exportData()" class="flex-1 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold uppercase py-2.5 rounded-lg shadow transition-colors flex items-center justify-center gap-2">Exportar</button><button onclick="importData()" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 text-[10px] font-bold uppercase py-2.5 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 transition-colors flex items-center justify-center gap-2">Importar</button></div>
+            <div class="grid grid-cols-2 gap-4 mb-6"><div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-center border border-slate-200 dark:border-slate-700"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Precisión Global</p><p id="stat-accuracy" class="text-3xl font-black text-slate-700 dark:text-white mt-1">-%</p></div><div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-center border border-slate-200 dark:border-slate-700"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Racha Actual</p><p id="stat-streak" class="text-3xl font-black text-orange-500 mt-1">0 🔥</p></div></div>
+            <div class="mb-6"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Progreso Reciente</p><div class="w-full h-32 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-2 flex items-end justify-between gap-1" id="chart-container"></div></div>
+            <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-xl border border-violet-100 dark:border-violet-800 mb-6"><h4 class="font-bold text-violet-600 dark:text-violet-400 text-xs uppercase mb-2 flex items-center gap-2">Área de Mejora Sugerida</h4><p id="stat-suggestion" class="text-sm text-slate-600 dark:text-slate-300 leading-snug">Aún no hay suficientes datos. ¡Sigue practicando!</p></div>
             <h4 class="font-bold text-slate-400 text-[10px] uppercase mb-3">Historial Reciente (Últimos 10)</h4>
-            <div id="history-list" class="space-y-2 mb-6 max-h-40 overflow-y-auto pr-1">
-                <!-- Items injected via JS -->
-            </div>
-
+            <div id="history-list" class="space-y-2 mb-6 max-h-40 overflow-y-auto pr-1"></div>
             <button onclick="resetStats()" class="w-full text-rose-400 text-[10px] uppercase font-bold hover:text-rose-600 py-2">Borrar Historial</button>
         </div>
     </div>
 
-    <script>
-        // SMART NOTE NAMING ENGINE
-        const BASE_NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-        const BASE_VALS = { 'C':0, 'D':2, 'E':4, 'F':5, 'G':7, 'A':9, 'B':11 };
+    <!-- HELP MODAL -->
+    <div id="help-modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 class="text-2xl font-black mb-6 text-violet-600 dark:text-violet-400 uppercase italic text-center border-b border-slate-200 dark:border-slate-700 pb-3">Guía Maestra</h2>
+            <div class="space-y-6 text-xs text-left">
+                <section><h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Metodología</h3><div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300"><p><strong>1. Sintonía:</strong> Siente la gravedad tonal con los chips de práctica.</p><p><strong>2. Unísono:</strong> Canta internamente la resolución.</p><p><strong>3. Memoria:</strong> Retén la frase completa antes de escribir.</p><p><strong>4. Armonía:</strong> Distingue Color (May/Men) y Función (Tónica/Dom).</p></div></section>
+                <section><h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Mapa de Ruta (Tiempo Recomendado)</h3><div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300"><ul class="list-disc pl-3 space-y-1"><li><strong>Constancia:</strong> 15 min diarios > 2h a la semana.</li><li><strong>Mes 1-3:</strong> Reconocer intervalos simples y color de acordes.</li><li><strong>Mes 3-6:</strong> Progresiones básicas (I-IV-V) y melodías cortas.</li><li><strong>Año 1+:</strong> Fluidez auditiva y armonía avanzada.</li></ul></div></section>
+                <button onclick="closeModal()" class="w-full bg-violet-600 hover:bg-violet-700 text-white py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg">Entendido</button>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        const BASE_NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B']; const BASE_VALS = { 'C':0, 'D':2, 'E':4, 'F':5, 'G':7, 'A':9, 'B':11 };
         const ROOT_INDICES = { 'C': 0, 'Db': 1, 'C#': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'Ab': 8, 'G#': 8, 'A': 9, 'Bb': 10, 'B': 11 };
         const DEGREES = ['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7', '8'];
         const RESOLUTIONS = { 0:[0,-5,0], 1:[1,0], 2:[2,0], 3:[3,2,0], 4:[4,2,0], 5:[5,4,2,0], 6:[6,7,12], 7:[7,12], 8:[8,7,12], 9:[9,11,12], 10:[10,11,12], 11:[11,12], 12:[12,7,12] };
@@ -500,111 +402,66 @@
 
         function getNoteName(rootName, semitonesFromRoot) {
             const semitoneToDegreeShift = { 0:0, 1:1, 2:1, 3:2, 4:2, 5:3, 6:3, 7:4, 8:5, 9:5, 10:6, 11:6 };
-            let rootLetter = rootName.charAt(0);
-            let rootAccidental = rootName.slice(1);
-            let rootBaseVal = BASE_VALS[rootLetter];
-            let rootMod = (rootAccidental === '#') ? 1 : (rootAccidental === 'b' ? -1 : 0);
-            let rootAbs = (rootBaseVal + rootMod + 12) % 12;
-            let targetAbs = (rootAbs + semitonesFromRoot) % 12;
-            let rootIdx = BASE_NOTES.indexOf(rootLetter);
-            let degreeShift = semitoneToDegreeShift[semitonesFromRoot] !== undefined ? semitoneToDegreeShift[semitonesFromRoot] : 0;
-            let targetIdx = (rootIdx + degreeShift) % 7;
-            let targetLetter = BASE_NOTES[targetIdx];
-            let targetBaseVal = BASE_VALS[targetLetter];
-            let diff = targetAbs - targetBaseVal;
+            let rootLetter = rootName.charAt(0); let rootAccidental = rootName.slice(1);
+            let rootBaseVal = BASE_VALS[rootLetter]; let rootMod = (rootAccidental === '#') ? 1 : (rootAccidental === 'b' ? -1 : 0);
+            let rootAbs = (rootBaseVal + rootMod + 12) % 12; let targetAbs = (rootAbs + semitonesFromRoot) % 12;
+            let rootIdx = BASE_NOTES.indexOf(rootLetter); let degreeShift = semitoneToDegreeShift[semitonesFromRoot] !== undefined ? semitoneToDegreeShift[semitonesFromRoot] : 0;
+            let targetIdx = (rootIdx + degreeShift) % 7; let targetLetter = BASE_NOTES[targetIdx];
+            let targetBaseVal = BASE_VALS[targetLetter]; let diff = targetAbs - targetBaseVal;
             while (diff > 6) diff -= 12; while (diff < -6) diff += 12;
             let acc = ""; if (diff === 1) acc = "#"; else if (diff === 2) acc = "x"; else if (diff === -1) acc = "b"; else if (diff === -2) acc = "bb";
             return targetLetter + acc;
         }
 
         let audioCtx;
-        // Global state structure
         let state = { level:'basic1', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, streak: 0, dailyStreak: 0, lastPracticeDate: null, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [], username: '' };
-        
-        // Session state structure
-        let sessionState = {
-            active: false,
-            type: 'minimal',
-            startTime: 0,
-            totalDuration: 0,
-            timeLeft: 0,
-            correctCount: 0,
-            totalQuestions: 0,
-            timerId: null,
-            phase: 'warmup',
-            stats: { melCorrect: 0, melTotal: 0, harCorrect: 0, harTotal: 0 }
-        };
+        let sessionState = { active: false, type: 'minimal', startTime: 0, totalDuration: 0, timeLeft: 0, correctCount: 0, totalQuestions: 0, timerId: null, phase: 'warmup', stats: { melCorrect: 0, melTotal: 0, harCorrect: 0, harTotal: 0 }, elapsedTime: 0 };
 
-        // INIT LOAD
         try {
-            const saved = localStorage.getItem('formarOidoPro_history');
-            if(saved) state.history = JSON.parse(saved);
-            const savedUser = localStorage.getItem('formarOidoPro_username');
-            if(savedUser) state.username = savedUser;
-            
-            const savedStreak = localStorage.getItem('formarOidoPro_dailyStreak');
-            const savedDate = localStorage.getItem('formarOidoPro_lastDate');
-            if(savedStreak) state.dailyStreak = parseInt(savedStreak);
-            if(savedDate) state.lastPracticeDate = savedDate;
-            
+            const saved = localStorage.getItem('formarOidoPro_history'); if(saved) state.history = JSON.parse(saved);
+            const savedUser = localStorage.getItem('formarOidoPro_username'); if(savedUser) state.username = savedUser;
+            const savedStreak = localStorage.getItem('formarOidoPro_dailyStreak'); const savedDate = localStorage.getItem('formarOidoPro_lastDate');
+            if(savedStreak) state.dailyStreak = parseInt(savedStreak); if(savedDate) state.lastPracticeDate = savedDate;
             checkDailyStreak(); 
-
-            // Load interrupted session
             const savedSession = localStorage.getItem('formarOidoPro_session');
-            if (savedSession) {
-                const parsedSession = JSON.parse(savedSession);
-                if (parsedSession.active && parsedSession.timeLeft > 0) {
-                    sessionState = parsedSession;
-                    // Show continue button
-                    document.getElementById('btn-continue-session').classList.remove('hidden');
-                }
+            if (savedSession) { 
+                const parsedSession = JSON.parse(savedSession); 
+                if (parsedSession.active && (parsedSession.type === 'free' || parsedSession.timeLeft > 0)) { 
+                    sessionState = parsedSession; 
+                    document.getElementById('btn-continue-session').classList.remove('hidden'); 
+                } 
             }
         } catch(e){ console.log('Storage Error', e); }
 
-        function saveSessionState() {
-            localStorage.setItem('formarOidoPro_session', JSON.stringify(sessionState));
-        }
-
-        function clearSessionState() {
-            localStorage.removeItem('formarOidoPro_session');
-            sessionState.active = false;
-        }
-
-        function checkDailyStreak() {
-            if (!state.lastPracticeDate) return;
-            const today = new Date().toDateString();
-            const last = new Date(state.lastPracticeDate).toDateString();
-            if (today !== last) {
-                const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-                if (yesterday.toDateString() !== last) {
-                    state.dailyStreak = 0; localStorage.setItem('formarOidoPro_dailyStreak', 0);
-                }
+        function saveSessionState() { localStorage.setItem('formarOidoPro_session', JSON.stringify(sessionState)); }
+        function clearSessionState() { localStorage.removeItem('formarOidoPro_session'); sessionState.active = false; }
+        
+        function requestEndSession() { document.getElementById('confirm-exit-modal').style.display = 'flex'; }
+        function closeConfirmExit() { document.getElementById('confirm-exit-modal').style.display = 'none'; }
+        function confirmExitSession() {
+            if (sessionState.type === 'free') {
+                 // Save free session data on exit
+                 const mins = Math.floor(sessionState.elapsedTime / 60);
+                 const durationStr = `${mins} min ${sessionState.elapsedTime % 60} seg`;
+                 saveHistory(true, `Práctica Libre (${durationStr})`);
             }
+            clearSessionState();
+            clearInterval(sessionState.timerId);
+            document.getElementById('session-time-remaining').classList.add('hidden');
+            document.getElementById('session-bar-container').style.display = 'none';
+            document.getElementById('confirm-exit-modal').style.display = 'none';
+            showStartModal();
         }
 
-        function updateDailyStreak() {
-            const today = new Date().toDateString();
-            const last = state.lastPracticeDate ? new Date(state.lastPracticeDate).toDateString() : null;
-            if (today !== last) {
-                state.dailyStreak++;
-                state.lastPracticeDate = new Date().toISOString();
-                localStorage.setItem('formarOidoPro_dailyStreak', state.dailyStreak);
-                localStorage.setItem('formarOidoPro_lastDate', state.lastPracticeDate);
-            }
-        }
-
+        function checkDailyStreak() { if (!state.lastPracticeDate) return; const today = new Date().toDateString(); const last = new Date(state.lastPracticeDate).toDateString(); if (today !== last) { const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); if (yesterday.toDateString() !== last) { state.dailyStreak = 0; localStorage.setItem('formarOidoPro_dailyStreak', 0); } } }
+        function updateDailyStreak() { const today = new Date().toDateString(); const last = state.lastPracticeDate ? new Date(state.lastPracticeDate).toDateString() : null; if (today !== last) { state.dailyStreak++; state.lastPracticeDate = new Date().toISOString(); localStorage.setItem('formarOidoPro_dailyStreak', state.dailyStreak); localStorage.setItem('formarOidoPro_lastDate', state.lastPracticeDate); } }
         function registerTimeout(fn, delay) { const id = setTimeout(fn, delay); state.timeouts.push(id); return id; }
         function clearAllTimeouts() { state.timeouts.forEach(id => clearTimeout(id)); state.timeouts = []; }
         function initAudio() { if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const comp = audioCtx.createDynamicsCompressor(); comp.connect(audioCtx.destination); state.masterOut = comp; } }
         function midiToFreq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
-        function playTone(freq, dur, type='triangle', start=0, vol=0.2) { 
-            if(!audioCtx) return; const t = start + audioCtx.currentTime; const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); 
-            osc.type = type; osc.frequency.setValueAtTime(freq, t); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.05); g.gain.exponentialRampToValueAtTime(0.001, t + dur); 
-            osc.connect(g); g.connect(state.masterOut); osc.start(t); osc.stop(t + dur); state.activeOscillators.push(osc);
-        }
+        function playTone(freq, dur, type='triangle', start=0, vol=0.2) { if(!audioCtx) return; const t = start + audioCtx.currentTime; const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = type; osc.frequency.setValueAtTime(freq, t); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.05); g.gain.exponentialRampToValueAtTime(0.001, t + dur); osc.connect(g); g.connect(state.masterOut); osc.start(t); osc.stop(t + dur); state.activeOscillators.push(osc); }
         function stopAllSounds() { state.activeOscillators.forEach(osc => { try { osc.stop(); } catch(e) {} }); state.activeOscillators = []; state.isPlaying = false; }
         
-        // --- VOICE LEADING ENGINE ---
         function getChordIntervals(type) { if (type === 'Maj') return [0, 4, 7]; if (type === 'Min') return [0, 3, 7]; if (type === 'Dim') return [0, 3, 6]; return [0, 4, 7]; }
         function getBestVoicing(prevVoicing, currentRoot, currentType, currentBass) {
             const intervals = getChordIntervals(currentType); const targetPCs = intervals.map(i => (currentRoot + i) % 12);
@@ -621,589 +478,174 @@
 
         function getFunctionalClass(idx) { 
             const isMin = state.currentRoundTonality === 'minor';
-            if (idx === 0 || idx === 12) return 'tonic';
-            if (idx === 7) return 'stable';
-            if (isMin) {
-                if ([3].includes(idx)) return 'stable';
-            } else {
-                if ([4].includes(idx)) return 'stable';
-            }
+            if (idx === 0 || idx === 12) return 'tonic'; if (idx === 7) return 'stable';
+            if (isMin) { if ([3].includes(idx)) return 'stable'; } else { if ([4].includes(idx)) return 'stable'; }
             return 'unstable'; 
         }
 
         function setLevel(lvl) { state.level = lvl; document.querySelectorAll('button[id^="lvl-"]').forEach(b => b.classList.remove('active-choice')); document.getElementById(`lvl-${lvl}`)?.classList.add('active-choice'); renderUI(); }
-        
         function setTonalityMode(mode) { 
             state.tonalityMode = mode; 
             document.querySelectorAll('button[id^="ton-"]').forEach(b => b.classList.remove('active-choice')); 
             document.getElementById(`ton-${mode}`)?.classList.add('active-choice'); 
-
-            // IMMEDIATE UPDATE
-            if (mode === 'major') state.currentRoundTonality = 'major';
-            else if (mode === 'minor') state.currentRoundTonality = 'minor';
-            
-            document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR';
-            renderUI(); 
+            if (mode === 'major') state.currentRoundTonality = 'major'; else if (mode === 'minor') state.currentRoundTonality = 'minor';
+            document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR'; renderUI(); 
         }
-
         function toggleAutoResolve() { state.autoResolve = !state.autoResolve; const btn = document.getElementById('auto-resolve-btn'); btn.innerText = `Auto-Res: ${state.autoResolve ? 'ON' : 'OFF'}`; btn.className = `text-[7px] font-bold uppercase px-2 py-0.5 rounded border transition-all ${state.autoResolve ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20 hover:bg-rose-500/20'}`; }
         function setGlobalMode(m) { stopAllSounds(); state.mode = m; document.getElementById('mode-mel-btn')?.classList.toggle('active-choice', m === 'melody'); document.getElementById('mode-har-btn')?.classList.toggle('active-choice', m === 'harmony'); const isH = m === 'harmony'; document.getElementById('practice-module')?.classList.toggle('hidden', isH); document.getElementById('piano-stage')?.classList.toggle('hidden', isH); document.getElementById('harmony-grid')?.classList.toggle('hidden', !isH); resetUI(); }
-
-        // --- GAME MODES & MODALS ---
-        function showStartModal() {
-            // Unmute Audio context just in case
-            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            else if (!audioCtx) initAudio();
-            document.getElementById('start-modal').style.display = 'flex';
-            backToMainStart();
+        function showStartModal() { 
+            if (sessionState.active && (sessionState.type === 'free' || sessionState.timeLeft > 0)) {
+                 if (document.getElementById('start-modal').style.display === 'flex') {
+                     document.getElementById('btn-continue-session').classList.remove('hidden');
+                 } else { requestEndSession(); return; }
+            } else { document.getElementById('btn-continue-session').classList.add('hidden'); }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); else if (!audioCtx) initAudio(); 
+            document.getElementById('start-modal').style.display = 'flex'; 
+            backToMainStart(); 
         }
         function closeStartModalOnly() { document.getElementById('start-modal').style.display = 'none'; }
         function showDailyOptions() { document.getElementById('start-main-view').classList.add('hidden'); document.getElementById('start-daily-view').classList.remove('hidden'); }
         function backToMainStart() { document.getElementById('start-daily-view').classList.add('hidden'); document.getElementById('start-main-view').classList.remove('hidden'); }
-        
-        function selectGameMode(mode, subType) {
-            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            else if (!audioCtx) initAudio();
-            document.getElementById('start-modal').style.display = 'none';
-            if (mode === 'daily') startDailySession(subType);
-            else { clearSessionState(); startGame(); }
+        function selectGameMode(mode, subType) { 
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); else if (!audioCtx) initAudio(); 
+            document.getElementById('start-modal').style.display = 'none'; 
+            if (mode === 'daily') startDailySession(subType); 
+            else if (mode === 'free') startFreeSession();
+            else { clearSessionState(); startGame(); } 
         }
 
-        // --- DAILY COACH LOGIC (TIME BASED) ---
-        function continueDailySession() {
-            if (!sessionState.active) return;
-            selectGameMode('daily-resume'); // Trigger modal close
-            startSessionTimer();
-            document.getElementById('session-bar-container').style.display = 'block';
+        function toggleImagina() { 
+            state.imagina = !state.imagina; 
+            const btn = document.getElementById('btn-imagina'); const dot = document.getElementById('imagina-dot-active');
+            if (state.imagina) { btn.classList.add('border-violet-500', 'bg-violet-50', 'dark:bg-violet-900/20'); dot.classList.remove('hidden'); } else { btn.classList.remove('border-violet-500', 'bg-violet-50', 'dark:bg-violet-900/20'); dot.classList.add('hidden'); }
+        }
+
+        function continueDailySession() { if (!sessionState.active) return; document.getElementById('start-modal').style.display = 'none'; startSessionTimer(); document.getElementById('session-bar-container').style.display = 'block'; document.getElementById('session-time-remaining').classList.remove('hidden'); updateSessionProgress(); loadSessionQuestion(); }
+        
+        function startFreeSession() {
+            sessionState = { active: true, type: 'free', startTime: Date.now(), totalDuration: 0, timeLeft: 0, elapsedTime: 0, correctCount: 0, totalQuestions: 0, timerId: null, phase: 'Práctica Libre', stats: { melCorrect: 0, melTotal: 0, harCorrect: 0, harTotal: 0 } };
             document.getElementById('session-time-remaining').classList.remove('hidden');
-            updateSessionProgress();
-            // Just load next
-            loadSessionQuestion();
+            startSessionTimer();
+            // Free mode logic handles questions normally via startGame() logic but tracked
+            startGame();
         }
 
         function startDailySession(type) {
             if (type !== undefined) {
-                // New Session
                 const duration = type === 'minimal' ? 300 : 1200; 
-                sessionState = {
-                    active: true,
-                    type: type,
-                    startTime: Date.now(),
-                    totalDuration: duration,
-                    timeLeft: duration,
-                    correctCount: 0,
-                    totalQuestions: 0,
-                    timerId: null,
-                    phase: 'warmup',
-                    stats: { melCorrect: 0, melTotal: 0, harCorrect: 0, harTotal: 0 }
-                };
+                sessionState = { active: true, type: type, startTime: Date.now(), totalDuration: duration, timeLeft: duration, elapsedTime: 0, correctCount: 0, totalQuestions: 0, timerId: null, phase: 'warmup', stats: { melCorrect: 0, melTotal: 0, harCorrect: 0, harTotal: 0 } };
             }
-            // If resuming, sessionState is already loaded
-            
-            document.getElementById('session-time-remaining').classList.remove('hidden');
-            startSessionTimer();
-            document.getElementById('session-bar-container').style.display = 'block';
-            updateSessionProgress();
-            
-            loadSessionQuestion();
+            document.getElementById('session-time-remaining').classList.remove('hidden'); startSessionTimer(); document.getElementById('session-bar-container').style.display = 'block'; updateSessionProgress(); loadSessionQuestion();
         }
         
         function startSessionTimer() {
             if (sessionState.timerId) clearInterval(sessionState.timerId);
             updateSessionTimerUI();
             sessionState.timerId = setInterval(() => {
-                sessionState.timeLeft--;
-                saveSessionState(); // Persist every second
-                updateSessionTimerUI();
-                if (sessionState.timeLeft <= 0) {
-                    clearInterval(sessionState.timerId);
-                    endDailySession();
+                if (sessionState.type === 'free') {
+                    sessionState.elapsedTime++;
+                } else {
+                    sessionState.timeLeft--;
+                    if (sessionState.timeLeft <= 0) { clearInterval(sessionState.timerId); endDailySession(); }
                 }
+                saveSessionState();
+                updateSessionTimerUI();
             }, 1000);
         }
         
         function updateSessionTimerUI() {
-            const mins = Math.floor(sessionState.timeLeft / 60);
-            const secs = sessionState.timeLeft % 60;
-            document.getElementById('session-timer-text').innerText = `${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`;
-            document.getElementById('session-phase-text').innerText = getSessionPhaseText();
+            if (sessionState.type === 'free') {
+                const mins = Math.floor(sessionState.elapsedTime / 60);
+                const secs = sessionState.elapsedTime % 60;
+                document.getElementById('session-timer-text').innerText = `${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`;
+                document.getElementById('session-phase-text').innerText = "PRÁCTICA LIBRE";
+            } else {
+                const mins = Math.floor(sessionState.timeLeft / 60);
+                const secs = sessionState.timeLeft % 60;
+                document.getElementById('session-timer-text').innerText = `${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`;
+                document.getElementById('session-phase-text').innerText = getSessionPhaseText();
+            }
         }
         
-        function getSessionPhaseText() {
-            const elapsed = sessionState.totalDuration - sessionState.timeLeft;
-            const progress = elapsed / sessionState.totalDuration;
-            if (progress < 0.2) return "CALENTAMIENTO";
-            if (progress < 0.8) return "NÚCLEO";
-            return "DESAFÍO";
-        }
-
+        function getSessionPhaseText() { const elapsed = sessionState.totalDuration - sessionState.timeLeft; const progress = elapsed / sessionState.totalDuration; if (progress < 0.2) return "CALENTAMIENTO"; if (progress < 0.8) return "NÚCLEO"; return "DESAFÍO"; }
         function getDynamicQuestion() {
-            // Dynamic Generation based on Time Phase and User Streak
-            const elapsed = sessionState.totalDuration - sessionState.timeLeft;
-            const progress = elapsed / sessionState.totalDuration;
-            
-            // Streak Difficulty Multiplier
-            const streak = state.dailyStreak || 0;
-            const levels = ['basic1', 'basic2', 'inter', 'adv1', 'adv2'];
-            
-            // Define available keys based on streak
-            let keys = ['C', 'G'];
-            if (streak >= 4) keys = [...keys, 'F', 'D', 'Bb'];
-            if (streak >= 11) keys = ['C','G','D','A','E','B','F','Bb','Eb','Ab']; // All
-            
-            // Base Level based on streak
-            let baseLvlIdx = 0;
-            if (streak >= 4) baseLvlIdx = 1;
-            if (streak >= 15) baseLvlIdx = 2;
-            if (streak >= 30) baseLvlIdx = 3;
-            
-            // Phase Logic
-            let qLevel = levels[baseLvlIdx];
-            let qType = 'melody';
-            let qKey = 'C';
-            let qTonality = 'major';
-
-            if (progress < 0.2) { 
-                // Warmup: Easy keys, Melody, base level
-                qType = 'melody';
-                qKey = keys[Math.floor(Math.random() * Math.min(2, keys.length))]; // C or G
-                qTonality = 'major';
-            } else if (progress < 0.8) {
-                // Core: Mixed, Full keys, Current Level
-                qType = Math.random() > 0.5 ? 'melody' : 'harmony';
-                qKey = keys[Math.floor(Math.random() * keys.length)];
-                qTonality = 'combined';
-            } else {
-                // Challenge: Harder
-                qType = 'harmony';
-                qKey = keys[Math.floor(Math.random() * keys.length)];
-                qTonality = 'combined';
-                // Bump level if possible
-                const boost = Math.min(baseLvlIdx + 1, levels.length - 1);
-                qLevel = levels[boost];
-            }
-
+            const elapsed = sessionState.totalDuration - sessionState.timeLeft; const progress = elapsed / sessionState.totalDuration; const streak = state.dailyStreak || 0; const levels = ['basic1', 'basic2', 'inter', 'adv1', 'adv2'];
+            let keys = ['C', 'G']; if (streak >= 4) keys = [...keys, 'F', 'D', 'Bb']; if (streak >= 11) keys = ['C','G','D','A','E','B','F','Bb','Eb','Ab'];
+            let baseLvlIdx = 0; if (streak >= 4) baseLvlIdx = 1; if (streak >= 15) baseLvlIdx = 2; if (streak >= 30) baseLvlIdx = 3;
+            let qLevel = levels[baseLvlIdx]; let qType = 'melody'; let qKey = 'C'; let qTonality = 'major';
+            if (progress < 0.2) { qType = 'melody'; qKey = keys[Math.floor(Math.random() * Math.min(2, keys.length))]; qTonality = 'major'; } 
+            else if (progress < 0.8) { qType = Math.random() > 0.5 ? 'melody' : 'harmony'; qKey = keys[Math.floor(Math.random() * keys.length)]; qTonality = 'combined'; } 
+            else { qType = 'harmony'; qKey = keys[Math.floor(Math.random() * keys.length)]; qTonality = 'combined'; const boost = Math.min(baseLvlIdx + 1, levels.length - 1); qLevel = levels[boost]; }
             return { type: qType, level: qLevel, key: qKey, tonality: qTonality };
         }
-
-        function loadSessionQuestion() {
-            if (sessionState.timeLeft <= 0) return;
-
-            const q = getDynamicQuestion();
-            
-            // Apply settings temporarily
-            state.level = q.level;
-            state.keyLabel = q.key;
-            state.keyIndex = 48 + ROOT_INDICES[q.key];
-            state.currentRoundTonality = q.tonality === 'combined' ? (Math.random() > 0.5 ? 'major' : 'minor') : q.tonality;
-            
-            setGlobalMode(q.type); 
-            
-            document.getElementById('key-root').innerText = state.keyLabel;
-            document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR';
-            
-            playCadence(() => generateQuestion());
+        function loadSessionQuestion() { 
+            if (sessionState.type === 'free') { startGame(); return; } // Free mode just calls random
+            if (sessionState.timeLeft <= 0) return; 
+            const q = getDynamicQuestion(); state.level = q.level; state.keyLabel = q.key; state.keyIndex = 48 + ROOT_INDICES[q.key]; state.currentRoundTonality = q.tonality === 'combined' ? (Math.random() > 0.5 ? 'major' : 'minor') : q.tonality; setGlobalMode(q.type); document.getElementById('key-root').innerText = state.keyLabel; document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR'; playCadence(() => generateQuestion()); 
         }
-
-        function updateSessionProgress() {
-            const elapsed = sessionState.totalDuration - sessionState.timeLeft;
-            const pct = (elapsed / sessionState.totalDuration) * 100;
-            document.getElementById('session-progress').style.width = `${pct}%`;
+        function updateSessionProgress() { 
+            if (sessionState.type === 'free') return;
+            const elapsed = sessionState.totalDuration - sessionState.timeLeft; const pct = (elapsed / sessionState.totalDuration) * 100; document.getElementById('session-progress').style.width = `${pct}%`; 
         }
-
         function endDailySession() {
-            clearSessionState();
-            clearInterval(sessionState.timerId);
-            document.getElementById('session-time-remaining').classList.add('hidden');
-            document.getElementById('session-bar-container').style.display = 'none';
+            clearSessionState(); clearInterval(sessionState.timerId); document.getElementById('session-time-remaining').classList.add('hidden'); document.getElementById('session-bar-container').style.display = 'none'; 
+            document.getElementById('session-summary-modal').style.display = 'flex'; 
+            document.getElementById('session-final-score').innerText = `${sessionState.correctCount}/${sessionState.totalQuestions}`; 
+            document.getElementById('summary-mel-correct').innerText = sessionState.stats.melCorrect; 
+            document.getElementById('summary-mel-wrong').innerText = sessionState.stats.melTotal - sessionState.stats.melCorrect; 
+            document.getElementById('summary-har-correct').innerText = sessionState.stats.harCorrect; 
+            document.getElementById('summary-har-wrong').innerText = sessionState.stats.harTotal - sessionState.stats.harCorrect; 
+            updateDailyStreak(); saveHistory(true, `Rutina Completada (${sessionState.type})`); 
+        }
+        function closeSessionSummary() { document.getElementById('session-summary-modal').style.display = 'none'; startGame(); }
+        function startGame() { stopAllSounds(); clearAllTimeouts(); initAudio(); state.target = null; resetUI(); if (!sessionState.active || sessionState.type === 'free') { const keys = ['C','G','D','A','E','B','F','Bb','Eb','Ab']; state.keyLabel = keys[Math.floor(Math.random()*keys.length)]; state.keyIndex = 48 + ROOT_INDICES[state.keyLabel]; state.currentRoundTonality = state.tonalityMode === 'combined' ? (Math.random() > 0.5 ? 'major' : 'minor') : state.tonalityMode; document.getElementById('key-root').innerText = state.keyLabel; document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR'; document.getElementById('key-badge').classList.remove('hidden'); renderUI(); if (state.sprint) generateQuestion(); else playCadence(() => generateQuestion()); } else { loadSessionQuestion(); } }
+        function playCadence(cb) { state.isPlaying = true; const type = state.currentRoundTonality === 'major' ? 'Maj' : 'Min'; let t = 0; let prevVoicing = null; const degrees = [0, 5, 7, 0]; degrees.forEach(deg => { const root = state.keyIndex + deg; let bass = root; while (bass >= 48) bass -= 12; if (bass < 36) bass += 12; const chordType = (deg === 5 || deg === 0 || (deg === 7 && type === 'Maj')) ? 'Maj' : (type === 'Min' ? 'Min' : 'Maj'); const finalType = (deg === 7) ? 'Maj' : (deg === 0 || deg === 5 ? type : 'Maj'); const voicing = getBestVoicing(prevVoicing, root, finalType, bass); playVoicedChord(bass, voicing, 1.0, t); prevVoicing = { notes: voicing, bass: bass }; t += 1.0; }); registerTimeout(() => { if(state.isPlaying) { state.isPlaying = false; if(cb) cb(); } }, t * 1000); }
+        function generateQuestion() { state.userBuffer = []; const count = parseInt(document.getElementById('note-count-input').value) || 1; if(state.mode === 'melody') { const possible = getPossibleIntervals(); const sequence = []; for(let i=0; i<count; i++) { const interval = possible[Math.floor(Math.random()*possible.length)]; const midi = state.keyIndex + interval; sequence.push({ interval, midi }); } state.target = { type: 'melody', sequence }; renderBufferDots(count); if(count > 1) document.getElementById('btn-delete').classList.remove('hidden'); } else { const list = state.currentRoundTonality === 'major' ? MAJOR_PROGS : MINOR_PROGS; const correct = list[Math.floor(Math.random()*list.length)]; const opts = [correct, ...list.filter(x=>x!==correct).sort(()=>0.5-Math.random()).slice(0,3)].sort(()=>0.5-Math.random()); state.target = { type: 'harmony', answer: correct, options: opts }; renderHarmonyOptions(opts); } if (state.imagina) { const text = state.mode === 'melody' ? `Canta: ${state.target.sequence.map(s => DEGREES[s.interval]).join(' - ')}` : `Canta: ${state.target.answer}`; const fb = document.getElementById('feedback-text'); fb.innerText = text; fb.className = "feedback-text text-violet-400 text-2xl sm:text-4xl animate-pulse"; document.getElementById('feedback-ui').classList.remove('hidden'); } else { if(state.mode === 'melody') { let t = 0; state.target.sequence.forEach(s => { playTone(midiToFreq(s.midi), 0.7, 'triangle', t, 0.4); t += 0.8; }); } else { playProgression(state.target.answer); } } document.getElementById('btn-repeat-base').classList.toggle('hidden', state.sprint); document.getElementById('btn-repeat-target').classList.remove('hidden'); }
+        function playProgression(progStr) { const chords = progStr.split(' - '); const map = { 'I':0, 'ii':2, 'iii':4, 'IV':5, 'V':7, 'vi':9, 'vii':11, 'vii°':11, 'i':0, 'ii°':2, 'III':3, 'iv':5, 'v':7, 'VI':8, 'VII':10, 'bII':1, 'bIII':3, '#IV':6, 'bVI':8, 'bVII':10, 'V/vi':4, 'V/V':2, 'V/IV':0, 'V/ii':9 }; let t = 0; let prevVoicing = null; chords.forEach((c) => { const root = state.keyIndex + (map[c.trim().replace(/7|maj|m|°/g, '')] || 0); const ty = (c.includes('m') || c.toLowerCase() === c) ? 'Min' : 'Maj'; let bass = root; while (bass >= 48) bass -= 12; if (bass < 36) bass += 12; const voicing = getBestVoicing(prevVoicing, root, ty, bass); playVoicedChord(bass, voicing, 1.2, t); prevVoicing = { notes: voicing, bass: bass }; t += 1.2; }); }
+        function getPossibleIntervals() { const isMin = state.currentRoundTonality === 'minor'; if (state.level === 'basic1') { return isMin ? [0, 2, 3, 5] : [0, 2, 4, 5]; } if (state.level === 'basic2') { return isMin ? [7, 8, 10, 12] : [7, 9, 11, 12]; } if (state.level === 'inter') { return isMin ? [0, 2, 3, 5, 7, 8, 10, 12] : [0, 2, 4, 5, 7, 9, 11, 12]; } if (state.level === 'adv1') return [0, 1, 2, 3, 4, 5]; if (state.level === 'adv2') return [6, 7, 8, 9, 10, 11, 12]; return Array.from({length: 13}, (_, i) => i); }
+        function saveHistory(correct, detail) { 
+            // This function is for internal use for graph. For session summaries, we use specific calls.
+            // If it is NOT a session summary call, we can log it for graph but mark it as NOT a session
+            const isSummary = typeof correct === 'boolean' && detail.startsWith("Rutina") || detail.startsWith("Práctica");
+            const entry = { date: Date.now(), correct, mode: state.mode, level: state.level, detail, isSessionSummary: isSummary };
             
-            // Update Summary UI
-            document.getElementById('session-final-score').innerText = `${sessionState.correctCount}/${sessionState.totalQuestions}`;
-            document.getElementById('summary-mel-correct').innerText = sessionState.stats.melCorrect;
-            document.getElementById('summary-mel-wrong').innerText = sessionState.stats.melTotal - sessionState.stats.melCorrect;
-            document.getElementById('summary-har-correct').innerText = sessionState.stats.harCorrect;
-            document.getElementById('summary-har-wrong').innerText = sessionState.stats.harTotal - sessionState.stats.harCorrect;
-            
-            document.getElementById('session-summary-modal').style.display = 'flex';
-            
-            updateDailyStreak(); 
-            saveHistory(true, `Rutina Completada (${sessionState.type})`);
+            // Only add to history if it's a summary OR if we want detailed question tracking
+            // User requested session summaries in list.
+            state.history.unshift(entry); 
+            if(state.history.length > 100) state.history = state.history.slice(0, 100); 
+            localStorage.setItem('formarOidoPro_history', JSON.stringify(state.history)); 
         }
-
-        function closeSessionSummary() {
-            document.getElementById('session-summary-modal').style.display = 'none';
-            startGame(); // Return to normal
-        }
-
-        // --- MAIN GAME LOGIC ---
-
-        function startGame() {
-            stopAllSounds(); clearAllTimeouts(); initAudio(); 
-            state.target = null; resetUI(); 
-            
-            if (!sessionState.active) {
-                const keys = ['C','G','D','A','E','B','F','Bb','Eb','Ab'];
-                state.keyLabel = keys[Math.floor(Math.random()*keys.length)];
-                state.keyIndex = 48 + ROOT_INDICES[state.keyLabel];
-                state.currentRoundTonality = state.tonalityMode === 'combined' ? (Math.random() > 0.5 ? 'major' : 'minor') : state.tonalityMode;
-                document.getElementById('key-root').innerText = state.keyLabel; 
-                document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR';
-                document.getElementById('key-badge').classList.remove('hidden'); 
-                renderUI();
-                if (state.sprint) generateQuestion(); else playCadence(() => generateQuestion());
-            } else {
-                loadSessionQuestion();
-            }
-        }
-
-        function playCadence(cb) { 
-            state.isPlaying = true; 
-            const type = state.currentRoundTonality === 'major' ? 'Maj' : 'Min'; 
-            let t = 0; 
-            let prevVoicing = null;
-            const degrees = [0, 5, 7, 0];
-            degrees.forEach(deg => {
-                const root = state.keyIndex + deg;
-                let bass = root;
-                while (bass >= 48) bass -= 12; 
-                if (bass < 36) bass += 12;
-                const chordType = (deg === 5 || deg === 0 || (deg === 7 && type === 'Maj')) ? 'Maj' : (type === 'Min' ? 'Min' : 'Maj'); 
-                const finalType = (deg === 7) ? 'Maj' : (deg === 0 || deg === 5 ? type : 'Maj'); 
-                const voicing = getBestVoicing(prevVoicing, root, finalType, bass);
-                playVoicedChord(bass, voicing, 1.0, t);
-                prevVoicing = { notes: voicing, bass: bass };
-                t += 1.0; 
-            }); 
-            registerTimeout(() => { if(state.isPlaying) { state.isPlaying = false; if(cb) cb(); } }, t * 1000); 
-        }
-
-        function generateQuestion() {
-            state.userBuffer = []; const count = parseInt(document.getElementById('note-count-input').value) || 1;
-            
-            if(state.mode === 'melody') {
-                const possible = getPossibleIntervals(); const sequence = []; 
-                for(let i=0; i<count; i++) { 
-                    const interval = possible[Math.floor(Math.random()*possible.length)]; 
-                    const midi = state.keyIndex + interval; 
-                    sequence.push({ interval, midi }); 
-                }
-                state.target = { type: 'melody', sequence }; 
-                renderBufferDots(count); 
-                if(count > 1) document.getElementById('btn-delete').classList.remove('hidden');
-            } else {
-                const list = state.currentRoundTonality === 'major' ? MAJOR_PROGS : MINOR_PROGS; 
-                const correct = list[Math.floor(Math.random()*list.length)];
-                const opts = [correct, ...list.filter(x=>x!==correct).sort(()=>0.5-Math.random()).slice(0,3)].sort(()=>0.5-Math.random());
-                state.target = { type: 'harmony', answer: correct, options: opts }; 
-                renderHarmonyOptions(opts); 
-            }
-
-            if (state.imagina) {
-                const text = state.mode === 'melody' 
-                    ? `Canta: ${state.target.sequence.map(s => DEGREES[s.interval]).join(' - ')}` 
-                    : `Canta: ${state.target.answer}`; 
-                
-                const fb = document.getElementById('feedback-text');
-                fb.innerText = text;
-                fb.className = "feedback-text text-violet-400 text-2xl sm:text-4xl animate-pulse";
-                document.getElementById('feedback-ui').classList.remove('hidden');
-            } else {
-                if(state.mode === 'melody') {
-                    let t = 0;
-                    state.target.sequence.forEach(s => {
-                        playTone(midiToFreq(s.midi), 0.7, 'triangle', t, 0.4); 
-                        t += 0.8;
-                    });
-                } else {
-                    playProgression(state.target.answer);
-                }
-            }
-
-            document.getElementById('btn-repeat-base').classList.toggle('hidden', state.sprint); 
-            document.getElementById('btn-repeat-target').classList.remove('hidden');
-        }
-
-        function playProgression(progStr) { 
-            const chords = progStr.split(' - '); 
-            const map = { 'I':0, 'ii':2, 'iii':4, 'IV':5, 'V':7, 'vi':9, 'vii':11, 'vii°':11, 'i':0, 'ii°':2, 'III':3, 'iv':5, 'v':7, 'VI':8, 'VII':10, 'bII':1, 'bIII':3, '#IV':6, 'bVI':8, 'bVII':10, 'V/vi':4, 'V/V':2, 'V/IV':0, 'V/ii':9 }; 
-            let t = 0; 
-            let prevVoicing = null;
-            chords.forEach((c) => { 
-                const root = state.keyIndex + (map[c.trim().replace(/7|maj|m|°/g, '')] || 0); 
-                const ty = (c.includes('m') || c.toLowerCase() === c) ? 'Min' : 'Maj'; 
-                let bass = root;
-                while (bass >= 48) bass -= 12;
-                if (bass < 36) bass += 12;
-                const voicing = getBestVoicing(prevVoicing, root, ty, bass);
-                playVoicedChord(bass, voicing, 1.2, t);
-                prevVoicing = { notes: voicing, bass: bass };
-                t += 1.2; 
-            }); 
-        }
-
-        function getPossibleIntervals() {
-            const isMin = state.currentRoundTonality === 'minor';
-            if (state.level === 'basic1') {
-                return isMin ? [0, 2, 3, 5] : [0, 2, 4, 5];
-            }
-            if (state.level === 'basic2') {
-                return isMin ? [7, 8, 10, 12] : [7, 9, 11, 12];
-            }
-            if (state.level === 'inter') {
-                return isMin ? [0, 2, 3, 5, 7, 8, 10, 12] : [0, 2, 4, 5, 7, 9, 11, 12];
-            }
-            if (state.level === 'adv1') return [0, 1, 2, 3, 4, 5]; 
-            if (state.level === 'adv2') return [6, 7, 8, 9, 10, 11, 12];
-            return Array.from({length: 13}, (_, i) => i);
-        }
-
-        function saveHistory(correct, detail) {
-            state.history.unshift({ date: Date.now(), correct, mode: state.mode, level: state.level, detail });
-            if(state.history.length > 50) state.history = state.history.slice(0, 50);
+        function checkAnswer(val) { if(!state.target || state.isPlaying) return; let isCorrect = false; let detail = ""; let userAns = ""; let correctAns = ""; if(state.mode === 'melody') { state.userBuffer.push(val); const dots = document.querySelectorAll('.buffer-dot'); if(dots[state.userBuffer.length - 1]) dots[state.userBuffer.length - 1].classList.add('active'); if(state.userBuffer.length === state.target.sequence.length) { isCorrect = state.userBuffer.every((v, i) => v === state.target.sequence[i].interval); userAns = state.userBuffer.map(s => DEGREES[s]).join(' - '); correctAns = state.target.sequence.map(s => DEGREES[s.interval]).join(' - '); detail = correctAns; if(state.autoResolve && state.target.sequence.length === 1) executeVisualResolution(state.target.sequence[0].interval, false); handleResult(isCorrect, userAns, correctAns, detail); state.target = null; } } else { isCorrect = val === state.target.answer; userAns = val; correctAns = state.target.answer; detail = correctAns; renderHarmonyOptions(state.target.options, val, state.target.answer); handleResult(isCorrect, userAns, correctAns, detail); state.target = null; } }
+        function handleResult(isCorrect, user, correct, detail) { 
+            // Log individual question (for graph mainly)
+            // But we don't want these cluttering the "Session List" in stats.
+            // We will filter in openStats.
+            const entry = { date: Date.now(), correct, mode: state.mode, level: state.level, detail, isSessionSummary: false };
+            state.history.unshift(entry);
+            if(state.history.length > 100) state.history = state.history.slice(0, 100);
             localStorage.setItem('formarOidoPro_history', JSON.stringify(state.history));
+
+            if (sessionState.active) { 
+                sessionState.totalQuestions++; 
+                if (isCorrect) sessionState.correctCount++; 
+                const isMelody = state.mode === 'melody'; 
+                if (isMelody) { sessionState.stats.melTotal++; if (isCorrect) sessionState.stats.melCorrect++; } 
+                else { sessionState.stats.harTotal++; if (isCorrect) sessionState.stats.harCorrect++; } 
+                saveSessionState(); 
+                if(sessionState.type !== 'free') updateSessionProgress(); 
+            } 
+            const comboEl = document.getElementById('combo-display'); 
+            if(isCorrect) { state.score++; state.streak++; document.getElementById('score-val').innerText = state.score; if(state.streak > 1) { comboEl.innerText = `COMBO x${state.streak} 🔥`; comboEl.classList.add('combo-active'); comboEl.style.animation = 'none'; comboEl.offsetHeight; comboEl.style.animation = 'bounceShort 0.5s ease-in-out'; } triggerConfetti(); } else { state.streak = 0; comboEl.classList.remove('combo-active'); } showResultModal(isCorrect, user, correct); 
         }
-
-        function checkAnswer(val) {
-            if(!state.target || state.isPlaying) return;
-            let isCorrect = false; let detail = ""; let userAns = ""; let correctAns = "";
-
-            if(state.mode === 'melody') {
-                state.userBuffer.push(val);
-                const dots = document.querySelectorAll('.buffer-dot');
-                if(dots[state.userBuffer.length - 1]) dots[state.userBuffer.length - 1].classList.add('active');
-                if(state.userBuffer.length === state.target.sequence.length) {
-                    isCorrect = state.userBuffer.every((v, i) => v === state.target.sequence[i].interval);
-                    userAns = state.userBuffer.map(s => DEGREES[s]).join(' - ');
-                    correctAns = state.target.sequence.map(s => DEGREES[s.interval]).join(' - ');
-                    detail = correctAns;
-                    if(state.autoResolve && state.target.sequence.length === 1) executeVisualResolution(state.target.sequence[0].interval, false);
-                    handleResult(isCorrect, userAns, correctAns, detail);
-                    state.target = null;
-                }
-            } else {
-                isCorrect = val === state.target.answer;
-                userAns = val;
-                correctAns = state.target.answer;
-                detail = correctAns;
-                renderHarmonyOptions(state.target.options, val, state.target.answer);
-                handleResult(isCorrect, userAns, correctAns, detail);
-                state.target = null;
-            }
-        }
-
-        function handleResult(isCorrect, user, correct, detail) {
-            saveHistory(isCorrect, detail);
-            
-            if (sessionState.active) {
-                sessionState.totalQuestions++;
-                if (isCorrect) sessionState.correctCount++;
-                
-                const isMelody = state.mode === 'melody';
-                if (isMelody) {
-                    sessionState.stats.melTotal++;
-                    if (isCorrect) sessionState.stats.melCorrect++;
-                } else {
-                    sessionState.stats.harTotal++;
-                    if (isCorrect) sessionState.stats.harCorrect++;
-                }
-
-                saveSessionState();
-                updateSessionProgress();
-            }
-
-            const comboEl = document.getElementById('combo-display');
-            if(isCorrect) { 
-                state.score++; 
-                state.streak++;
-                document.getElementById('score-val').innerText = state.score; 
-                
-                if(state.streak > 1) {
-                    comboEl.innerText = `COMBO x${state.streak} 🔥`;
-                    comboEl.classList.add('combo-active');
-                    comboEl.style.animation = 'none';
-                    comboEl.offsetHeight; 
-                    comboEl.style.animation = 'bounceShort 0.5s ease-in-out';
-                }
-                triggerConfetti(); 
-            } else {
-                state.streak = 0;
-                comboEl.classList.remove('combo-active');
-            }
-
-            showResultModal(isCorrect, user, correct);
-        }
-
-        function triggerConfetti() {
-            const container = document.getElementById('confetti-container');
-            container.innerHTML = ''; 
-            const colors = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6'];
-            for(let i=0; i<30; i++) {
-                const el = document.createElement('div');
-                el.className = 'confetti-piece';
-                el.style.left = Math.random() * 100 + '%';
-                el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                el.style.animationDelay = Math.random() * 0.5 + 's';
-                el.style.transform = `rotate(${Math.random() * 360}deg)`;
-                el.style.animation = `confettiDrop ${1 + Math.random()}s ease-out forwards`;
-                container.appendChild(el);
-            }
-        }
-
-        function showResultModal(isCorrect, user, correct) {
-            const m = document.getElementById('result-modal');
-            const card = document.getElementById('result-card');
-            const icon = document.getElementById('result-icon');
-            const title = document.getElementById('result-title');
-            const uText = document.getElementById('result-user');
-            const cBlock = document.getElementById('correct-block');
-            const cText = document.getElementById('result-correct');
-            const btn = document.getElementById('btn-continue-result');
-
-            m.style.display = 'flex';
-            
-            if(isCorrect) {
-                card.className = "modal-content animate-pop-in border-4 border-emerald-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden";
-                icon.innerHTML = "🎉";
-                title.innerText = "¡Excelente!";
-                title.className = "text-3xl font-black uppercase italic mb-2 text-emerald-500 z-10";
-                uText.innerText = user;
-                uText.className = "font-mono text-lg font-bold mb-4 text-emerald-600 z-10";
-                cBlock.classList.add('hidden');
-                btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-emerald-500 hover:bg-emerald-600 z-10";
-                
-                registerTimeout(() => { if(m.style.display === 'flex') { m.style.display = 'none'; startGame(); } }, 1500);
-            } else {
-                card.className = "modal-content animate-pop-in border-4 border-rose-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden";
-                document.getElementById('confetti-container').innerHTML = '';
-                
-                icon.innerHTML = "❌";
-                title.innerText = "Casi...";
-                title.className = "text-3xl font-black uppercase italic mb-2 text-rose-500 z-10";
-                uText.innerText = user;
-                uText.className = "font-mono text-lg font-bold mb-4 text-rose-600 line-through decoration-2 opacity-70 z-10";
-                cBlock.classList.remove('hidden');
-                cText.innerText = correct;
-                btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-slate-800 hover:bg-slate-700 z-10";
-            }
-        }
-
-        function handleContinue() {
-            document.getElementById('result-modal').style.display = 'none';
-            startGame();
-        }
-
-        function updateUsername(val) {
-            state.username = val;
-            localStorage.setItem('formarOidoPro_username', val);
-        }
-
-        function openStats() {
-            const h = state.history;
-            const total = h.length;
-            const correct = h.filter(x => x.correct).length;
-            const acc = total ? Math.round((correct/total)*100) : 0;
-            document.getElementById('stat-accuracy').innerText = acc + "%";
-            document.getElementById('stat-streak').innerText = state.dailyStreak + " 🔥";
-            document.getElementById('username-input').value = state.username || '';
-
-            // Generate Chart
-            const chartContainer = document.getElementById('chart-container');
-            chartContainer.innerHTML = '';
-            // Get last 14 entries reverse
-            const recent = h.slice(0, 14).reverse();
-            if (recent.length === 0) {
-                chartContainer.innerHTML = '<p class="w-full text-center text-[10px] text-slate-400">Sin datos aún</p>';
-            } else {
-                recent.forEach(x => {
-                    const bar = document.createElement('div');
-                    bar.className = `flex-1 rounded-t-sm ${x.correct ? 'bg-emerald-400' : 'bg-rose-400'}`;
-                    bar.style.height = x.correct ? '80%' : '30%';
-                    chartContainer.appendChild(bar);
-                });
-            }
-
-            // Suggestion Logic
-            let suggestion = "Continua practicando para generar datos.";
-            if(total > 5) {
-                const mel = h.filter(x=>x.mode==='melody');
-                const har = h.filter(x=>x.mode==='harmony');
-                const melAcc = mel.length ? mel.filter(x=>x.correct).length/mel.length : 1;
-                const harAcc = har.length ? har.filter(x=>x.correct).length/har.length : 1;
-                
-                // Pros/Cons analysis
-                const pro = melAcc > harAcc ? "Melodía" : "Armonía";
-                const con = melAcc > harAcc ? "Armonía" : "Melodía";
-
-                if(melAcc < harAcc && melAcc < 0.8) suggestion = `Pro: ${pro}. Contra: ${con}. Enfócate en intervalos.`;
-                else if(harAcc < melAcc && harAcc < 0.8) suggestion = `Pro: ${pro}. Contra: ${con}. Refuerza progresiones.`;
-                else if(acc > 90) suggestion = "¡Nivel Experto! Sube la dificultad en Ajustes.";
-                else suggestion = "Mantén el ritmo. Canta antes de responder.";
-            }
-            document.getElementById('stat-suggestion').innerText = suggestion;
-
-            const list = document.getElementById('history-list'); list.innerHTML = '';
-            h.slice(0, 10).forEach(x => {
-                const row = document.createElement('div');
-                row.className = "flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-2 rounded text-[10px]";
-                
-                const dateObj = new Date(x.date);
-                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                row.innerHTML = `
-                    <div class="flex flex-col">
-                        <span class="font-bold ${x.correct ? 'text-emerald-500' : 'text-rose-500'}">${x.correct ? 'ACIERTO' : 'FALLO'}</span>
-                        <span class="text-[8px] text-slate-400">${timeStr}</span>
-                    </div>
-                    <span class="opacity-60 text-right w-2/3 truncate">${x.mode} - ${x.detail}</span>
-                `;
-                list.appendChild(row);
-            });
-            document.getElementById('stats-modal').style.display = 'flex';
-        }
-
+        function triggerConfetti() { const container = document.getElementById('confetti-container'); container.innerHTML = ''; const colors = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6']; for(let i=0; i<30; i++) { const el = document.createElement('div'); el.className = 'confetti-piece'; el.style.left = Math.random() * 100 + '%'; el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; el.style.animationDelay = Math.random() * 0.5 + 's'; el.style.transform = `rotate(${Math.random() * 360}deg)`; el.style.animation = `confettiDrop ${1 + Math.random()}s ease-out forwards`; container.appendChild(el); } }
+        function showResultModal(isCorrect, user, correct) { const m = document.getElementById('result-modal'); const card = document.getElementById('result-card'); const icon = document.getElementById('result-icon'); const title = document.getElementById('result-title'); const uText = document.getElementById('result-user'); const cBlock = document.getElementById('correct-block'); const cText = document.getElementById('result-correct'); const btn = document.getElementById('btn-continue-result'); m.style.display = 'flex'; if(isCorrect) { card.className = "modal-content animate-pop-in border-4 border-emerald-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden"; icon.innerHTML = "🎉"; title.innerText = "¡Excelente!"; title.className = "text-3xl font-black uppercase italic mb-2 text-emerald-500 z-10"; uText.innerText = user; uText.className = "font-mono text-lg font-bold mb-4 text-emerald-600 z-10"; cBlock.classList.add('hidden'); btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-emerald-500 hover:bg-emerald-600 z-10"; registerTimeout(() => { if(m.style.display === 'flex') { m.style.display = 'none'; startGame(); } }, 1500); } else { card.className = "modal-content animate-pop-in border-4 border-rose-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden"; document.getElementById('confetti-container').innerHTML = ''; icon.innerHTML = "❌"; title.innerText = "Casi..."; title.className = "text-3xl font-black uppercase italic mb-2 text-rose-500 z-10"; uText.innerText = user; uText.className = "font-mono text-lg font-bold mb-4 text-rose-600 line-through decoration-2 opacity-70 z-10"; cBlock.classList.remove('hidden'); cText.innerText = correct; btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-slate-800 hover:bg-slate-700 z-10"; } }
+        function handleContinue() { document.getElementById('result-modal').style.display = 'none'; startGame(); }
+        function updateUsername(val) { state.username = val; localStorage.setItem('formarOidoPro_username', val); }
+        function openStats() { const h = state.history; const total = h.length; const correct = h.filter(x => x.correct).length; const acc = total ? Math.round((correct/total)*100) : 0; document.getElementById('stat-accuracy').innerText = acc + "%"; document.getElementById('stat-streak').innerText = state.dailyStreak + " 🔥"; document.getElementById('username-input').value = state.username || ''; const chartContainer = document.getElementById('chart-container'); chartContainer.innerHTML = ''; const recent = h.filter(x=>!x.isSessionSummary).slice(0, 14).reverse(); if (recent.length === 0) { chartContainer.innerHTML = '<p class="w-full text-center text-[10px] text-slate-400">Sin datos aún</p>'; } else { recent.forEach(x => { const bar = document.createElement('div'); bar.className = `flex-1 rounded-t-sm ${x.correct ? 'bg-emerald-400' : 'bg-rose-400'}`; bar.style.height = x.correct ? '80%' : '30%'; chartContainer.appendChild(bar); }); } let suggestion = "Continua practicando para generar datos."; if(total > 5) { const mel = h.filter(x=>x.mode==='melody'); const har = h.filter(x=>x.mode==='harmony'); const melAcc = mel.length ? mel.filter(x=>x.correct).length/mel.length : 1; const harAcc = har.length ? har.filter(x=>x.correct).length/har.length : 1; const pro = melAcc > harAcc ? "Melodía" : "Armonía"; const con = melAcc > harAcc ? "Armonía" : "Melodía"; if(melAcc < harAcc && melAcc < 0.8) suggestion = `Pro: ${pro}. Contra: ${con}. Enfócate en intervalos.`; else if(harAcc < melAcc && harAcc < 0.8) suggestion = `Pro: ${pro}. Contra: ${con}. Refuerza progresiones.`; else if(acc > 90) suggestion = "¡Nivel Experto! Sube la dificultad en Ajustes."; else suggestion = "Mantén el ritmo. Canta antes de responder."; } document.getElementById('stat-suggestion').innerText = suggestion; const list = document.getElementById('history-list'); list.innerHTML = ''; h.filter(x=>x.isSessionSummary).slice(0, 10).forEach(x => { const row = document.createElement('div'); row.className = "flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-2 rounded text-[10px]"; const dateObj = new Date(x.date); const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); const dateStr = dateObj.toLocaleDateString(); row.innerHTML = `<div class="flex flex-col"><span class="font-bold text-violet-500">${x.detail.split('(')[0]}</span><span class="text-[8px] text-slate-400">${dateStr} - ${timeStr}</span></div><span class="opacity-80 text-right font-mono font-bold">${x.detail.match(/\(([^)]+)\)/)?.[1] || x.detail}</span>`; list.appendChild(row); }); document.getElementById('stats-modal').style.display = 'flex'; }
         function resetStats() { state.history = []; localStorage.removeItem('formarOidoPro_history'); openStats(); }
         function closeStats() { document.getElementById('stats-modal').style.display = 'none'; }
-
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.history));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            const name = state.username || 'oido';
-            const safeName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-            downloadAnchorNode.setAttribute("download", `entrenamiento_${safeName}.json`);
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        }
-
-        function importData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = e => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.readAsText(file,'UTF-8');
-                reader.onload = readerEvent => {
-                    try {
-                        const content = JSON.parse(readerEvent.target.result);
-                        if (Array.isArray(content)) {
-                            state.history = content;
-                            localStorage.setItem('formarOidoPro_history', JSON.stringify(state.history));
-                            alert('Datos importados correctamente.');
-                            openStats();
-                        } else {
-                            alert('Archivo inválido.');
-                        }
-                    } catch (error) {
-                        alert('Error al leer el archivo.');
-                    }
-                }
-            }
-            input.click();
-        }
-
+        function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.history)); const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); const name = state.username || 'oido'; const safeName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); downloadAnchorNode.setAttribute("download", `entrenamiento_${safeName}.json`); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove(); }
+        function importData() { const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = e => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.readAsText(file,'UTF-8'); reader.onload = readerEvent => { try { const content = JSON.parse(readerEvent.target.result); if (Array.isArray(content)) { state.history = content; localStorage.setItem('formarOidoPro_history', JSON.stringify(state.history)); alert('Datos importados correctamente.'); openStats(); } else { alert('Archivo inválido.'); } } catch (error) { alert('Error al leer el archivo.'); } } }; input.click(); }
         function deleteLastNote() { if(state.userBuffer.length > 0) { const dots = document.querySelectorAll('.buffer-dot'); dots[state.userBuffer.length - 1].classList.remove('active'); state.userBuffer.pop(); } }
         function executeVisualResolution(degreeIdx, next, delay = 0) { if(parseInt(document.getElementById('note-count-input').value) > 1 && next) return; const path = RESOLUTIONS[degreeIdx] || [degreeIdx]; let t = delay / 1000; path.forEach((step, idx) => { const midi = state.keyIndex + step; const dur = (idx === path.length - 1) ? 1.0 : 0.4; playTone(midiToFreq(midi), dur, idx === 0 ? 'triangle' : 'sine', t, 0.2); registerTimeout(() => { const k = document.querySelector(`[data-interval="${step}"]`); if(k) { k.classList.add('highlight-res'); registerTimeout(() => k.classList.remove('highlight-res'), 400); } }, t * 1000); t += dur; }); if(next) registerTimeout(() => startGame(), t * 1000 + 400); }
         function renderUI() { renderPiano(); renderPracticeChips(); }
@@ -1220,7 +662,6 @@
             state.userBuffer = []; 
             renderUI(); 
         }
-        function toggleImagina() { state.imagina = !state.imagina; document.getElementById('imagina-dot').className = `w-1.5 h-1.5 rounded-full ${state.imagina ? 'bg-emerald-400' : 'bg-slate-700'}`; }
         function repeatTargetSound() { if(state.target) { if(state.mode === 'melody') state.target.sequence.forEach((s, i) => playTone(midiToFreq(s.midi), 0.6, 'triangle', i * 0.8, 0.4)); else playProgression(state.target.answer); } }
         function playCurrentCadence() { if(!state.isPlaying) playCadence(); }
         function openModal() { document.getElementById('help-modal').style.display = 'flex'; }
@@ -1233,37 +674,39 @@
         let touchStart = 0;
         let ptrdist = 0;
         const ptrElement = document.getElementById('ptr-indicator');
-        const scrollContainer = document.getElementById('inner-scroll-content'); 
+        const scrollContainer = document.getElementById('main-scroll-container'); // Correct ID target
 
-        scrollContainer.addEventListener('touchstart', e => {
-            if (scrollContainer.scrollTop === 0) {
-                touchStart = e.touches[0].clientY;
-            }
-        }, {passive: true});
+        if (scrollContainer) {
+            scrollContainer.addEventListener('touchstart', e => {
+                if (scrollContainer.scrollTop === 0) {
+                    touchStart = e.touches[0].clientY;
+                }
+            }, {passive: true});
 
-        scrollContainer.addEventListener('touchmove', e => {
-            const y = e.touches[0].clientY;
-            if (scrollContainer.scrollTop === 0 && y > touchStart) {
-                ptrdist = y - touchStart;
-                if (ptrdist > 80) ptrdist = 80;
-                ptrElement.style.transform = `translateY(${ptrdist - 60}px)`; 
-                ptrElement.style.opacity = Math.min(1, ptrdist / 60);
-            }
-        }, {passive: true});
+            scrollContainer.addEventListener('touchmove', e => {
+                const y = e.touches[0].clientY;
+                if (scrollContainer.scrollTop === 0 && y > touchStart) {
+                    ptrdist = y - touchStart;
+                    if (ptrdist > 80) ptrdist = 80;
+                    ptrElement.style.transform = `translateY(${ptrdist - 60}px)`; 
+                    ptrElement.style.opacity = Math.min(1, ptrdist / 60);
+                }
+            }, {passive: true});
 
-        scrollContainer.addEventListener('touchend', () => {
-            if (ptrdist > 60) {
-                location.reload(); 
-            } else {
-                ptrElement.style.transform = 'translateY(-100%)';
-                ptrElement.style.opacity = '0';
-            }
-            touchStart = 0;
-            ptrdist = 0;
-        });
+            scrollContainer.addEventListener('touchend', () => {
+                if (ptrdist > 60) {
+                    location.reload(); 
+                } else {
+                    ptrElement.style.transform = 'translateY(-100%)';
+                    ptrElement.style.opacity = '0';
+                }
+                touchStart = 0;
+                ptrdist = 0;
+            });
+        }
 
         // Initialize UI but wait for modal selection to start audio/game
         renderUI();
     </script>
 </body>
-</html>
+    </html>
