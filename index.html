@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Formar Oído Pro - Trainer</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Html2Canvas para exportar reportes -->
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
         tailwind.config = {
@@ -123,7 +125,7 @@
         .toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         .toggle-btn.active .toggle-thumb { transform: translateX(16px); }
         
-        .log-entry { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 4px 0; }
+        .log-entry { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 6px 0; font-size: 11px; }
         .log-date { opacity: 0.6; margin-right: 8px; }
 
         .report-chart-container { display: flex; justify-content: space-around; align-items: flex-end; height: 100px; padding-bottom: 5px; border-bottom: 1px solid #cbd5e1; margin-bottom: 10px; }
@@ -134,6 +136,11 @@
         #session-time-remaining { transition: color 0.3s; }
         #session-time-remaining.warning { color: #ef4444; animation: pulse 1s infinite; }
         #phase-indicator { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 900; pointer-events: none; z-index: 100; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s; }
+
+        .stat-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; text-align: center; }
+        .dark-mode .stat-card { background: #1e293b; border-color: #334155; }
+        .stat-val { font-size: 18px; font-weight: 900; color: var(--accent); }
+        .stat-lbl { font-size: 9px; font-weight: 800; text-transform: uppercase; color: #64748b; }
     </style>
 </head>
 <body class="select-none relative flex flex-col h-screen overflow-hidden">
@@ -313,98 +320,184 @@
 
     <!-- Report Modal -->
     <div id="report-modal" class="modal">
-        <div id="report-content-capture" class="modal-content w-full max-w-lg bg-white dark:bg-slate-900">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-black uppercase text-slate-800 dark:text-white">Tu Rendimiento</h2>
+        <div id="report-content-capture" class="modal-content w-full max-w-2xl bg-white dark:bg-slate-900">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black uppercase text-slate-800 dark:text-white tracking-tight">Evaluación de Progreso</h2>
                 <button onclick="closeReportModal()" class="text-slate-400 hover:text-slate-600 font-bold text-xs uppercase">Cerrar</button>
             </div>
             
-            <div class="mb-4">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Resumen General</p>
-                <div class="report-chart-container mt-1 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-2">
-                    <div class="report-bar" id="rep-bar-mel"><span id="rep-val-mel">0%</span></div>
-                    <div class="report-bar" id="rep-bar-int"><span id="rep-val-int">0%</span></div>
-                    <div class="report-bar" id="rep-bar-har"><span id="rep-val-har">0%</span></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Gráfico de Barras -->
+                <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-800">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Rendimiento por Habilidad</p>
+                    <div class="report-chart-container mt-2" style="height: 120px;">
+                        <div class="report-bar" id="rep-bar-mel"><span id="rep-val-mel">0%</span></div>
+                        <div class="report-bar bg-blue-500" id="rep-bar-int"><span id="rep-val-int">0%</span></div>
+                        <div class="report-bar bg-pink-500" id="rep-bar-har"><span id="rep-val-har">0%</span></div>
+                    </div>
+                    <div class="report-labels mt-2">
+                        <div>Melodía</div><div>Intervalos</div><div>Armonía</div>
+                    </div>
                 </div>
-                <div class="report-labels mt-1">
-                    <div>Melodía</div><div>Intervalos</div><div>Armonía</div>
+
+                <!-- Análisis Detallado -->
+                <div class="space-y-3">
+                    <div class="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-xl border-l-4 border-emerald-500">
+                        <h4 class="font-black text-emerald-700 dark:text-emerald-400 text-xs uppercase mb-1">Fortalezas Principales</h4>
+                        <p id="rep-strengths" class="text-sm font-medium text-slate-700 dark:text-slate-300">Sigue practicando para detectar patrones.</p>
+                    </div>
+                    <div class="bg-rose-50 dark:bg-rose-900/10 p-4 rounded-xl border-l-4 border-rose-500">
+                        <h4 class="font-black text-rose-700 dark:text-rose-400 text-xs uppercase mb-1">Áreas de Mejora</h4>
+                        <p id="rep-weaknesses" class="text-sm font-medium text-slate-700 dark:text-slate-300">Identificando puntos débiles...</p>
+                    </div>
+                    <!-- Diagnóstico Pedagógico -->
+                    <div id="rep-diagnosis" class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-xs text-slate-600 dark:text-slate-300 italic border border-blue-100 dark:border-blue-800">
+                        El entrenador está analizando tu estilo de aprendizaje...
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-emerald-50 dark:bg-emerald-900/20 p-2 rounded-lg border border-emerald-100 dark:border-emerald-800/30">
-                    <h4 class="font-bold text-emerald-700 dark:text-emerald-400 text-[10px] uppercase mb-1">Fortalezas</h4>
-                    <p id="rep-strengths" class="text-xs font-medium text-slate-700 dark:text-slate-300">Entrenando...</p>
+            <!-- Niveles -->
+            <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl mb-6 flex justify-between items-center">
+                <div class="text-center">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase">Melodía</span>
+                    <span id="lvl-txt-mel" class="font-black text-violet-500 text-lg">Básico</span>
                 </div>
-                <div class="bg-rose-50 dark:bg-rose-900/20 p-2 rounded-lg border border-rose-100 dark:border-rose-800/30">
-                    <h4 class="font-bold text-rose-700 dark:text-rose-400 text-[10px] uppercase mb-1">A Mejorar</h4>
-                    <p id="rep-weaknesses" class="text-xs font-medium text-slate-700 dark:text-slate-300">Entrenando...</p>
+                <div class="w-px h-8 bg-slate-300 dark:bg-slate-600"></div>
+                <div class="text-center">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase">Intervalos</span>
+                    <span id="lvl-txt-int" class="font-black text-blue-500 text-lg">Nivel 1</span>
                 </div>
-            </div>
-
-            <div class="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg mb-4 border border-slate-100 dark:border-slate-700">
-                <h4 class="font-bold text-slate-400 text-[10px] uppercase mb-2">Niveles Actuales</h4>
-                <div class="flex justify-between text-xs font-mono text-slate-700 dark:text-slate-300">
-                    <span>Mel: <b id="lvl-txt-mel" class="text-violet-500">...</b></span>
-                    <span>Int: <b id="lvl-txt-int" class="text-violet-500">...</b></span>
-                    <span>Arm: <b id="lvl-txt-har" class="text-violet-500">...</b></span>
+                <div class="w-px h-8 bg-slate-300 dark:bg-slate-600"></div>
+                <div class="text-center">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase">Armonía</span>
+                    <span id="lvl-txt-har" class="font-black text-pink-500 text-lg">Básico</span>
                 </div>
             </div>
 
-            <button onclick="downloadReport()" class="w-full py-3 bg-violet-600 text-white rounded-xl font-black uppercase text-xs shadow-lg hover:bg-violet-700 flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                Guardar Imagen
+            <button onclick="downloadReport()" class="w-full py-4 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-xl font-black uppercase text-xs shadow-xl hover:scale-[1.01] transition-transform flex items-center justify-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Guardar Reporte Completo
             </button>
         </div>
     </div>
 
-    <!-- Help & Stats Modals -->
+    <!-- Help Modal (Expandido) -->
     <div id="help-modal" class="modal">
-        <div class="modal-content max-w-lg">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-black uppercase text-slate-800 dark:text-white">Guía Rápida</h2>
-                <button onclick="closeHelpModal()" class="text-slate-400 hover:text-slate-600 font-bold text-xs">CERRAR</button>
+        <div class="modal-content max-w-2xl max-h-[85vh] overflow-y-auto custom-scroll">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black uppercase text-slate-800 dark:text-white">Manual de Entrenamiento</h2>
+                <button onclick="closeHelpModal()" class="text-slate-400 hover:text-slate-600 font-bold text-xs uppercase">Cerrar</button>
             </div>
-            <div class="space-y-4 text-sm text-slate-600 dark:text-slate-300">
-                <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
-                    <h3 class="font-bold text-slate-800 dark:text-white mb-1">Modos de Juego</h3>
-                    <p class="text-xs mb-2"><b>🎛️ Libre:</b> Configura todo a tu gusto. Ideal para repasar temas específicos.</p>
-                    <p class="text-xs"><b>📅 Diario:</b> Tu entrenador personal. Ajusta la dificultad automáticamente según tu nivel.</p>
-                </div>
-                <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
-                     <h3 class="font-bold text-slate-800 dark:text-white mb-1">Estrategia</h3>
-                     <p class="text-xs">La sesión diaria divide el tiempo en 3 fases: Melodía, Intervalos y Armonía. Mantén tu racha para desbloquear niveles más altos.</p>
-                </div>
-                <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
-                    <div class="bg-slate-100 dark:bg-slate-700 p-2 rounded">ESPACIO<br><span class="opacity-50 text-[9px]">Repetir</span></div>
-                    <div class="bg-slate-100 dark:bg-slate-700 p-2 rounded">TECLA C<br><span class="opacity-50 text-[9px]">Tonalidad</span></div>
-                    <div class="bg-slate-100 dark:bg-slate-700 p-2 rounded">ENTER<br><span class="opacity-50 text-[9px]">Continuar</span></div>
-                </div>
+            
+            <div class="space-y-8 text-sm text-slate-600 dark:text-slate-300">
+                <section>
+                    <h3 class="flex items-center gap-2 text-lg font-black text-violet-600 dark:text-violet-400 mb-3">
+                        <span class="bg-violet-100 dark:bg-violet-900 p-1 rounded">🧠</span> Metodología
+                    </h3>
+                    <p class="mb-3">Esta aplicación utiliza el principio de <b>"Repetición Espaciada y Dificultad Adaptativa"</b>. No se trata solo de adivinar notas, sino de internalizar su función tonal.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border-l-4 border-slate-300">
+                            <h4 class="font-bold text-slate-900 dark:text-white mb-1">Modo Libre</h4>
+                            <p class="text-xs leading-relaxed">Control total sobre los parámetros. Ideal para atacar debilidades específicas identificadas en tu reporte (ej. "siempre fallo la 6ta menor").</p>
+                        </div>
+                        <div class="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border-l-4 border-emerald-500">
+                            <h4 class="font-bold text-emerald-800 dark:text-emerald-300 mb-1">Sesión Diaria (Recomendado)</h4>
+                            <p class="text-xs leading-relaxed">Un "workout" completo de 5 o 20 minutos que rota automáticamente entre melodía, intervalos y armonía para evitar la fatiga auditiva.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="flex items-center gap-2 text-lg font-black text-blue-600 dark:text-blue-400 mb-3">
+                        <span class="bg-blue-100 dark:bg-blue-900 p-1 rounded">📈</span> Progresión Melódica
+                    </h3>
+                    <p class="mb-3">El dictado melódico sigue reglas estrictas para garantizar un aprendizaje sólido:</p>
+                    <ul class="list-disc pl-5 space-y-2 marker:text-blue-500">
+                        <li><b>Nivel Básico (1-2):</b> La cantidad de notas es <b>FIJA (1 nota)</b>. El objetivo es dominar los grados individuales antes de conectarlos.</li>
+                        <li><b>Nivel Intermedio:</b> Se activa la <b>"Escalera Progresiva"</b>. Empiezas con 2 notas. Si aciertas, subes a 3. Si fallas, bajas. Esto te mantiene siempre en el límite de tu capacidad.</li>
+                        <li><b>Nivel Avanzado:</b> Secuencias largas (3-5 notas) y mayor cromatismo.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="flex items-center gap-2 text-lg font-black text-pink-600 dark:text-pink-400 mb-3">
+                        <span class="bg-pink-100 dark:bg-pink-900 p-1 rounded">⌨️</span> Atajos de Teclado
+                    </h3>
+                    <div class="grid grid-cols-3 gap-3 font-mono text-xs">
+                        <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl text-center border border-slate-200 dark:border-slate-700">
+                            <div class="font-black text-lg mb-1">ESPACIO</div>
+                            <span class="opacity-60 uppercase font-bold">Repetir Sonido</span>
+                        </div>
+                        <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl text-center border border-slate-200 dark:border-slate-700">
+                            <div class="font-black text-lg mb-1">TECLA C</div>
+                            <span class="opacity-60 uppercase font-bold">Oír Tonalidad</span>
+                        </div>
+                        <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl text-center border border-slate-200 dark:border-slate-700">
+                            <div class="font-black text-lg mb-1">ENTER</div>
+                            <span class="opacity-60 uppercase font-bold">Continuar</span>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
 
+    <!-- Stats Modal (Perfil Expandido) -->
     <div id="stats-modal" class="modal">
-        <div class="modal-content w-full max-w-lg">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-black uppercase">Tu Perfil</h2>
-                <button onclick="closeStatsModal()" class="text-slate-400 font-bold text-xs">CERRAR</button>
+        <div class="modal-content w-full max-w-lg bg-white dark:bg-slate-900">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black uppercase text-slate-800 dark:text-white tracking-tight">Perfil de Usuario</h2>
+                <button onclick="closeStatsModal()" class="text-slate-400 font-bold text-xs uppercase hover:text-slate-600">Cerrar</button>
             </div>
             
-            <div class="mb-4">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nombre</label>
-                <input type="text" id="user-name-input" onchange="updateUserName(this.value)" class="w-full p-2 text-sm rounded-lg border border-slate-200 dark:bg-slate-800 dark:border-slate-700 font-bold outline-none focus:border-violet-500" placeholder="Tu nombre">
+            <div class="mb-6">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Identidad</label>
+                <div class="flex gap-2">
+                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-black text-xl shadow-lg">
+                        <span id="profile-initial">?</span>
+                     </div>
+                     <input type="text" id="user-name-input" onchange="updateUserName(this.value)" class="flex-1 p-3 text-lg font-bold rounded-xl border-2 border-slate-100 dark:bg-slate-800 dark:border-slate-700 focus:border-violet-500 focus:ring-0 transition-all outline-none" placeholder="Escribe tu nombre aquí...">
+                </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 mb-4">
-                <button onclick="exportData()" class="py-2 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300 rounded-lg text-[10px] font-black uppercase border border-blue-100 dark:border-blue-800/50">Exportar JSON</button>
-                <button onclick="document.getElementById('import-file').click()" class="py-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-300 rounded-lg text-[10px] font-black uppercase border border-emerald-100 dark:border-emerald-800/50">Importar JSON</button>
-                <input type="file" id="import-file" style="display:none" onchange="importData(this)">
+            <!-- Métricas Globales -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div class="stat-card">
+                    <div class="stat-val" id="total-time-val">0h</div>
+                    <div class="stat-lbl">Tiempo Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val text-emerald-500" id="total-xp-val">0</div>
+                    <div class="stat-lbl">XP Acumulado</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val text-orange-500" id="best-streak-val">0</div>
+                    <div class="stat-lbl">Mejor Racha</div>
+                </div>
             </div>
 
-            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl max-h-40 overflow-y-auto custom-scroll">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-2 sticky top-0 bg-slate-50 dark:bg-slate-800 pb-2 border-b border-slate-200 dark:border-slate-700">Historial Reciente</p>
-                <ul id="usage-log-list" class="space-y-1"></ul>
+            <div class="mb-6">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Gestión de Datos</p>
+                <div class="flex gap-3">
+                    <button onclick="exportData()" class="flex-1 py-3 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300 rounded-xl text-xs font-black uppercase border border-blue-100 dark:border-blue-800/50 hover:bg-blue-100 transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Exportar Backup
+                    </button>
+                    <button onclick="document.getElementById('import-file').click()" class="flex-1 py-3 bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-300 rounded-xl text-xs font-black uppercase border border-emerald-100 dark:border-emerald-800/50 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        Importar Datos
+                    </button>
+                    <input type="file" id="import-file" style="display:none" onchange="importData(this)">
+                </div>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl max-h-48 overflow-y-auto custom-scroll border border-slate-100 dark:border-slate-700">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-3 sticky top-0 bg-slate-50 dark:bg-slate-800/90 backdrop-blur-sm pb-2 border-b border-slate-200 dark:border-slate-700 z-10 flex justify-between">
+                    <span>Historial de Sesiones</span>
+                    <span>Duración</span>
+                </p>
+                <ul id="usage-log-list" class="space-y-2"></ul>
             </div>
         </div>
     </div>
@@ -432,7 +525,26 @@
         // --- CONFIGURACIÓN & CONSTANTES ---
         const DEGREES = ['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7', '8'];
         const ROOT_INDICES = { 'C': 0, 'Db': 1, 'C#': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'Ab': 8, 'G#': 8, 'A': 9, 'Bb': 10, 'B': 11 };
-        const RESOLUTIONS = { 0: [0, -5, 0], 1: [1, 0], 2: [2, 0], 3: [3, 2, 0], 4: [4, 2, 0], 5: [[5, 3, 1], [5, 1]], 6: [[6, 7, 12], [6, 7, 4, 0]], 7: [[7, 12], [7, 4, 0]], 8: [8, 7, 12], 9: [9, 7, 12], 10: [10, 11, 12], 11: [11, 12], 12: [12, 7, 12] };
+        
+        // RESOLUCIONES MELÓDICAS CORREGIDAS
+        // 4 (3): 3 -> 2 -> 1
+        // 5 (4): 4 -> 3 -> 2 -> 1
+        const RESOLUTIONS = {
+            0: [0, -5, 0],
+            1: [1, 0],
+            2: [2, 0],
+            3: [3, 2, 0],
+            4: [4, 2, 0], // III -> II -> I (Corregido)
+            5: [5, 4, 2, 0], // IV -> III -> II -> I
+            6: [[6, 7, 12], [6, 7, 4, 0]], 
+            7: [[7, 12], [7, 4, 0]], 
+            8: [8, 7, 12], 
+            9: [9, 7, 12], 
+            10: [10, 11, 12], 
+            11: [11, 12], 
+            12: [12, 7, 12]
+        };
+
         const INTERVAL_NAMES = { 0: "Unísono", 1: "2da m", 2: "2da M", 3: "3ra m", 4: "3ra M", 5: "4ta J", 6: "Tritono", 7: "5ta J", 8: "6ta m", 9: "6ta M", 10: "7ma m", 11: "7ma M", 12: "8va J" };
         const INTERVAL_LEVELS = { 1: [0, 5, 7, 12], 2: [0, 1, 2, 5, 7, 12], 3: [0, 1, 2, 3, 4, 5, 7, 12], 4: [0, 1, 2, 3, 4, 5, 6, 7, 12], 5: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12], 6: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] };
         const HARMONY_LEVELS = { 'basic': { 'major': ["I - IV - V - I", "I - V - I"], 'minor': ["i - iv - V - i", "i - V - i"] }, 'inter': { 'major': ["I - IV - V - I", "ii - V - I", "I - vi - ii - V"], 'minor': ["i - iv - V - i", "ii° - V - i", "i - bVI - V - i"] }, 'expert': { 'major': ["I - IV7 - V7 - I", "ii7 - V7 - I", "I - vi - ii7 - V7", "I - bVI - V7 - I", "I - V/V - V - I"], 'minor': ["i - iv7 - V7 - i", "ii°7 - V7 - i", "i - bVI - V7", "i - IV7 - V7 - i"] } };
@@ -561,22 +673,20 @@
             state.userBuffer = []; const vQ = 0.4;
             
             if(state.mode === 'melody') {
-                // MODIFICADO: INICIO SIEMPRE EN 1 NOTA
-                // Si es intermedio, permite que el input controle el valor, si no, fuerza 1 o 2.
                 let count = 1;
                 const countInput = document.getElementById('note-count-input');
                 
-                // Si es modo intermedio (progresivo), respetamos el input (que cambia dinámicamente)
-                if (state.level === 'inter' || (sessionState.type === 'daily' && state.skillLevels.melody >= 2)) {
-                    count = parseInt(countInput?.value || 1);
+                // SOLO EN INTERMEDIO ES PROGRESIVO
+                if (state.level === 'inter' || (sessionState.type === 'daily' && state.skillLevels.melody >= 2 && state.skillLevels.melody < 4)) {
+                    count = parseInt(countInput?.value || 1); 
                 } else {
-                    // Para otros modos (basico, experto, o inicio diario), forzar 1 o configurar base
-                    count = 1;
+                    // Valores fijos
+                    count = 1; 
                     if (state.level === 'adv1') count = 3;
                     if (state.level === 'adv2') count = 4;
                     if (state.level === 'total') count = 5;
-                    
-                    if(countInput) countInput.value = count; // Reflejar en UI
+                    // basic1 y basic2 se quedan en 1
+                    if(countInput) countInput.value = count;
                 }
 
                 const possible = getMelodicPossibleIntervals();
@@ -641,14 +751,14 @@
                     state.lastWrongAnswer = [...state.userBuffer];
                     
                     const countInput = document.getElementById('note-count-input');
-                    // MODIFICADO: PROGRESIÓN SOLO EN INTERMEDIO
+                    // PROGRESIÓN SOLO SI ESTÁ EN INTERMEDIO
                     if (state.level === 'inter') {
                         let currentCount = parseInt(countInput.value);
                         if(ok) {
-                            if(currentCount < 8) countInput.value = currentCount + 1; // Sube hasta 8
+                            if(currentCount < 8) countInput.value = currentCount + 1; 
                             adjustSkill('melody', 0.1); 
                         } else {
-                            if(currentCount > 1) countInput.value = currentCount - 1; // Baja hasta 1
+                            if(currentCount > 1) countInput.value = currentCount - 1; 
                             adjustSkill('melody', -0.05);
                         }
                     } else if (ok) {
