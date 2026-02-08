@@ -269,6 +269,10 @@
             <div id="practice-chips" class="flex flex-wrap justify-center gap-3 py-2"></div>
             <div id="interval-grid" class="hidden grid grid-cols-2 gap-2"></div>
             <div id="harmony-grid" class="hidden grid grid-cols-2 gap-2"></div>
+
+             <p class="mt-8 text-center text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest pb-4 select-none">
+                © Juan Miguel Rios Redondo
+            </p>
         </div>
     </main>
 
@@ -525,25 +529,11 @@
         // --- CONFIGURACIÓN & CONSTANTES ---
         const DEGREES = ['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7', '8'];
         const ROOT_INDICES = { 'C': 0, 'Db': 1, 'C#': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'Ab': 8, 'G#': 8, 'A': 9, 'Bb': 10, 'B': 11 };
+        const RESOLUTIONS = { 0: [0, -5, 0], 1: [1, 0], 2: [2, 0], 3: [3, 2, 0], 4: [4, 2, 0], 5: [[5, 3, 1], [5, 4, 3, 1]], 5: [[5, 3, 1], [5, 1]], 6: [[6, 7, 12], [6, 7, 4, 0]], 7: [[7, 12], [7, 4, 0]], 8: [8, 7, 12], 9: [9, 7, 12], 10: [10, 11, 12], 11: [11, 12], 12: [12, 7, 12] };
         
-        // RESOLUCIONES MELÓDICAS CORREGIDAS
-        // 4 (3): 3 -> 2 -> 1
-        // 5 (4): 4 -> 3 -> 2 -> 1
-        const RESOLUTIONS = {
-            0: [0, -5, 0],
-            1: [1, 0],
-            2: [2, 0],
-            3: [3, 2, 0],
-            4: [4, 2, 0], // III -> II -> I (Corregido)
-            5: [5, 4, 2, 0], // IV -> III -> II -> I
-            6: [[6, 7, 12], [6, 7, 4, 0]], 
-            7: [[7, 12], [7, 4, 0]], 
-            8: [8, 7, 12], 
-            9: [9, 7, 12], 
-            10: [10, 11, 12], 
-            11: [11, 12], 
-            12: [12, 7, 12]
-        };
+        // CORRECCIÓN: Resolución de 4ta descendente
+        RESOLUTIONS[5] = [5, 4, 2, 0]; // 4 -> 3 -> 2 -> 1 (indices relativos a tónica 0)
+        // Indices: 5=IV, 4=III, 2=II, 0=I
 
         const INTERVAL_NAMES = { 0: "Unísono", 1: "2da m", 2: "2da M", 3: "3ra m", 4: "3ra M", 5: "4ta J", 6: "Tritono", 7: "5ta J", 8: "6ta m", 9: "6ta M", 10: "7ma m", 11: "7ma M", 12: "8va J" };
         const INTERVAL_LEVELS = { 1: [0, 5, 7, 12], 2: [0, 1, 2, 5, 7, 12], 3: [0, 1, 2, 3, 4, 5, 7, 12], 4: [0, 1, 2, 3, 4, 5, 6, 7, 12], 5: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12], 6: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] };
@@ -969,7 +959,15 @@
         }
         
         // ... (Funciones de soporte previamente definidas: updateActiveBtn, resetUI, renderBufferDots, etc.)
-        function updateActiveBtn(c, i) { document.querySelectorAll(`${c} .control-btn`).forEach(b => b.classList.remove('active-choice')); document.getElementById(i)?.classList.add('active-choice'); }
+        function updateActiveBtn(c, i) { 
+            // NUEVO: Solo limpiar dentro del grupo específico, no globalmente
+            const container = document.querySelector(c);
+            if(container) {
+                container.querySelectorAll('.control-btn').forEach(b => b.classList.remove('active-choice')); 
+            }
+            const el = document.getElementById(i);
+            if(el) el.classList.add('active-choice'); 
+        }
         function resetUI() { document.getElementById('result-modal').style.display='none'; document.getElementById('harmony-grid').classList.add('hidden'); document.getElementById('interval-grid').classList.add('hidden'); document.getElementById('buffer-dots').innerHTML=''; renderUI(); }
         function renderBufferDots(c) { const b = document.getElementById('buffer-dots'); if(b) { b.innerHTML=''; for(let i=0; i<c; i++) b.innerHTML+='<div class="buffer-dot"></div>'; } }
         function renderIntervalOptions(o) { const g = document.getElementById('interval-grid'); if(g) { g.innerHTML=''; g.classList.remove('hidden'); o.forEach(x => { const b=document.createElement('button'); b.innerText=x; b.onclick=()=>checkAnswer(x); g.appendChild(b); }); } }
@@ -995,10 +993,10 @@
         function toggleMixer() { document.getElementById('mixer-panel').classList.toggle('hidden'); }
         function showDailyOptions() { document.getElementById('start-main-view').classList.add('hidden'); document.getElementById('start-daily-view').classList.remove('hidden'); }
         function backToMainStart() { document.getElementById('start-daily-view').classList.add('hidden'); document.getElementById('start-main-view').classList.remove('hidden'); }
-        function setTonalityMode(m) { state.tonalityMode = m; if(m!=='combined') state.currentRoundTonality = m; updateActiveBtn('.control-group', `ton-${m}`); renderUI(); }
-        function setLevel(l) { state.level = l; updateActiveBtn('#lvl-mel', `lvl-${l}`); renderUI(); }
-        function setIntervalLevel(l) { state.intervalLevel = l; updateActiveBtn('#lvl-int', `int-lvl-${l}`); }
-        function setHarmonyLevel(l) { state.harmonyLevel = l; updateActiveBtn('#lvl-har', `har-lvl-${l}`); }
+        function setTonalityMode(m) { state.tonalityMode = m; if(m!=='combined') state.currentRoundTonality = m; updateActiveBtn('#tonality-group', `ton-${m}`); renderUI(); }
+        function setLevel(l) { state.level = l; updateActiveBtn('#lvl-mel-group', `lvl-${l}`); renderUI(); }
+        function setIntervalLevel(l) { state.intervalLevel = l; updateActiveBtn('#lvl-int-group', `int-lvl-${l}`); }
+        function setHarmonyLevel(l) { state.harmonyLevel = l; updateActiveBtn('#lvl-har-group', `har-lvl-${l}`); }
         function closeReportModal() { document.getElementById('report-modal').style.display='none'; }
         function closeHelpModal() { document.getElementById('help-modal').style.display='none'; }
         function closeStatsModal() { document.getElementById('stats-modal').style.display='none'; }
@@ -1022,6 +1020,8 @@
         function loadProgress() { const s = JSON.parse(localStorage.getItem('trainer_progress_v5')); if(s) { state.playerLevel=s.level||1; state.xp=s.xp||0; state.score=s.score||0; state.streak=s.streak||0; if(s.stats) state.stats=s.stats; if(s.skillLevels) state.skillLevels=s.skillLevels; } }
         function triggerConfetti() { const c = document.getElementById('confetti-container'); if(!c) return; c.innerHTML = ''; for(let i=0; i<30; i++) { const p = document.createElement('div'); p.className = 'absolute w-2 h-4 animate-confetti'; p.style.left = Math.random() * 100 + '%'; p.style.backgroundColor = ['#8b5cf6', '#10b981', '#3b82f6', '#f59e0b'][Math.floor(Math.random()*4)]; c.appendChild(p); } }
         
+        function repeatTargetSound() { if(state.target) playTargetSound(); }
+
         function renderUI() {
             const stage = document.getElementById('piano-stage');
             const chipContainer = document.getElementById('practice-chips');
