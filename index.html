@@ -19,6 +19,7 @@
                         'bounce-short': 'bounceShort 0.5s ease-in-out',
                         'confetti': 'confettiDrop 2s ease-in-out forwards',
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
                     },
                     keyframes: {
                         popIn: {
@@ -32,6 +33,10 @@
                         confettiDrop: {
                             '0%': { transform: 'translateY(-100vh) rotate(0deg)', opacity: '1' },
                             '100%': { transform: 'translateY(100vh) rotate(720deg)', opacity: '0' }
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
                         }
                     }
                 }
@@ -139,6 +144,7 @@
         .combo-active { opacity: 1; transform: translateX(-50%) scale(1.2); }
         .confetti-piece { position: absolute; width: 8px; height: 16px; background: #ffd700; opacity: 0; }
         
+        /* INCREASED BOTTOM PADDING TO AVOID OVERLAP */
         #session-bar-container { width: 100%; height: 4px; background: rgba(0,0,0,0.05); position: absolute; top: 0; left: 0; z-index: 160; display: none; }
         #session-progress { height: 100%; background: #10b981; width: 0%; transition: width 0.3s ease; }
 
@@ -147,6 +153,10 @@
         .dock-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; transition: all 0.1s; cursor: pointer; height: 52px; position: relative; overflow: hidden; }
         .dock-btn:active { transform: scale(0.95); }
         .btn-main-action { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
+        
+        /* TOAST NOTIFICATION */
+        #toast-notification { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(239, 68, 68, 0.9); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 800; font-size: 12px; z-index: 2000; box-shadow: 0 4px 15px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: opacity 0.3s; text-align: center; width: max-content; }
+        #toast-notification.show { opacity: 1; animation: fadeInUp 0.5s ease-out; }
     </style>
 </head>
 <body class="select-none relative flex flex-col h-screen overflow-hidden">
@@ -154,6 +164,9 @@
     <div id="ptr-indicator"><div class="ptr-spinner"><svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div></div>
     
     <div id="combo-display" class="combo-counter text-xl">COMBO x2</div>
+    <div id="toast-msg" class="toast">Notificación</div>
+    <div id="toast-notification">Dificultad ajustada por 3 fallos seguidos</div>
+    
     <div id="session-bar-container"><div id="session-progress"></div></div>
     <div id="session-time-remaining" class="hidden absolute top-1 left-1/2 transform -translate-x-1/2 z-[160] bg-slate-800/80 text-white text-[10px] font-bold px-3 py-1 rounded-b-lg backdrop-blur-sm shadow-md flex items-center gap-2">
         <span id="session-timer-text">00:00</span><span class="text-[8px] opacity-70 uppercase" id="session-phase-text">CALENTAMIENTO</span>
@@ -181,6 +194,7 @@
                 <div class="space-y-3">
                     <button id="btn-continue-session" onclick="continueDailySession()" class="hidden w-full bg-orange-500 hover:bg-orange-600 text-white font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Continuar Sesión</button>
                     <button onclick="showDailyOptions()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 group"><svg class="w-5 h-5 group-hover:animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Rutina Diaria</button>
+                    <button onclick="startLevelingTest()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Test de Nivelación</button>
                     <button onclick="selectGameMode('free')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Entrenamiento Libre</button>
                 </div>
             </div>
@@ -226,8 +240,8 @@
         </div>
     </header>
 
-    <!-- MAIN SCROLLABLE CONTENT -->
-    <main id="main-scroll-container" class="flex-1 relative overflow-y-auto no-scrollbar bg-gradient-to-b from-transparent to-slate-100/50 dark:to-black/20 pb-[100px]">
+    <!-- MAIN SCROLLABLE CONTENT - INCREASED PADDING -->
+    <main id="main-scroll-container" class="flex-1 relative overflow-y-auto no-scrollbar bg-gradient-to-b from-transparent to-slate-100/50 dark:to-black/20 pb-[160px]">
         <div class="p-2 sm:p-5 flex flex-col gap-3 sm:gap-4 max-w-4xl mx-auto w-full">
             
             <!-- CONFIG PANEL -->
@@ -236,7 +250,7 @@
                     <span class="text-[9px] uppercase font-black text-slate-400 tracking-widest">Niveles de Práctica</span>
                     <div id="note-counter-container" class="flex items-center gap-2 bg-white dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                         <span class="text-[8px] font-bold text-slate-500">NOTAS:</span>
-                        <input type="number" id="note-count-input" min="1" max="10" value="1" class="w-8 bg-transparent text-center font-bold text-xs text-violet-600 outline-none">
+                        <input type="number" id="note-count-input" min="1" max="10" value="1" class="w-8 bg-transparent text-center font-bold text-xs text-violet-600 outline-none" onchange="manualNoteUpdate(this.value)">
                     </div>
                 </div>
                 <div class="flex flex-col gap-1.5">
@@ -303,7 +317,7 @@
             <div id="buffer-dots" class="buffer-indicator"></div>
             
              <!-- PRACTICE CHIPS AREA IN SCROLLABLE ZONE -->
-            <div id="practice-module" class="flex flex-col items-center py-2 sm:py-3 w-full">
+            <div id="practice-module" class="flex flex-col items-center py-2 sm:py-3 w-full mb-12">
                 <div id="practice-chips-container" class="no-scrollbar"></div>
             </div>
             <!-- HARMONY GRID -->
@@ -314,8 +328,8 @@
         </div>
     </main>
     
-    <!-- VISUAL FEEDBACK POSITION ADJUSTED -->
-    <div id="feedback-ui" class="hidden absolute top-[40%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-center pointer-events-none w-full px-4">
+    <!-- VISUAL FEEDBACK POSITION ADJUSTED HIGH -->
+    <div id="feedback-ui" class="hidden absolute top-[25%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-center pointer-events-none w-full px-4">
         <h2 id="feedback-text" class="feedback-text transition-all drop-shadow-lg"></h2>
     </div>
 
@@ -431,10 +445,59 @@
     <!-- HELP MODAL -->
     <div id="help-modal" class="modal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 class="text-2xl font-black mb-6 text-violet-600 dark:text-violet-400 uppercase italic text-center border-b border-slate-200 dark:border-slate-700 pb-3">Guía Maestra</h2>
-            <div class="space-y-6 text-xs text-left">
-                <section><h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Metodología</h3><div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300"><p><strong>1. Sintonía:</strong> Siente la gravedad tonal con los chips de práctica.</p><p><strong>2. Unísono:</strong> Canta internamente la resolución.</p><p><strong>3. Memoria:</strong> Retén la frase completa antes de escribir.</p><p><strong>4. Armonía:</strong> Distingue Color (May/Men) y Función (Tónica/Dom).</p></div></section>
-                <section><h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Mapa de Ruta (Tiempo Recomendado)</h3><div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300"><ul class="list-disc pl-3 space-y-1"><li><strong>Constancia:</strong> 15 min diarios > 2h a la semana.</li><li><strong>Mes 1-3:</strong> Reconocer intervalos simples y color de acordes.</li><li><strong>Mes 3-6:</strong> Progresiones básicas (I-IV-V) y melodías cortas.</li><li><strong>Año 1+:</strong> Fluidez auditiva y armonía avanzada.</li></ul></div></section>
+            <h2 class="text-2xl font-black mb-6 text-violet-600 dark:text-violet-400 uppercase italic text-center border-b border-slate-200 dark:border-slate-700 pb-3">Guía Maestra de Entrenamiento Auditivo</h2>
+            <div class="space-y-6 text-xs text-left max-h-[60vh] overflow-y-auto pr-2">
+                <section>
+                    <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">1. Fundamentos: La Sintonía Tonal</h3>
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300">
+                        <p><strong>El Centro de Gravedad:</strong> Toda música tonal gira alrededor de una nota "casa" (la Tónica). Antes de responder, intenta siempre cantar mentalmente la tónica para establecer tu centro.</p>
+                        <p><strong>Sensación de Reposo vs Tensión:</strong> 
+                            <br>• Grados de Reposo: 1 (Do), 3 (Mi), 5 (Sol). Se sienten estables.
+                            <br>• Grados de Tensión Suave: 2 (Re), 6 (La). Quieren moverse pero no urgentemente.
+                            <br>• Grados de Tensión Fuerte: 4 (Fa), 7 (Si). Piden a gritos resolver (Fa->Mi, Si->Do).
+                        </p>
+                    </div>
+                </section>
+                
+                <section>
+                    <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">2. Estrategia para Intervalos</h3>
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300">
+                        <p><strong>Asociación por Canciones:</strong>
+                            <br>• 2da Menor (Tiburón)
+                            <br>• 2da Mayor (Cumpleaños Feliz)
+                            <br>• 3ra Mayor (Oh When The Saints)
+                            <br>• 4ta Justa (Himno a la Alegría / Marcha Nupcial)
+                            <br>• 5ta Justa (Star Wars / Superman)
+                            <br>• 8va (Somewhere Over The Rainbow)
+                        </p>
+                        <p><strong>Cantar el Puente:</strong> Si dudas entre una 4ta y una 5ta, intenta cantar la escala subiendo. Si llegas rápido es 4ta, si te falta un paso más es 5ta.</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">3. Estrategia para Armonía</h3>
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300">
+                        <p><strong>Escucha el Bajo:</strong> El bajo suele tocar la nota fundamental del acorde. Si puedes aislar esa nota grave, sabrás el grado del acorde (I, IV, V, etc.).</p>
+                        <p><strong>Color del Acorde:</strong>
+                            <br>• Mayor: Brillante, alegre, estable.
+                            <br>• Menor: Oscuro, triste, introspectivo.
+                            <br>• Disminuido: Tenso, terrorífico, inestable.
+                        </p>
+                        <p><strong>Cadencias Comunes:</strong> Familiarízate con el sonido del cierre V-I (Auténtica) y IV-I (Plagal o "Amén").</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">4. Mapa de Ruta Sugerido</h3>
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300">
+                        <ul class="list-disc pl-3 space-y-1">
+                            <li><strong>Novato (Mes 1):</strong> Enfócate solo en distinguir si la melodía sube o baja, y reconoce intervalos de 8va y 5ta.</li>
+                            <li><strong>Aprendiz (Mes 2-3):</strong> Distingue acordes Mayores de Menores. Reconoce el grado I, IV y V.</li>
+                            <li><strong>Músico (Mes 4-6):</strong> Dictado de melodías cortas (3 notas). Progresiones simples (I-vi-IV-V).</li>
+                            <li><strong>Virtuoso (Año 1+):</strong> Intervalos complejos, acordes invertidos, tensiones armónicas.</li>
+                        </ul>
+                    </div>
+                </section>
                 <button onclick="closeModal()" class="w-full bg-violet-600 hover:bg-violet-700 text-white py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg">Entendido</button>
             </div>
         </div>
@@ -488,6 +551,19 @@
             5000: "OÍDO ABSOLUTO"
         };
 
+        const PLACEMENT_PATH = [
+            { type: 'intervals', level: 1, label: 'Intervalos Básicos' },
+            { type: 'melody', level: 'basic1', notes: 3, label: 'Melodía Simple (3 notas)' },
+            { type: 'harmony', level: 'basic1', label: 'Armonía Básica (Mayor)' },
+            { type: 'intervals', level: 3, label: 'Intervalos Intermedios (3ras)' },
+            { type: 'melody', level: 'basic2', notes: 4, label: 'Melodía (4 notas)' },
+            { type: 'harmony', level: 'combined', label: 'Armonía (Menor/Comb)' },
+            { type: 'intervals', level: 5, label: 'Intervalos Avanzados (6tas/7tas)' },
+            { type: 'melody', level: 'inter', notes: 5, label: 'Melodía Intermedia (5 notas)' },
+            { type: 'harmony', level: 'adv1', label: 'Armonía Avanzada' },
+            { type: 'melody', level: 'adv1', notes: 7, label: 'Melodía Compleja (7 notas)' }
+        ];
+
         function getNoteName(rootName, semitonesFromRoot) {
             const semitoneToDegreeShift = { 0:0, 1:1, 2:1, 3:2, 4:2, 5:3, 6:3, 7:4, 8:5, 9:5, 10:6, 11:6 };
             let rootLetter = rootName.charAt(0); let rootAccidental = rootName.slice(1);
@@ -503,9 +579,12 @@
 
         let audioCtx;
         // Added currentNoteCount to state, intervalDirection, XP, errorStats
-        let state = { level:'basic1', intervalLevel: 1, intervalDirection: 'mixed', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, xp: 0, streak: 0, dailyStreak: 0, lastPracticeDate: null, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [], username: '', currentNoteCount: 1, lastUserAnswer: null, lastCorrectAnswer: null, cadenceType: 0, questionStartTime: 0, errorStats: {} };
+        let state = { level:'basic1', intervalLevel: 1, intervalDirection: 'mixed', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, xp: 0, streak: 0, dailyStreak: 0, lastPracticeDate: null, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [], username: '', currentNoteCount: 1, lastUserAnswer: null, lastCorrectAnswer: null, cadenceType: 0, questionStartTime: 0, errorStats: {}, consecutiveMelodyFailures: 0 };
         // Added stats for intervals tracking
         let sessionState = { active: false, type: 'minimal', startTime: 0, totalDuration: 0, timeLeft: 0, correctCount: 0, totalQuestions: 0, timerId: null, phase: 'warmup', stats: { melCorrect: 0, melTotal: 0, harCorrect: 0, harTotal: 0, intCorrect: 0, intTotal: 0 }, elapsedTime: 0 };
+
+        // PLACEMENT TEST VARIABLES
+        let placementState = { active: false, levelIndex: 0, strikes: 0, totalStrikesAllowed: 2, maxLevelReached: 0 };
 
         try {
             const saved = localStorage.getItem('formarOidoPro_history'); if(saved) state.history = JSON.parse(saved);
@@ -537,6 +616,7 @@
                  saveHistory(true, `Práctica Libre (${durationStr})`, sessionState.elapsedTime * 1000);
             }
             clearSessionState();
+            placementState.active = false; // Reset placement
             clearInterval(sessionState.timerId);
             document.getElementById('session-time-remaining').classList.add('hidden');
             document.getElementById('session-bar-container').style.display = 'none';
@@ -601,6 +681,10 @@
         }
         function toggleAutoResolve() { state.autoResolve = !state.autoResolve; const btn = document.getElementById('auto-resolve-btn'); btn.innerText = `Auto-Res: ${state.autoResolve ? 'ON' : 'OFF'}`; btn.className = `text-[7px] font-bold uppercase px-2 py-0.5 rounded border transition-all ${state.autoResolve ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20 hover:bg-rose-500/20'}`; }
         
+        function updateNoteCount(val) {
+            state.currentNoteCount = parseInt(val) || 1;
+        }
+
         function setGlobalMode(m) { 
             stopAllSounds(); 
             state.mode = m; 
@@ -653,6 +737,7 @@
         function closeStartModalOnly() { document.getElementById('start-modal').style.display = 'none'; }
         function showDailyOptions() { document.getElementById('start-main-view').classList.add('hidden'); document.getElementById('start-daily-view').classList.remove('hidden'); }
         function backToMainStart() { document.getElementById('start-daily-view').classList.add('hidden'); document.getElementById('start-main-view').classList.remove('hidden'); }
+        
         function selectGameMode(mode, subType) { 
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); else if (!audioCtx) initAudio(); 
             document.getElementById('start-modal').style.display = 'none'; 
@@ -661,13 +746,81 @@
             else { clearSessionState(); startGame(); } 
         }
 
+        function startLevelingTest() {
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); else if (!audioCtx) initAudio(); 
+            document.getElementById('start-modal').style.display = 'none';
+            // Start at Level Index 0
+            placementState = { active: true, levelIndex: 0, strikes: 0, totalStrikesAllowed: 2, maxLevelReached: 0 };
+            
+            // Just use assessment session state to track visual timer/progress bar if wanted, or simplify
+            sessionState = { active: true, type: 'assessment', startTime: Date.now(), totalDuration: 0, timeLeft: 0, correctCount: 0, totalQuestions: 0, timerId: null, phase: 'Test Adaptativo', stats: { melCorrect: 0, melTotal: 0, harCorrect: 0, harTotal: 0, intCorrect: 0, intTotal: 0 } };
+            
+            document.getElementById('session-time-remaining').classList.remove('hidden');
+            document.getElementById('session-phase-text').innerText = "TEST ADAPTATIVO";
+            document.getElementById('session-timer-text').innerText = "Nivel 1";
+            
+            loadAssessmentQuestion();
+        }
+
+        function loadAssessmentQuestion() {
+            // Check limits
+            if (placementState.levelIndex >= PLACEMENT_PATH.length) {
+                finishPlacementTest("¡Felicidades! Has completado todo el recorrido.");
+                return;
+            }
+            
+            const config = PLACEMENT_PATH[placementState.levelIndex];
+            
+            document.getElementById('session-timer-text').innerText = `Nivel ${placementState.levelIndex + 1}`;
+            showToast(`Nivel ${placementState.levelIndex + 1}: ${config.label}`);
+
+            // Apply Config
+            state.mode = config.type;
+            if (config.type === 'intervals') {
+                state.intervalLevel = config.level;
+                setGlobalMode('intervals');
+            } else if (config.type === 'melody') {
+                state.level = config.level;
+                state.currentNoteCount = config.notes; 
+                document.getElementById('note-count-input').value = config.notes;
+                setGlobalMode('melody');
+            } else if (config.type === 'harmony') {
+                // If level property exists in state for harmony (basic/inter/adv etc), map it
+                // Currently harmony logic uses 'level' from state for getDynamicQuestion but for direct generation we just set mode
+                // We might need to adjust generation logic if we want strict harmony levels.
+                // For now, assume global mode switch handles UI.
+                setGlobalMode('harmony');
+            }
+            
+            // Randomize key
+            const keys = ['C','G','F','D'];
+            state.keyLabel = keys[Math.floor(Math.random()*keys.length)];
+            state.keyIndex = 48 + ROOT_INDICES[state.keyLabel]; 
+            document.getElementById('key-root').innerText = state.keyLabel; 
+            
+            playCadence(() => generateQuestion());
+        }
+
+        function finishPlacementTest(msgOverride) {
+            placementState.active = false;
+            const finalLvlIndex = placementState.maxLevelReached;
+            const finalConfig = PLACEMENT_PATH[Math.min(finalLvlIndex, PLACEMENT_PATH.length - 1)];
+            
+            let resultMsg = msgOverride || "Has llegado a tu límite actual.";
+            
+            saveHistory(true, `Test de Nivel: Alcanzado Nivel ${finalLvlIndex + 1} (${finalConfig.label})`);
+            
+            alert(`Evaluación Finalizada.\n\n${resultMsg}\n\nNivel Alcanzado: ${finalLvlIndex + 1}\nHabilidad: ${finalConfig.label}`);
+            showStartModal();
+        }
+
         function toggleImagina() { 
             state.imagina = !state.imagina; 
             const btn = document.getElementById('btn-imagina'); const dot = document.getElementById('imagina-dot-active');
             if (state.imagina) { btn.classList.add('border-violet-500', 'bg-violet-50', 'dark:bg-violet-900/20'); dot.classList.remove('hidden'); } else { btn.classList.remove('border-violet-500', 'bg-violet-50', 'dark:bg-violet-900/20'); dot.classList.add('hidden'); }
         }
 
-        function continueDailySession() { if (!sessionState.active) return; document.getElementById('start-modal').style.display = 'none'; startSessionTimer(); document.getElementById('session-bar-container').style.display = 'block'; document.getElementById('session-time-remaining').classList.remove('hidden'); updateSessionProgress(); loadSessionQuestion(); }
+        function continueDailySession() { if (!sessionState.active) return; document.getElementById('start-modal').style.display = 'none'; if(sessionState.type !== 'assessment') startSessionTimer(); document.getElementById('session-bar-container').style.display = 'block'; document.getElementById('session-time-remaining').classList.remove('hidden'); updateSessionProgress(); if(sessionState.type === 'assessment') loadAssessmentQuestion(); else loadSessionQuestion(); }
         
         function startFreeSession() {
             sessionState = { active: true, type: 'free', startTime: Date.now(), totalDuration: 0, timeLeft: 0, elapsedTime: 0, correctCount: 0, totalQuestions: 0, timerId: null, phase: 'Práctica Libre', stats: { melCorrect: 0, melTotal: 0, harCorrect: 0, harTotal: 0, intCorrect: 0, intTotal: 0 } };
@@ -800,7 +953,7 @@
             if (sessionState.timeLeft <= 0) return; 
             const q = getDynamicQuestion(); state.level = q.level; state.keyLabel = q.key; state.keyIndex = 48 + ROOT_INDICES[q.key]; state.currentRoundTonality = q.tonality === 'combined' ? (Math.random() > 0.5 ? 'major' : 'minor') : q.tonality; setGlobalMode(q.type); document.getElementById('key-root').innerText = state.keyLabel; document.getElementById('key-quality-label').innerText = state.currentRoundTonality === 'major' ? 'MAYOR' : 'MENOR'; playCadence(() => generateQuestion()); 
         }
-        function updateSessionProgress() { if (sessionState.type === 'free') return; const elapsed = sessionState.totalDuration - sessionState.timeLeft; const pct = (elapsed / sessionState.totalDuration) * 100; document.getElementById('session-progress').style.width = `${pct}%`; }
+        function updateSessionProgress() { if (sessionState.type === 'free' || sessionState.type === 'assessment') return; const elapsed = sessionState.totalDuration - sessionState.timeLeft; const pct = (elapsed / sessionState.totalDuration) * 100; document.getElementById('session-progress').style.width = `${pct}%`; }
         function endDailySession() {
             clearSessionState(); clearInterval(sessionState.timerId); document.getElementById('session-time-remaining').classList.add('hidden'); document.getElementById('session-bar-container').style.display = 'none'; 
             document.getElementById('session-summary-modal').style.display = 'flex'; 
@@ -937,11 +1090,15 @@
             state.userBuffer = []; 
             state.questionStartTime = Date.now();
             let count = 1;
-            if (sessionState.active) {
+            // Manual Override allowed in Free Mode via Input
+            if (sessionState.active && sessionState.type !== 'free') {
                 count = state.currentNoteCount;
                 document.getElementById('note-count-input').value = count;
+                document.getElementById('note-count-input').disabled = true; // Lock for daily/test
             } else {
                 count = parseInt(document.getElementById('note-count-input').value) || 1;
+                state.currentNoteCount = count; // Sync state
+                document.getElementById('note-count-input').disabled = false;
             }
             
             if(state.mode === 'melody') { 
@@ -974,16 +1131,26 @@
                 renderIntervalOptions(possible);
 
             } else { 
-                const list = state.currentRoundTonality === 'major' ? MAJOR_PROGS : MINOR_PROGS; 
+                // HARMONY LOGIC UPDATED FOR STRICT LENGTH
+                let list = state.currentRoundTonality === 'major' ? MAJOR_PROGS : MINOR_PROGS; 
+                // Ensure list has unique items
+                list = [...new Set(list)];
+                
                 const correct = list[Math.floor(Math.random()*list.length)]; 
                 const correctLength = correct.split(' - ').length;
                 
-                // Get valid options of same length
+                // Get valid options of same length - FORCE 4 options logic
                 let validOptions = list.filter(x => x !== correct && x.split(' - ').length === correctLength);
-                // Fallback: if not enough same length, take any
-                if(validOptions.length < 3) validOptions = list.filter(x => x !== correct);
+                
+                // Fallback
+                if(validOptions.length < 3) {
+                    validOptions = list.filter(x => x !== correct);
+                }
 
+                // Slice to 3 wrong answers
                 const randomValid = validOptions.sort(()=>0.5-Math.random()).slice(0,3);
+                
+                // Ensure we have 3 wrong + 1 correct
                 const opts = [correct, ...randomValid].sort(()=>0.5-Math.random()); 
                 state.target = { type: 'harmony', answer: correct, options: opts }; 
                 renderHarmonyOptions(opts); 
@@ -1042,7 +1209,7 @@
         }
 
         function saveHistory(correct, detail, duration = 0, timeTaken = 0) { 
-            const isSummary = typeof correct === 'boolean' && detail.startsWith("Rutina") || detail.startsWith("Práctica");
+            const isSummary = typeof correct === 'boolean' && detail.startsWith("Rutina") || detail.startsWith("Práctica") || detail.startsWith("Test");
             const entry = { date: Date.now(), correct, mode: state.mode, level: state.mode === 'intervals' ? `Nivel ${state.intervalLevel}` : state.level, detail, isSessionSummary: isSummary, duration: duration, timeTaken: timeTaken };
             state.history.unshift(entry); 
             if(state.history.length > 100) state.history = state.history.slice(0, 100); 
@@ -1097,7 +1264,7 @@
                 detail = correctAns; 
                 if(!isCorrect) {
                     state.lastUserAnswer = val;
-                    state.lastCorrectAnswer = state.target.answer; // Prog string
+                    state.lastCorrectAnswer = state.target.answer; 
                 }
                 renderHarmonyOptions(state.target.options, val, state.target.answer); 
                 handleResult(isCorrect, userAns, correctAns, detail, timeTaken); 
@@ -1105,11 +1272,20 @@
             } 
         }
 
+        function showToast(msg) {
+            const toast = document.getElementById('toast-notification');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
         // NEW: playUserError now resolves specifically
         function playUserError() {
             if (!state.lastUserAnswer) return;
             stopAllSounds();
-            if (state.mode === 'melody') playSequence(state.lastUserAnswer, true); // Play user error then resolve 
+            if (state.mode === 'melody') playSequence(state.lastUserAnswer, true); 
             else if (state.mode === 'intervals') playInterval(state.lastUserAnswer.root, state.lastUserAnswer.note, state.lastUserAnswer.style);
             else playProgression(state.lastUserAnswer);
         }
@@ -1118,38 +1294,75 @@
         function playCorrectAnswer() {
             if (!state.lastCorrectAnswer) return;
             stopAllSounds();
-            if (state.mode === 'melody') playSequence(state.lastCorrectAnswer, true); // Play correct then resolve
+            if (state.mode === 'melody') playSequence(state.lastCorrectAnswer, true); 
             else if (state.mode === 'intervals') playInterval(state.lastCorrectAnswer.root, state.lastCorrectAnswer.note, state.lastCorrectAnswer.style);
             else playProgression(state.lastCorrectAnswer);
         }
 
         function handleResult(isCorrect, user, correct, detail, timeTaken) { 
-            const entry = { date: Date.now(), correct, mode: state.mode, level: state.mode === 'intervals' ? `Nivel ${state.intervalLevel}` : state.level, detail, isSessionSummary: false, timeTaken: timeTaken };
-            state.history.unshift(entry);
-            if(state.history.length > 100) state.history = state.history.slice(0, 100);
-            localStorage.setItem('formarOidoPro_history', JSON.stringify(state.history));
+            // Save log
+            if(sessionState.type !== 'assessment') {
+                const entry = { date: Date.now(), correct, mode: state.mode, level: state.mode === 'intervals' ? `Nivel ${state.intervalLevel}` : state.level, detail, isSessionSummary: false, timeTaken: timeTaken };
+                state.history.unshift(entry);
+                if(state.history.length > 100) state.history = state.history.slice(0, 100);
+                localStorage.setItem('formarOidoPro_history', JSON.stringify(state.history));
+            }
+
+            // PLACEMENT TEST LOGIC
+            if (placementState.active) {
+                if (isCorrect) {
+                    placementState.levelIndex++;
+                    placementState.maxLevelReached = Math.max(placementState.maxLevelReached, placementState.levelIndex);
+                    // Continue immediately to next question
+                    setTimeout(() => loadAssessmentQuestion(), 500); 
+                } else {
+                    placementState.strikes++;
+                    // If fail, check strikes. We allow 2 mistakes total.
+                    if (placementState.strikes >= placementState.totalStrikesAllowed) {
+                        finishPlacementTest();
+                    } else {
+                        // Retry same question difficulty or show modal to explain error then continue?
+                        // "se cortan cuando la habilidad llegue al limite". If correct, go up. If incorrect, we can assume limit reached if strict.
+                        // But we implemented 2 lives. So if strike 1, maybe show error, then repeat level or continue next?
+                        // Let's show result modal to learn, then continue.
+                        showResultModal(isCorrect, user, correct);
+                    }
+                }
+                return; // Stop normal flow
+            }
 
             // XP Logic
             if (isCorrect) {
-                let points = 5; // Base for > 8s
+                let points = 5; 
                 if (timeTaken < 3) points = 15;
                 else if (timeTaken < 8) points = 10;
                 state.xp += points;
                 state.score += 1;
                 state.streak++;
+                state.consecutiveMelodyFailures = 0; // Reset failure counter
                 document.getElementById('score-val').innerText = state.xp;
                 localStorage.setItem('formarOidoPro_xp', state.xp);
             } else {
                 state.streak = 0;
+                // FAILURE TRACKING FOR MELODY
+                if (state.mode === 'melody') {
+                    state.consecutiveMelodyFailures++;
+                    if (state.consecutiveMelodyFailures >= 3) {
+                        if (state.currentNoteCount > 1) {
+                            state.currentNoteCount--;
+                            document.getElementById('note-count-input').value = state.currentNoteCount;
+                            showToast("Dificultad reducida: -1 Nota por fallos seguidos");
+                            state.consecutiveMelodyFailures = 0;
+                        }
+                    }
+                }
+
                 // Log Error to Matrix
                 if (!state.errorStats[state.mode]) state.errorStats[state.mode] = {};
                 let targetKey = state.target.answer;
                 if (state.mode === 'intervals') targetKey = INTERVAL_NAMES[targetKey];
                 
-                // Simplify harmony keys to generic structure if needed, or keep specific prog
-                
                 let mistakeKey = user;
-                // Clean user response for harmony/interval if raw
                 
                 if (!state.errorStats[state.mode][targetKey]) state.errorStats[state.mode][targetKey] = {};
                 if (!state.errorStats[state.mode][targetKey][mistakeKey]) state.errorStats[state.mode][targetKey][mistakeKey] = 0;
@@ -1158,7 +1371,7 @@
             }
 
             if (state.mode === 'melody' && (state.level === 'inter' || state.level === 'adv1' || state.level === 'adv2')) {
-                if (isCorrect) state.currentNoteCount++; else state.currentNoteCount = Math.max(1, state.currentNoteCount - 1);
+                if (isCorrect) state.currentNoteCount++; 
             }
 
             if (sessionState.active) { 
@@ -1167,8 +1380,10 @@
                 if (state.mode === 'melody') { sessionState.stats.melTotal++; if (isCorrect) sessionState.stats.melCorrect++; } 
                 else if (state.mode === 'harmony') { sessionState.stats.harTotal++; if (isCorrect) sessionState.stats.harCorrect++; } 
                 else if (state.mode === 'intervals') { sessionState.stats.intTotal++; if (isCorrect) sessionState.stats.intCorrect++; }
-                saveSessionState(); 
-                if(sessionState.type !== 'free') updateSessionProgress(); 
+                
+                if(sessionState.type !== 'assessment') saveSessionState(); 
+                
+                if(sessionState.type !== 'free' && sessionState.type !== 'assessment') updateSessionProgress(); 
             } 
             const comboEl = document.getElementById('combo-display'); 
             if(isCorrect) { 
@@ -1183,6 +1398,7 @@
             } else { 
                 comboEl.classList.remove('combo-active'); 
             } 
+            
             showResultModal(isCorrect, user, correct); 
         }
 
@@ -1191,11 +1407,19 @@
         function showResultModal(isCorrect, user, correct) { 
             const m = document.getElementById('result-modal'); const card = document.getElementById('result-card'); const icon = document.getElementById('result-icon'); const title = document.getElementById('result-title'); const uText = document.getElementById('result-user'); const cBlock = document.getElementById('correct-block'); const cText = document.getElementById('result-correct'); const btn = document.getElementById('btn-continue-result'); const feedbackControls = document.getElementById('feedback-controls');
             m.style.display = 'flex'; 
+            
+            // If assessment, change button text
+            if(sessionState.type === 'assessment') {
+                btn.innerText = "Continuar Test";
+            } else {
+                btn.innerText = "Continuar";
+            }
+
             if(isCorrect) { 
                 card.className = "modal-content animate-pop-in border-4 border-emerald-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden"; 
                 icon.innerHTML = "🎉"; title.innerText = "¡Excelente!"; title.className = "text-3xl font-black uppercase italic mb-2 text-emerald-500 z-10"; uText.innerText = user; uText.className = "font-mono text-lg font-bold mb-4 text-emerald-600 z-10"; cBlock.classList.add('hidden'); feedbackControls.classList.add('hidden'); 
                 btn.className = "mt-6 w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg text-white bg-emerald-500 hover:bg-emerald-600 z-10"; 
-                registerTimeout(() => { if(m.style.display === 'flex') { m.style.display = 'none'; startGame(); } }, 1500); 
+                if(sessionState.type !== 'assessment') registerTimeout(() => { if(m.style.display === 'flex') { m.style.display = 'none'; startGame(); } }, 1500); 
             } else { 
                 card.className = "modal-content animate-pop-in border-4 border-rose-500/50 w-[90%] max-w-sm flex flex-col items-center justify-center text-center relative overflow-hidden"; 
                 document.getElementById('confetti-container').innerHTML = ''; 
@@ -1205,7 +1429,21 @@
             } 
         }
         
-        function handleContinue() { document.getElementById('result-modal').style.display = 'none'; startGame(); }
+        function handleContinue() { 
+            document.getElementById('result-modal').style.display = 'none'; 
+            if(placementState.active) {
+                // If they failed, they are here. They consume a strike.
+                // We advance to next question (try again same level or next level? Adaptive usually repeats or lowers. 
+                // But this logic simply goes UP until fail. So if they fail, we are DONE unless we have strikes.)
+                // Actually, if they failed, loadAssessmentQuestion logic might need adjustment if we want to repeat level.
+                // Current logic just increments level. 
+                // Let's modify: If fail, repeat level? Or just accept failure and move to next?
+                // Better: If fail, stay on current level?
+                // Simpler: Just continue. `handleResult` already incremented strikes. If strikes < max, continue.
+                loadAssessmentQuestion();
+            }
+            else startGame(); 
+        }
         function updateUsername(val) { state.username = val; localStorage.setItem('formarOidoPro_username', val); }
         
         function openStats() { 
@@ -1241,8 +1479,6 @@
             // SUGGESTION LOGIC (Diagnostico de Errores)
             let suggestion = "Continua practicando para generar datos."; 
             let errorMsg = "";
-            
-            // Find most frequent error
             let maxErrorCount = 0;
             let topMistake = null;
             
@@ -1261,7 +1497,6 @@
                 errorMsg = `⚠️ Tu error más frecuente en ${topMistake.mode.toUpperCase()}: Confundes <strong>${topMistake.target}</strong> con <strong>${topMistake.mistake}</strong>.`;
                 suggestion = errorMsg;
             } else if (h.length > 5) {
-               // Fallback to general advice if no specific error pattern yet
                suggestion = "Sigue practicando para detectar patrones de error específicos.";
             }
 
@@ -1274,8 +1509,8 @@
                 const row = document.createElement('div'); 
                 row.className = "flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-2 rounded text-[10px] border-l-2 " + (x.correct ? "border-emerald-400" : "border-rose-400"); 
                 const dateObj = new Date(x.date); 
-                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); 
-                const dateStr = dateObj.toLocaleDateString(); 
+                const timeStr = dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); 
+                const dateStr = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }); 
                 
                 let durationStr = "";
                 if (x.duration > 0) {
@@ -1284,11 +1519,10 @@
                     durationStr = `⏱ ${mins}m ${secs}s`;
                 }
                 
-                // Speed tag
                 let speedTag = "";
-                if (x.timeTaken) {
-                    if (x.timeTaken < 3) speedTag = "⚡ Rápido";
-                    else if (x.timeTaken > 8) speedTag = "🐢 Lento";
+                if (x.timeTaken && !x.isSessionSummary) {
+                    if (x.timeTaken < 3) speedTag = "⚡";
+                    else if (x.timeTaken > 8) speedTag = "🐢";
                 }
 
                 const detailText = x.detail.length > 25 ? x.detail.substring(0,25) + "..." : x.detail;
