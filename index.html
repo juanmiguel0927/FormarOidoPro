@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Formar Oído Pro - Trainer</title>
+    <title>Formar Oído Pro </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -176,7 +176,7 @@
     <!-- CADENCE VISUALIZER MODAL -->
     <div id="cadence-modal" class="modal" style="display: none; background: rgba(0,0,0,0.6);">
         <div class="modal-content text-center p-6 max-w-sm border-2 border-violet-500 bg-white dark:bg-slate-900">
-            <h3 class="text-xs font-black text-violet-500 uppercase tracking-widest mb-4">Progresión Base</h3>
+            <h3 id="cadence-title" class="text-xs font-black text-violet-500 uppercase tracking-widest mb-4">Progresión Base</h3>
             <div id="cadence-container" class="cadence-display">
                 <!-- Chords inserted via JS -->
             </div>
@@ -968,11 +968,21 @@
         function playCadence(cb) { 
             state.isPlaying = true; 
             const cadenceVariant = state.cadenceType; 
+            const isMinor = state.currentRoundTonality === 'minor';
 
             let degrees = [];
             let roms = [];
-            if(cadenceVariant === 0) { degrees = [0, 5, 7, 0]; roms = ["I", "IV", "V", "I"]; } 
-            else { degrees = [2, 7, 0]; roms = ["ii", "V", "I"]; }
+            if(cadenceVariant === 0) { 
+                degrees = [0, 5, 7, 0]; 
+                if(isMinor) roms = ["i", "iv", "V", "i"]; else roms = ["I", "IV", "V", "I"]; 
+            } 
+            else { 
+                degrees = [2, 7, 0]; 
+                if(isMinor) roms = ["ii°", "V", "i"]; else roms = ["ii", "V", "I"]; 
+            }
+
+            // ADDED: TITLE UPDATE FOR KEY
+            document.getElementById('cadence-title').innerText = `Progresión Base (${state.keyLabel} ${isMinor ? 'Menor' : 'Mayor'})`;
 
             const modal = document.getElementById('cadence-modal');
             const container = document.getElementById('cadence-container');
@@ -981,8 +991,14 @@
 
             degrees.forEach((deg, i) => {
                 const noteName = getNoteName(state.keyLabel, deg);
-                const isMin = (cadenceVariant === 1 && i === 0) || (state.currentRoundTonality === 'minor' && (deg === 0 || deg === 5 || deg === 2)); 
-                const chordSymbol = noteName + (isMin && roms[i].toLowerCase() === roms[i] ? 'm' : '');
+                let suffix = '';
+                if(isMinor) {
+                    if (deg === 0 || deg === 5) suffix = 'm';
+                    else if (deg === 2) suffix = '°';
+                } else {
+                    if (deg === 2) suffix = 'm';
+                }
+                const chordSymbol = noteName + suffix;
                 const div = document.createElement('div');
                 div.className = 'cadence-chord';
                 div.id = `cad-chord-${i}`;
@@ -998,8 +1014,8 @@
                 while (bass >= 48) bass -= 12; 
                 if (bass < 36) bass += 12; 
                 let finalType = 'Maj';
-                if (state.currentRoundTonality === 'major') { if (cadenceVariant === 1 && idx === 0) finalType = 'Min'; } 
-                else { if (deg === 0 || deg === 5) finalType = 'Min'; if (deg === 2) finalType = 'Dim'; }
+                if (isMinor) { if (deg === 0 || deg === 5) finalType = 'Min'; if (deg === 2) finalType = 'Dim'; } 
+                else { if (deg === 2) finalType = 'Min'; }
                 if (deg === 7) finalType = 'Maj'; 
 
                 const voicing = getBestVoicing(prevVoicing, root, finalType, bass); 
@@ -1044,6 +1060,7 @@
             state.userBuffer = []; 
             state.questionStartTime = Date.now();
             let count = 1;
+            // Manual Override allowed in Free Mode via Input
             if (sessionState.active && sessionState.type !== 'free') {
                 count = state.currentNoteCount;
                 document.getElementById('note-count-input').value = count;
@@ -1087,8 +1104,14 @@
                 list = [...new Set(list)];
                 const correct = list[Math.floor(Math.random()*list.length)]; 
                 const correctLength = correct.split(' - ').length;
+                
+                // Get valid options of same length - FORCE 4 options logic
                 let validOptions = list.filter(x => x !== correct && x.split(' - ').length === correctLength);
-                if(validOptions.length < 3) { validOptions = list.filter(x => x !== correct); }
+                
+                if(validOptions.length < 3) {
+                    validOptions = list.filter(x => x !== correct);
+                }
+
                 const randomValid = validOptions.sort(()=>0.5-Math.random()).slice(0,3);
                 const opts = [correct, ...randomValid].sort(()=>0.5-Math.random()); 
                 state.target = { type: 'harmony', answer: correct, options: opts }; 
