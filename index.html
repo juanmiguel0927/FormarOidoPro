@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formar Oído Pro </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -58,7 +58,10 @@
             --accent: #a78bfa; --accent-hover: #c4b5fd; --active-glow: 0 0 18px rgba(167, 139, 250, 0.5);
         }
 
-        body { font-family: 'Nunito', sans-serif; background: var(--bg-main); color: var(--text-main); height: 100vh; margin: 0; display: flex; flex-direction: column; transition: background 0.4s ease, color 0.4s ease; overflow: hidden; -webkit-user-select: none; user-select: none; }
+        /* OPTIMIZACIÓN MÓVIL: height: 100dvh y touch-action para zoom sin doble toque */
+        body { font-family: 'Nunito', sans-serif; background: var(--bg-main); color: var(--text-main); height: 100dvh; margin: 0; display: flex; flex-direction: column; transition: background 0.4s ease, color 0.4s ease; overflow: hidden; -webkit-user-select: none; user-select: none; }
+        
+        button, .piano-key, .practice-card, .dock-btn { touch-action: manipulation; }
 
         /* PULL TO REFRESH INDICATOR */
         #ptr-indicator { pointer-events: none; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s; transform: translateY(-100%); opacity: 0; z-index: 200; position: absolute; top: 10px; left: 0; width: 100%; display: flex; justify-content: center; }
@@ -81,7 +84,6 @@
         .control-btn { padding: 8px 2px; border-radius: 10px; font-size: 9px; font-weight: 800; color: #64748b; cursor: pointer; border: 1px solid transparent; background: transparent; transition: all 0.2s; text-align: center; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.05em; overflow: hidden; text-overflow: ellipsis; }
         .active-choice { background: var(--accent) !important; color: white !important; box-shadow: var(--active-glow) !important; border-color: rgba(255,255,255,0.2) !important; transform: scale(1.02); font-weight: 900 !important; }
 
-        /* Action Line Adjusted */
         .action-line-container { display: flex; gap: 8px; width: 100%; align-items: center; justify-content: space-between; }
         .compact-badge { background: var(--card-bg); border: 1px solid var(--border-ui); border-radius: 12px; padding: 0 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 42px; min-width: 60px; }
         
@@ -144,22 +146,19 @@
         .combo-active { opacity: 1; transform: translateX(-50%) scale(1.2); }
         .confetti-piece { position: absolute; width: 8px; height: 16px; background: #ffd700; opacity: 0; }
         
-        /* INCREASED BOTTOM PADDING TO AVOID OVERLAP */
         #session-bar-container { width: 100%; height: 4px; background: rgba(0,0,0,0.05); position: absolute; top: 0; left: 0; z-index: 160; display: none; }
         #session-progress { height: 100%; background: #10b981; width: 0%; transition: width 0.3s ease; }
 
-        /* NEW BOTTOM DOCK STYLES */
         .bottom-dock { padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 20px rgba(0,0,0,0.05); }
         .dock-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; transition: all 0.1s; cursor: pointer; height: 52px; position: relative; overflow: hidden; }
         .dock-btn:active { transform: scale(0.95); }
         .btn-main-action { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
         
-        /* TOAST NOTIFICATION */
         #toast-notification { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(239, 68, 68, 0.9); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 800; font-size: 12px; z-index: 2000; box-shadow: 0 4px 15px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: opacity 0.3s; text-align: center; width: max-content; }
         #toast-notification.show { opacity: 1; animation: fadeInUp 0.5s ease-out; }
     </style>
 </head>
-<body class="select-none relative flex flex-col h-screen overflow-hidden">
+<body class="select-none relative flex flex-col overflow-hidden">
 
     <div id="ptr-indicator"><div class="ptr-spinner"><svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div></div>
     
@@ -197,6 +196,13 @@
                     <button onclick="startLevelingTest()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Test de Nivelación</button>
                     <button onclick="selectGameMode('free')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black uppercase py-4 rounded-xl text-sm tracking-widest shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Entrenamiento Libre</button>
                 </div>
+                
+                <!-- SECCIÓN DE CRÉDITOS AÑADIDA -->
+                <div class="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Creado por</p>
+                    <p class="text-xs font-black text-violet-500 dark:text-violet-400">Juan Miguel Rios Redondo</p>
+                </div>
+
             </div>
             <div id="start-daily-view" class="hidden">
                 <button onclick="backToMainStart()" class="absolute top-6 left-6 text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg></button>
@@ -406,7 +412,6 @@
             <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl mb-6">
                 <p class="text-xs uppercase text-slate-400 font-bold tracking-widest mb-2">Resumen de Sesión</p>
                 <p id="session-final-score" class="text-4xl font-black text-slate-700 dark:text-white mb-4">10/13</p>
-                <!-- UPDATED SUMMARY GRID to 3 Columns -->
                 <div class="grid grid-cols-3 gap-2 text-left w-full mb-6">
                     <div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800">
                         <h4 class="font-bold text-blue-600 dark:text-blue-400 text-[9px] uppercase mb-2 border-b border-blue-200 pb-1">Melodía</h4>
@@ -416,13 +421,11 @@
                         <h4 class="font-bold text-purple-600 dark:text-purple-400 text-[9px] uppercase mb-2 border-b border-purple-200 pb-1">Armonía</h4>
                         <div class="flex justify-between items-center text-[10px]"><span class="text-emerald-500 font-bold">✓ <span id="summary-har-correct">0</span></span><span class="text-rose-500 font-bold">✗ <span id="summary-har-wrong">0</span></span></div>
                     </div>
-                    <!-- Added Intervals Section -->
                     <div class="bg-orange-50 dark:bg-orange-900/20 p-2 rounded-lg border border-orange-100 dark:border-orange-800">
                         <h4 class="font-bold text-orange-600 dark:text-orange-400 text-[9px] uppercase mb-2 border-b border-orange-200 pb-1">Intervalos</h4>
                         <div class="flex justify-between items-center text-[10px]"><span class="text-emerald-500 font-bold">✓ <span id="summary-int-correct">0</span></span><span class="text-rose-500 font-bold">✗ <span id="summary-int-wrong">0</span></span></div>
                     </div>
                 </div>
-                 <!-- COACH VERDICT -->
                  <div class="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg border border-emerald-100 dark:border-emerald-800 text-left">
                     <h4 class="font-bold text-emerald-600 dark:text-emerald-400 text-[10px] uppercase mb-1">Veredicto del Entrenador</h4>
                     <p id="session-verdict" class="text-[10px] text-slate-600 dark:text-slate-300 leading-snug">Excelente desempeño. Sigue así.</p>
@@ -444,7 +447,6 @@
             <div class="grid grid-cols-2 gap-4 mb-6"><div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-center border border-slate-200 dark:border-slate-700"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nivel Actual</p><p id="stat-level" class="text-2xl font-black text-violet-500 mt-1">NOVATO</p><div class="w-full bg-gray-200 rounded-full h-1.5 mt-2 dark:bg-gray-700"><div id="xp-bar" class="bg-violet-600 h-1.5 rounded-full" style="width: 0%"></div></div><p class="text-[8px] text-slate-400 mt-1"><span id="current-xp">0</span> XP</p></div><div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-center border border-slate-200 dark:border-slate-700"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Racha Actual</p><p id="stat-streak" class="text-3xl font-black text-orange-500 mt-1">0 🔥</p></div></div>
             <div class="mb-6"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Progreso Reciente</p><div class="w-full h-32 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-2 flex items-end justify-between gap-1" id="chart-container"></div></div>
             
-            <!-- NEW DIAGNOSTIC SECTION -->
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div class="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-xl border border-emerald-100 dark:border-emerald-800">
                      <h4 class="font-bold text-emerald-600 dark:text-emerald-400 text-[10px] uppercase mb-2">💪 Tus Fortalezas</h4>
@@ -474,6 +476,16 @@
             <div class="space-y-6 text-xs text-left max-h-[60vh] overflow-y-auto pr-2">
                 <section><h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Metodología</h3><div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300"><p><strong>1. Sintonía:</strong> Siente la gravedad tonal con los chips de práctica.</p><p><strong>2. Unísono:</strong> Canta internamente la resolución.</p><p><strong>3. Memoria:</strong> Retén la frase completa antes de escribir.</p><p><strong>4. Armonía:</strong> Distingue Color (May/Men) y Función (Tónica/Dom).</p></div></section>
                 <section><h3 class="font-bold text-violet-500 uppercase text-[10px] mb-3 border-l-2 border-violet-500 pl-2">Mapa de Ruta (Tiempo Recomendado)</h3><div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 opacity-90 leading-relaxed text-slate-700 dark:text-slate-300"><ul class="list-disc pl-3 space-y-1"><li><strong>Constancia:</strong> 15 min diarios > 2h a la semana.</li><li><strong>Mes 1-3:</strong> Reconocer intervalos simples y color de acordes.</li><li><strong>Mes 3-6:</strong> Progresiones básicas (I-IV-V) y melodías cortas.</li><li><strong>Año 1+:</strong> Fluidez auditiva y armonía avanzada.</li></ul></div></section>
+                
+                <!-- SECCIÓN DE CRÉDITOS EN AYUDA -->
+                <section class="border-t border-slate-200 dark:border-slate-700 pt-4 mt-6">
+                    <h3 class="font-bold text-slate-400 uppercase text-[10px] mb-2 text-center">Créditos</h3>
+                    <div class="text-center text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p>Diseñado y desarrollado con pasión para el entrenamiento musical.</p>
+                        <p class="mt-1 font-bold text-violet-500 dark:text-violet-400">© 2026 Juan Miguel Rios Redondo. Todos los derechos reservados.</p>
+                    </div>
+                </section>
+
                 <button onclick="closeModal()" class="w-full bg-violet-600 hover:bg-violet-700 text-white py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg">Entendido</button>
             </div>
         </div>
@@ -551,7 +563,7 @@
         }
 
         let audioCtx;
-        let state = { level:'basic1', intervalLevel: 1, intervalDirection: 'mixed', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, xp: 0, streak: 0, dailyStreak: 0, lastPracticeDate: null, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [], username: '', currentNoteCount: 1, lastUserAnswer: null, lastCorrectAnswer: null, cadenceType: 0, questionStartTime: 0, errorStats: {}, consecutiveMelodyFailures: 0 };
+        let state = { level:'basic1', intervalLevel: 1, intervalDirection: 'mixed', tonalityMode:'major', currentRoundTonality:'major', mode:'melody', keyIndex:48, keyLabel:'C', score:0, xp: 0, streak: 0, dailyStreak: 0, maxDailyStreak: 0, streakHistory: [], lastPracticeDate: null, imagina:false, sprint:false, timeLeft:60, timerId:null, userBuffer:[], isPlaying:false, target:null, autoResolve:true, activeOscillators: [], timeouts: [], history: [], username: '', currentNoteCount: 1, lastUserAnswer: null, lastCorrectAnswer: null, cadenceType: 0, questionStartTime: 0, errorStats: {}, consecutiveMelodyFailures: 0 };
         let sessionState = { active: false, type: 'minimal', startTime: 0, totalDuration: 0, timeLeft: 0, correctCount: 0, totalQuestions: 0, timerId: null, phase: 'warmup', stats: { melCorrect: 0, melTotal: 0, harCorrect: 0, harTotal: 0, intCorrect: 0, intTotal: 0 }, elapsedTime: 0 };
         let placementState = { active: false, levelIndex: 0, strikes: 0, totalStrikesAllowed: 2, maxLevelReached: 0 };
 
@@ -562,7 +574,10 @@
             const savedErrors = localStorage.getItem('formarOidoPro_errors'); if(savedErrors) state.errorStats = JSON.parse(savedErrors);
             const savedStreak = localStorage.getItem('formarOidoPro_dailyStreak'); const savedDate = localStorage.getItem('formarOidoPro_lastDate');
             if(savedStreak) state.dailyStreak = parseInt(savedStreak); if(savedDate) state.lastPracticeDate = savedDate;
+            const savedMaxStreak = localStorage.getItem('formarOidoPro_maxDailyStreak'); if(savedMaxStreak) state.maxDailyStreak = parseInt(savedMaxStreak);
+            const savedStreakHistory = localStorage.getItem('formarOidoPro_streakHistory'); if(savedStreakHistory) state.streakHistory = JSON.parse(savedStreakHistory);
             checkDailyStreak(); 
+            document.getElementById('streak-modal-val').innerText = state.dailyStreak;
             const savedSession = localStorage.getItem('formarOidoPro_session');
             if (savedSession) { 
                 const parsedSession = JSON.parse(savedSession); 
@@ -593,8 +608,8 @@
             showStartModal();
         }
 
-        function checkDailyStreak() { if (!state.lastPracticeDate) return; const today = new Date().toDateString(); const last = new Date(state.lastPracticeDate).toDateString(); if (today !== last) { const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); if (yesterday.toDateString() !== last) { state.dailyStreak = 0; localStorage.setItem('formarOidoPro_dailyStreak', 0); } } }
-        function updateDailyStreak() { const today = new Date().toDateString(); const last = state.lastPracticeDate ? new Date(state.lastPracticeDate).toDateString() : null; if (today !== last) { state.dailyStreak++; state.lastPracticeDate = new Date().toISOString(); localStorage.setItem('formarOidoPro_dailyStreak', state.dailyStreak); localStorage.setItem('formarOidoPro_lastDate', state.lastPracticeDate); } }
+        function checkDailyStreak() { if (!state.lastPracticeDate) return; const today = new Date(); today.setHours(0,0,0,0); const last = new Date(state.lastPracticeDate); last.setHours(0,0,0,0); const diffDays = Math.floor((today - last) / (1000 * 60 * 60 * 24)); if (diffDays > 1) { if (state.dailyStreak > 0) { state.streakHistory.push({ date: last.toLocaleDateString(), streak: state.dailyStreak }); state.streakHistory.sort((a,b) => b.streak - a.streak); if(state.streakHistory.length > 10) state.streakHistory = state.streakHistory.slice(0, 10); localStorage.setItem('formarOidoPro_streakHistory', JSON.stringify(state.streakHistory)); } state.dailyStreak = 0; localStorage.setItem('formarOidoPro_dailyStreak', 0); } }
+        function updateDailyStreak() { const today = new Date(); today.setHours(0,0,0,0); const last = state.lastPracticeDate ? new Date(state.lastPracticeDate) : null; if (last) last.setHours(0,0,0,0); if (!last || today > last) { state.dailyStreak++; state.lastPracticeDate = new Date().toISOString(); if (state.dailyStreak > state.maxDailyStreak) { state.maxDailyStreak = state.dailyStreak; localStorage.setItem('formarOidoPro_maxDailyStreak', state.maxDailyStreak); } localStorage.setItem('formarOidoPro_dailyStreak', state.dailyStreak); localStorage.setItem('formarOidoPro_lastDate', state.lastPracticeDate); } }
         function registerTimeout(fn, delay) { const id = setTimeout(fn, delay); state.timeouts.push(id); return id; }
         function clearAllTimeouts() { state.timeouts.forEach(id => clearTimeout(id)); state.timeouts = []; }
         function initAudio() { if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const comp = audioCtx.createDynamicsCompressor(); comp.connect(audioCtx.destination); state.masterOut = comp; } }
@@ -707,7 +722,7 @@
             backToMainStart(); 
         }
         function closeStartModalOnly() { document.getElementById('start-modal').style.display = 'none'; }
-        function showDailyOptions() { document.getElementById('start-main-view').classList.add('hidden'); document.getElementById('start-daily-view').classList.remove('hidden'); }
+        function showDailyOptions() { document.getElementById('streak-modal-val').innerText = state.dailyStreak; document.getElementById('start-main-view').classList.add('hidden'); document.getElementById('start-daily-view').classList.remove('hidden'); }
         function backToMainStart() { document.getElementById('start-daily-view').classList.add('hidden'); document.getElementById('start-main-view').classList.remove('hidden'); }
         
         function selectGameMode(mode, subType) { 
@@ -1429,7 +1444,7 @@
             document.getElementById('xp-bar').style.width = `${progress}%`;
             document.getElementById('current-xp').innerText = `${state.xp} / ${nextXP}`;
 
-            document.getElementById('stat-streak').innerText = state.dailyStreak + " 🔥"; 
+            document.getElementById('stat-streak').innerHTML = `${state.dailyStreak} 🔥<br><span class="text-[9px] text-slate-500 dark:text-slate-400 block mt-1 uppercase tracking-widest">Récord: ${state.maxDailyStreak}</span>`; 
             document.getElementById('username-input').value = state.username || ''; 
             
             const chartContainer = document.getElementById('chart-container'); 
@@ -1662,4 +1677,4 @@
         renderUI();
     </script>
 </body>
-</html>
+                                                                                                                                                                          </html>
