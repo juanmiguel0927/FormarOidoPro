@@ -121,6 +121,7 @@
 
         /* CLASE PARA OCULTAR CONTROLES DURANTE EL TEST */
         body.test-mode .hide-in-test { display: none !important; }
+        body.test-mode .piano-stage { pointer-events: none; opacity: 0.8; } 
         body.test-mode #test-hud { display: flex; }
     </style>
 </head>
@@ -208,6 +209,7 @@
                 <button onclick="showDailyOptions()" class="w-full bg-emerald-500 text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">Rutina Diaria</button>
                 <button onclick="startRealPlacementTest()" class="w-full bg-blue-500 text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">Test de Nivelación</button>
                 <button onclick="selectGameMode('free')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-sm">Práctica Libre</button>
+                <button onclick="exploreApp()" class="w-full bg-transparent border-2 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-sm mt-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Explorar App (Sin Entrenamiento)</button>
             </div>
 
             <div id="start-daily-view" class="hidden space-y-3">
@@ -329,6 +331,9 @@
             <h1 class="font-black text-[11px] uppercase italic leading-tight">Formar<br><span class="text-violet-500">Oído Pro</span></h1>
         </div>
         <div class="flex items-center gap-2">
+            <button onclick="toggleDarkMode()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-violet-500 hover:bg-slate-200 transition-colors shadow-sm" title="Alternar Modo Oscuro">
+                <svg id="theme-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
             <button onclick="logout()" class="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-full text-rose-500 hover:bg-rose-200 transition-colors shadow-sm" title="Cambiar Usuario / Cerrar Sesión">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
             </button>
@@ -589,15 +594,23 @@
                 tutorialShown: {}, errorStats: {}, rankIdx: 0,
                 hours: { intervals: 0, melody: 0, harmony: 0 },
                 sessionHistory: [],
-                mastery: { intervals: { current_l: 0, target_idx: 1, phase: 0, evidence: 0, level_time: 0 } },
+                mastery: { intervals: { current_l: 0, target_idx: 0, phase: 0, evidence: 0, level_time: 0 } },
                 test: { lives: 3, levelIdx: 0, qIdx: 0, active: false }
             };
         }
 
         // ==========================================
-        // 3. PERSISTENCIA, USUARIOS E IMPORT/EXPORT
+        // 3. PERSISTENCIA, TEMA Y USUARIOS
         // ==========================================
         function initUsers() {
+            const savedTheme = localStorage.getItem('fop_theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                updateThemeIcon(true);
+            } else {
+                updateThemeIcon(false);
+            }
+
             const savedUsers = localStorage.getItem('fop_users');
             if (savedUsers) users = JSON.parse(savedUsers);
             
@@ -606,6 +619,24 @@
                 selectUser(savedActive);
             } else {
                 showUserModal();
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('fop_theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById('theme-icon');
+            if(icon) {
+                if(isDark) {
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+                } else {
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
+                }
             }
         }
 
@@ -659,6 +690,11 @@
         }
 
         function switchUser() {
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
             stopAllSounds();
             document.getElementById('start-modal').style.display = 'none';
             showUserModal();
@@ -670,6 +706,11 @@
             if (activeUserId) savePersistence();
             
             if(testTimerId) { clearInterval(testTimerId); testTimerId = null; }
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
             stopAllSounds();
             
             document.getElementById('session-bar-container').classList.add('hidden');
@@ -700,6 +741,11 @@
             }
             
             savePersistence(); 
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
             stopAllSounds();
             
             document.getElementById('start-modal').style.display = 'flex'; 
@@ -834,7 +880,7 @@
             sessionState.timerId = setInterval(() => {
                 if (sessionState.type === 'free') {
                     sessionState.elapsedTime++;
-                } else {
+                } else if (sessionState.type !== 'explore') {
                     sessionState.timeLeft--;
                     if (sessionState.timeLeft <= 0) {
                         clearInterval(sessionState.timerId);
@@ -845,7 +891,7 @@
                 }
                 updateTimerUI();
                 
-                if (activeUserId) {
+                if (activeUserId && sessionState.type !== 'explore') {
                     const sessionData = {
                         active: sessionState.active,
                         type: sessionState.type,
@@ -864,7 +910,7 @@
             const progressEl = document.getElementById('session-progress');
             if(!timerEl) return;
 
-            if (sessionState.type === 'free') {
+            if (sessionState.type === 'free' || sessionState.type === 'explore') {
                 const m = Math.floor(sessionState.elapsedTime / 60).toString().padStart(2, '0');
                 const s = (sessionState.elapsedTime % 60).toString().padStart(2, '0');
                 timerEl.innerText = `${m}:${s}`;
@@ -881,6 +927,11 @@
         }
 
         function showSessionEndModal() {
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
             stopAllSounds();
             
             // Guardar Historial
@@ -1114,8 +1165,13 @@
         }
 
         function playCadence() {
-            initAudio();
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
             stopAllSounds();
+            initAudio();
             
             const isMin = state.currentRoundTonality === 'minor';
             const cadences = isMin ? ["i - iv - V - i", "ii° - V - i"] : ["I - IV - V - I", "ii - V - I"];
@@ -1191,8 +1247,14 @@
         }
 
         function playProgression(progStr) {
-            initAudio();
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
             stopAllSounds();
+            initAudio();
+            
             state.isPlaying = true;
             const chordsStr = progStr.split(' - ');
             
@@ -1235,7 +1297,13 @@
 
         function repeatSound() {
             if(!state.target || state.isPlaying) return;
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
             stopAllSounds();
+            initAudio();
             
             if (state.mode === 'melody') {
                 state.isPlaying = true;
@@ -1321,7 +1389,17 @@
             
             if (m === 'intervals') {
                 if(intSettings) { intSettings.classList.remove('hidden'); intSettings.classList.add('flex'); }
-                if(freePhaseSettings && sessionState.type === 'free') { freePhaseSettings.classList.remove('hidden'); freePhaseSettings.classList.add('flex'); }
+                if(freePhaseSettings && sessionState.type === 'free' || sessionState.type === 'explore') { 
+                    if(freePhaseSettings) { freePhaseSettings.classList.remove('hidden'); freePhaseSettings.classList.add('flex'); }
+                    
+                    const curP = state.mastery.intervals.phase || 0;
+                    ['fp-0', 'fp-1', 'fp-2', 'fp-3'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) el.classList.remove('active-choice');
+                    });
+                    const curPEl = document.getElementById(`fp-${curP}`);
+                    if(curPEl) curPEl.classList.add('active-choice');
+                }
             } else {
                 if(intSettings) { intSettings.classList.add('hidden'); intSettings.classList.remove('flex'); }
                 if(freePhaseSettings) { freePhaseSettings.classList.add('hidden'); freePhaseSettings.classList.remove('flex'); }
@@ -1329,7 +1407,7 @@
         }
 
         function applyMasteryToUI() {
-            const isFree = sessionState.type === 'free';
+            const isFree = sessionState.type === 'free' || sessionState.type === 'explore';
             const currentLevelIdx = state.mastery.intervals.current_l || 0;
             
             LEVEL_IDS.forEach((lvl, idx) => {
@@ -1402,7 +1480,7 @@
                     
                     if(state.mode !== 'intervals' && activeMelodyNotes.includes(functional)) {
                         const name = getNoteNameDisplay(midi);
-                        btn.innerHTML = `<div class="bg-${getFunctionalClass(functional)} text-[7px] px-1 rounded-full mb-1 text-white">${DEGREES[functional]}</div><div class="not-uppercase text-[8px] font-bold">${name}</div>`;
+                        btn.innerHTML = `<div class="bg-${getFunctionalClass(functional)} text-base font-black px-2 py-0.5 rounded-full mb-1 text-white shadow-sm leading-none">${DEGREES[functional]}</div><div class="not-uppercase text-sm font-black opacity-80">${name}</div>`;
                     } else if (state.mode === 'intervals' && functional >= 0 && functional <= 12) {
                         // Limpio en intervalos
                     }
@@ -1503,7 +1581,7 @@
         }
 
         function setFreePhase(phaseIdx) {
-            if (sessionState.type !== 'free' || state.mode !== 'intervals') return;
+            if ((sessionState.type !== 'free' && sessionState.type !== 'explore') || state.mode !== 'intervals') return;
             state.mastery.intervals.phase = phaseIdx;
             ['fp-0', 'fp-1', 'fp-2', 'fp-3'].forEach(id => {
                 const el = document.getElementById(id);
@@ -1517,7 +1595,7 @@
 
         function setLevel(lvl) {
             const idx = LEVEL_IDS.indexOf(lvl);
-            if (sessionState.type !== 'free' && sessionState.type !== 'test' && idx > state.mastery.intervals.current_l) {
+            if (sessionState.type !== 'free' && sessionState.type !== 'explore' && sessionState.type !== 'test' && idx > state.mastery.intervals.current_l) {
                 alert("Debes acumular más horas de práctica y dominar los intervalos anteriores para desbloquear este nivel.");
                 return;
             }
@@ -1527,6 +1605,11 @@
         }
 
         function setGlobalMode(m) {
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
             stopAllSounds();
             state.mode = m;
             syncModeUI(m);
@@ -1570,7 +1653,7 @@
             if (!state.errorStats) return [];
             let list = [];
             for (const [key, stats] of Object.entries(state.errorStats)) {
-                if (stats.t >= 3) {
+                if (stats.t >= 1) {
                     const acc = (stats.c / stats.t) * 100;
                     if (acc >= 70) list.push({key, acc});
                 }
@@ -1582,7 +1665,7 @@
             if (!state.errorStats) return [];
             let list = [];
             for (const [key, stats] of Object.entries(state.errorStats)) {
-                if (stats.t >= 3) {
+                if (stats.t >= 1) {
                     const acc = (stats.c / stats.t) * 100;
                     if (acc <= 50) list.push({key, acc});
                 }
@@ -1663,7 +1746,7 @@
             let hasData = false;
             if(state.errorStats) {
                 for (const [key, stats] of Object.entries(state.errorStats)) {
-                    if (stats.t >= 3) {
+                    if (stats.t >= 1) {
                         hasData = true;
                         const acc = (stats.c / stats.t) * 100;
                         const li = document.createElement('li');
@@ -1697,7 +1780,7 @@
                         el.className = "bg-slate-50 dark:bg-slate-800 p-3 rounded-xl text-xs flex flex-col gap-1 border border-slate-100 dark:border-slate-700";
                         const d = new Date(s.date);
                         const dur = Math.floor((s.duration || 0) / 60);
-                        let typeLabel = s.type === 'daily' ? 'Rutina Diaria' : (s.type === 'test' ? 'Test de Nivelación' : 'Práctica Libre');
+                        let typeLabel = s.type === 'daily' ? 'Rutina Diaria' : (s.type === 'test' ? 'Test de Nivelación' : (s.type === 'explore' ? 'Exploración' : 'Práctica Libre'));
                         
                         el.innerHTML = `
                             <div class="flex justify-between font-black text-slate-600 dark:text-slate-300">
@@ -1746,7 +1829,7 @@
         }
 
         function startTestTimer() {
-            if(testTimerId) clearInterval(testTimerId);
+            if(testTimerId) clearTimeout(testTimerId);
             let timeLeft = 8;
             const clockEl = document.getElementById('test-timer-clock');
             if(clockEl) clockEl.innerText = timeLeft + 's';
@@ -1785,6 +1868,11 @@
 
         function handleTestResult(isCorrect, userStr, correctStr) {
             if(testTimerId) { clearInterval(testTimerId); testTimerId = null; }
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
             stopAllSounds(); 
             
             if (!isCorrect) {
@@ -1909,12 +1997,20 @@
         }
 
         function playPresentation(dirOverride) {
-            if(state.target && !state.isPlaying) playInterval(state.target.root, state.target.root + state.target.inv, dirOverride);
+            if(state.target && !state.isPlaying) {
+                if (audioCtx) {
+                    try { audioCtx.close(); } catch(e) {}
+                    audioCtx = null;
+                    masterOut = null;
+                }
+                stopAllSounds();
+                playInterval(state.target.root, state.target.root + state.target.inv, dirOverride);
+            }
         }
 
         function advanceFromPresentation() {
-            if(sessionState.type === 'free') {
-                alert("En modo libre tú eliges la fase en el panel.");
+            if(sessionState.type === 'free' || sessionState.type === 'explore') {
+                alert("En modo libre/explorar tú eliges la fase en el panel.");
                 return;
             }
             state.mastery.intervals.phase = 1;
@@ -1928,7 +2024,14 @@
                 const tc = document.getElementById('test-timer-clock');
                 if(tc) tc.innerText = 'Escucha...';
             }
-            stopAllSounds(); clearAllTimeouts(); initAudio();
+            
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
+            stopAllSounds(); 
+            initAudio();
             
             const keys = ['C','G','F','D','A','Bb','Eb'];
             state.keyLabel = keys[Math.floor(Math.random()*keys.length)];
@@ -1960,7 +2063,6 @@
                 const m = state.mastery.intervals;
                 const isReview = LEVEL_IDS.indexOf(state.level) < m.current_l;
                 let cPhase = isReview ? 4 : m.phase;
-                if (cPhase === 1 && m.target_idx < 2) cPhase = 2; 
                 if (sessionState.type === 'test') cPhase = 3;
                 phaseKey = cPhase === 0 ? 'presentation' : (cPhase === 1 ? 'intruder' : (cPhase === 2 ? 'hunt' : 'direct'));
             }
@@ -2000,7 +2102,6 @@
                 }
                 
                 let currentPhase = isReviewingPastLevel ? 4 : m.phase;
-                if (currentPhase === 1 && m.target_idx < 2) currentPhase = 2; 
                 if (sessionState.type === 'test') currentPhase = 3; // TEST fuerza Directo
 
                 updateEvidenceStars(); 
@@ -2215,6 +2316,12 @@
         // Sequences
         function playIntruderSequence() {
             if (state.isPlaying) return; state.isPlaying = true; let t = 0;
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
+            initAudio();
             datosIntruso.intervalos.forEach((data, i) => {
                 registerTimeout(() => {
                     const card = document.getElementById(`intruder-card-${i}`);
@@ -2228,6 +2335,12 @@
 
         function playHuntSequence() {
             if (state.isPlaying) return; state.isPlaying = true; let t = 0;
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
+            initAudio();
             datosCaceria.cartas.forEach((data, i) => {
                 registerTimeout(() => {
                     const card = document.getElementById(`hunt-card-${i}`);
@@ -2373,19 +2486,19 @@
                 return;
             }
 
-            if (trackKey && sessionState.type !== 'free') {
+            if (trackKey && sessionState.type !== 'free' && sessionState.type !== 'explore') {
                 if (!state.errorStats) state.errorStats = {};
                 if (!state.errorStats[trackKey]) state.errorStats[trackKey] = { c: 0, t: 0 };
                 state.errorStats[trackKey].t++;
                 if (isCorrect) state.errorStats[trackKey].c++;
             }
             
-            if (state.mode === 'harmony' && trackKey) {
+            if (state.mode === 'harmony' && trackKey && sessionState.type !== 'explore') {
                 if(!state.hours) state.hours = { intervals: 0, melody: 0, harmony: 0 };
                 state.hours.harmony += timeTaken;
             }
 
-            if (isCorrect) {
+            if (isCorrect && sessionState.type !== 'explore') {
                 state.xp += 10; state.streak++;
                 updateStreakRecord();
                 const combo = document.getElementById('combo-display');
@@ -2396,13 +2509,15 @@
                         registerTimeout(() => combo.classList.remove('combo-active'), 1500); 
                     }
                 }
-            } else { state.streak = 0; }
+            } else if (sessionState.type !== 'explore') { 
+                state.streak = 0; 
+            }
 
             if (state.mode === 'intervals') {
                 const m = state.mastery.intervals;
                 const isReviewingPastLevel = LEVEL_IDS.indexOf(state.level) < m.current_l;
 
-                if (!isReviewingPastLevel && sessionState.type !== 'free') {
+                if (!isReviewingPastLevel && sessionState.type !== 'free' && sessionState.type !== 'explore') {
                     m.level_time += Math.min(timeTaken, 30); 
                     
                     if (m.phase >= 1 && m.phase <= 3) {
@@ -2417,7 +2532,7 @@
                                 const poolLength = (PEDAGOGIA_INTERVALOS[state.level] || []).length;
 
                                 // Si llegamos a la fase 3 pero no hay suficientes intervalos para comparar
-                                if (m.phase === 3 && m.target_idx < 2) {
+                                if (m.phase === 3 && m.target_idx === 0) {
                                     m.phase = 0; 
                                     if (m.target_idx < poolLength - 1) {
                                         m.target_idx++; 
@@ -2452,7 +2567,7 @@
                 }
             }
 
-            savePersistence();
+            if (sessionState.type !== 'explore') savePersistence();
 
             const modalRes = document.getElementById('result-modal'); 
             if (modalRes) modalRes.style.display = 'flex';
@@ -2501,6 +2616,27 @@
             document.getElementById('start-main-view').classList.remove('hidden'); 
             document.getElementById('start-daily-view').classList.add('hidden'); 
         }
+
+        function exploreApp() {
+            sessionState.active = false;
+            sessionState.type = 'explore';
+            const sModal = document.getElementById('start-modal');
+            if(sModal) sModal.style.display = 'none'; 
+            const sBar = document.getElementById('session-bar-container');
+            if(sBar) sBar.classList.add('hidden');
+            const sTime = document.getElementById('session-time-remaining');
+            if(sTime) sTime.classList.add('hidden');
+            
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
+            stopAllSounds();
+            syncModeUI(state.mode);
+            resetUI();
+            startGame();
+        }
         
         function selectGameMode(type, duration) { 
             sessionState.active = true; sessionState.type = type; 
@@ -2522,15 +2658,13 @@
                     fSettings.classList.remove('hidden');
                     fSettings.classList.add('flex');
                 }
-                state.mastery.intervals.target_idx = (PEDAGOGIA_INTERVALOS[state.level] || []).length - 1; 
-                state.mastery.intervals.mastered_count = state.mastery.intervals.target_idx + 1;
-                state.mastery.intervals.phase = 3; 
+                const curP = state.mastery.intervals.phase || 0;
                 ['fp-0', 'fp-1', 'fp-2', 'fp-3'].forEach(id => {
                     const el = document.getElementById(id);
                     if(el) el.classList.remove('active-choice');
                 });
-                const fp3 = document.getElementById(`fp-3`);
-                if(fp3) fp3.classList.add('active-choice');
+                const curPEl = document.getElementById(`fp-${curP}`);
+                if(curPEl) curPEl.classList.add('active-choice');
             } else if (type === 'daily') {
                 const hasStats = Object.keys(state.errorStats || {}).length > 0;
                 if (!hasStats) {
@@ -2543,12 +2677,16 @@
             if(type === 'daily') startSessionTimer(false, duration);
             else startSessionTimer(false); 
             
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
             stopAllSounds();
             state.mode = modeToStart;
             syncModeUI(modeToStart);
             resetUI();
             
-            // Forzar inicio de pregunta de inmediato
             startGame();
         }
 
