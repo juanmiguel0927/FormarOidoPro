@@ -51,7 +51,7 @@
             --accent: #a78bfa; --accent-hover: #c4b5fd;
         }
 
-        body { font-family: 'Nunito', sans-serif; background: var(--bg-main); color: var(--text-main); min-height: 100dvh; margin: 0; display: flex; flex-direction: column; overflow-x: hidden; -webkit-user-select: none; user-select: none; }
+        body { font-family: 'Nunito', sans-serif; background: var(--bg-main); color: var(--text-main); min-height: 100dvh; margin: 0; display: flex; flex-direction: column; overflow-x: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
         
         /* CARD FLIP 3D Y SELECCIÓN MEJORADA */
         .flip-container { perspective: 1000px; height: 100px; cursor: pointer; width: 30%; min-width: 80px; max-width: 120px; flex-grow: 1; }
@@ -148,6 +148,7 @@
             <div class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-violet-300 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span id="test-timer-clock" class="text-lg">8s</span>
+                <button onclick="exitTest()" class="text-rose-400 hover:text-rose-300 font-black ml-4 text-xl">✕</button>
             </div>
         </div>
     </div>
@@ -303,12 +304,14 @@
                 <ul id="stats-weaknesses" class="text-xs text-slate-600 dark:text-slate-300 font-bold space-y-1 list-disc pl-4 max-h-24 overflow-y-auto"></ul>
             </div>
 
-            <!-- HISTORIAL DETALLADO -->
+            <!-- HISTORIAL DETALLADO Y RESET -->
             <div class="text-left border-t border-slate-200 dark:border-slate-700 pt-4">
                 <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Historial de Sesiones</h3>
-                <div id="session-history-list" class="space-y-3 max-h-40 overflow-y-auto pr-2 no-scrollbar">
+                <div id="session-history-list" class="space-y-3 max-h-40 overflow-y-auto pr-2 no-scrollbar mb-4">
                     <!-- Dinámico -->
                 </div>
+                
+                <button onclick="resetProgress()" class="w-full py-3 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-xl font-black text-[10px] uppercase shadow-sm active:scale-95 transition-transform border border-rose-200 dark:border-rose-800">⚠️ Reiniciar Todo mi Avance</button>
             </div>
         </div>
     </div>
@@ -504,7 +507,7 @@
 
     <!-- PIANO DOCK -->
     <div class="fixed bottom-0 left-0 w-full z-[200] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pb-safe">
-        <div class="piano-viewport no-scrollbar overflow-x-auto"><div id="piano-stage" class="piano-stage"></div></div>
+        <div id="piano-viewport" class="piano-viewport no-scrollbar overflow-x-auto"><div id="piano-stage" class="piano-stage"></div></div>
         <div class="flex items-center justify-between px-3 py-2 gap-2 bg-slate-50 dark:bg-slate-950/50">
             <div class="flex gap-2">
                 <button onclick="playCadence()" class="dock-btn w-14 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-xl hide-in-test"><span class="text-[8px] font-black uppercase">Cadencia</span></button>
@@ -766,6 +769,23 @@
             document.getElementById('session-time-remaining').classList.add('hidden');
             
             loadPersistence(); 
+        }
+        
+        function resetProgress() {
+            if(!confirm("¿Estás seguro de reiniciar todo tu avance? Se perderá tu nivel, estadísticas e historial. (Tus días de racha se mantendrán intactos).")) return;
+            
+            const keepDaily = state.dailyStreak;
+            const keepLastDate = state.lastDate;
+            const keepStreak = state.streak;
+            
+            state = getDefaultState();
+            state.dailyStreak = keepDaily;
+            state.lastDate = keepLastDate;
+            state.streak = keepStreak;
+            
+            savePersistence();
+            closeStats();
+            location.reload();
         }
 
         function loadPersistence() {
@@ -1424,7 +1444,7 @@
             
             if (m === 'intervals') {
                 if(intSettings) { intSettings.classList.remove('hidden'); intSettings.classList.add('flex'); }
-                if(freePhaseSettings && sessionState.type === 'free' || sessionState.type === 'explore') { 
+                if(freePhaseSettings && (sessionState.type === 'free' || sessionState.type === 'explore')) { 
                     if(freePhaseSettings) { freePhaseSettings.classList.remove('hidden'); freePhaseSettings.classList.add('flex'); }
                     
                     const curP = state.mastery.intervals.phase || 0;
@@ -1515,7 +1535,7 @@
                     
                     if(state.mode !== 'intervals' && activeMelodyNotes.includes(functional)) {
                         const name = getNoteNameDisplay(midi);
-                        btn.innerHTML = `<div class="bg-${getFunctionalClass(functional)} text-base font-black px-2 py-0.5 rounded-full mb-1 text-white shadow-sm leading-none">${DEGREES[functional]}</div><div class="not-uppercase text-sm font-black opacity-80">${name}</div>`;
+                        btn.innerHTML = `<div class="bg-${getFunctionalClass(functional)} text-[10px] sm:text-[12px] font-black px-1.5 py-0.5 rounded-full mb-0.5 text-white shadow-sm leading-none tracking-tighter">${DEGREES[functional]}</div><div class="not-uppercase text-[9px] sm:text-[10px] font-black opacity-90">${name}</div>`;
                     } else if (state.mode === 'intervals' && functional >= 0 && functional <= 12) {
                         // Limpio en intervalos
                     }
@@ -1533,6 +1553,25 @@
                     pStage.appendChild(btn);
                 }
             }
+
+            // --- AUTO-SCROLL DEL PIANO EN MÓVILES ---
+            setTimeout(() => {
+                const viewport = document.getElementById('piano-viewport');
+                const stage = document.getElementById('piano-stage');
+                if(!viewport || !stage) return;
+                
+                const activeKeys = stage.querySelectorAll('.bg-tonic, .bg-stable, .bg-unstable');
+                if(activeKeys.length > 0) {
+                    const first = activeKeys[0].closest('.piano-key');
+                    const last = activeKeys[activeKeys.length - 1].closest('.piano-key');
+                    if(first && last) {
+                        const firstLeft = first.offsetLeft;
+                        const lastRight = last.offsetLeft + last.offsetWidth;
+                        const center = firstLeft + (lastRight - firstLeft) / 2;
+                        viewport.scrollTo({ left: center - (viewport.clientWidth / 2), behavior: 'smooth' });
+                    }
+                }
+            }, 100);
 
             const pcCont = document.getElementById('practice-module');
             if(pcCont && state.mode === 'melody') {
@@ -1877,6 +1916,25 @@
                     handleTestResult(false, "Tiempo Agotado", "Debes responder más rápido");
                 }
             }, 1000);
+        }
+
+        function exitTest() {
+            if(!confirm("¿Seguro que deseas salir del test? Se perderá el progreso actual de esta prueba.")) return;
+            if(testTimerId) { clearInterval(testTimerId); testTimerId = null; }
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+                audioCtx = null;
+                masterOut = null;
+            }
+            stopAllSounds(); 
+            state.test.active = false;
+            document.body.classList.remove('test-mode');
+            const testHud = document.getElementById('test-hud');
+            if (testHud) {
+                testHud.classList.add('hidden');
+                testHud.classList.remove('flex');
+            }
+            document.getElementById('start-modal').style.display = 'flex';
         }
 
         function generateTestQuestion() {
