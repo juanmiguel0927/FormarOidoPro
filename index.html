@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Formar Oído Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -51,10 +51,10 @@
             --accent: #a78bfa; --accent-hover: #c4b5fd;
         }
 
-        body { font-family: 'Nunito', sans-serif; background: var(--bg-main); color: var(--text-main); height: 100dvh; margin: 0; display: flex; flex-direction: column; overflow: hidden; -webkit-user-select: none; user-select: none; }
+        body { font-family: 'Nunito', sans-serif; background: var(--bg-main); color: var(--text-main); min-height: 100dvh; margin: 0; display: flex; flex-direction: column; overflow-x: hidden; -webkit-user-select: none; user-select: none; }
         
         /* CARD FLIP 3D Y SELECCIÓN MEJORADA */
-        .flip-container { perspective: 1000px; height: 100px; cursor: pointer; width: 100%; }
+        .flip-container { perspective: 1000px; height: 100px; cursor: pointer; width: 30%; min-width: 80px; max-width: 120px; flex-grow: 1; }
         .flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s; transform-style: preserve-3d; border-radius: 16px; border: 3px solid var(--border-ui); background: var(--card-bg); }
         
         /* COLOR CLARO AL SELECCIONAR EN CACERÍA */
@@ -73,7 +73,7 @@
         
         /* PIANO STYLES */
         .piano-stage { position: relative; height: 120px; min-width: 600px; width: 100%; max-width: 920px; margin: 0 auto; flex-shrink: 0; }
-        .key-white { position: absolute; top: 0; width: calc(100% / 15); height: 100%; background: linear-gradient(to bottom, #ffffff 0%, #f1f5f9 100%); border: 1px solid #cbd5e1; border-bottom: 4px solid #94a3b8; border-radius: 0 0 6px 6px; z-index: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 8px; transition: transform 0.1s, background 0.1s; }
+        .key-white { position: absolute; top: 0; width: calc(100% / 15); height: 100%; background: linear-gradient(to bottom, #ffffff 0%, #f1f5f9 100%); border: 1px solid #cbd5e1; border-bottom: 4px solid #94a3b8; border-radius: 0 0 6px 6px; z-index: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 8px; transition: transform 0.1s, background 0.1s; color: #1e293b; }
         .key-black { position: absolute; top: 0; width: calc(100% / 26); height: 60%; background: linear-gradient(to bottom, #1e293b 0%, #0f172a 100%); border: 1px solid #000; border-bottom: 6px solid #000; border-radius: 0 0 4px 4px; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 4px; color: white; transition: transform 0.1s, background 0.1s; }
         .playing { background: var(--accent) !important; border-color: var(--accent-hover) !important; transform: scale(0.96); box-shadow: 0 0 20px rgba(139, 92, 246, 0.7) !important; z-index: 10; color: white !important; }
 
@@ -81,18 +81,18 @@
         .control-btn { padding: 12px 6px; border-radius: 9999px; font-size: 10px; font-weight: 900; color: #64748b; cursor: pointer; border: 1px solid var(--border-ui); background: var(--card-bg); transition: all 0.2s; text-align: center; white-space: nowrap; text-transform: uppercase; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .active-choice { background: var(--accent) !important; color: white !important; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4) !important; border-color: var(--accent-hover) !important; transform: translateY(-1px); }
         
-        .practice-card { background: var(--card-bg); border: 2px solid var(--border-ui); border-radius: 10px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; cursor: pointer; color: var(--text-main); }
+        .practice-card { background: var(--card-bg); border: 2px solid var(--border-ui); border-radius: 10px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px; cursor: pointer; color: var(--text-main); }
         
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--card-bg); color: var(--text-main); max-width: 440px; width: 100%; border-radius: 24px; padding: 24px; border: 1px solid var(--border-ui); max-height: 90vh; overflow-y: auto; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 500; display: none; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--card-bg); color: var(--text-main); max-width: 440px; width: 100%; border-radius: 24px; padding: 20px; border: 1px solid var(--border-ui); max-height: 90vh; overflow-y: auto; }
 
         .combo-counter { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); font-weight: 900; color: #f59e0b; opacity: 0; transition: all 0.3s; z-index: 160; }
         .combo-active { opacity: 1; transform: translateX(-50%) scale(1.2); }
         
         .not-uppercase { text-transform: none !important; }
         .confetti-piece { position: absolute; width: 8px; height: 16px; background: #ffd700; opacity: 0; z-index: 1000; }
-        .play-icon-btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: var(--bg-piano); color: var(--accent); margin: 0 auto 8px auto; transition: all 0.1s; }
-        .hunt-btn-eval { background: var(--accent); color: white; font-weight: 900; text-transform: uppercase; padding: 14px; border-radius: 14px; width: 100%; margin-top: 16px; font-size: 12px; }
+        .play-icon-btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: var(--bg-piano); color: var(--accent); margin: 0 auto 8px auto; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.1s; }
+        .hunt-btn-eval { background: var(--accent); color: white; font-weight: 900; text-transform: uppercase; padding: 14px; border-radius: 14px; width: 100%; max-width: 300px; margin: 16px auto 0 auto; font-size: 12px; }
         .dock-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; cursor: pointer; height: 52px; position: relative; }
         .btn-main-action { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -153,9 +153,9 @@
     </div>
 
     <!-- OVERLAY DE CADENCIA -->
-    <div id="cadence-display" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-[300] bg-slate-900/95 backdrop-blur-md text-white px-6 py-4 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none flex flex-col items-center gap-2 scale-95 border border-slate-700">
+    <div id="cadence-display" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-[300] bg-slate-900/95 backdrop-blur-md text-white px-6 py-4 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none flex flex-col items-center gap-2 scale-95 border border-slate-700 max-w-[90%] text-center">
         <span class="text-[9px] uppercase tracking-widest text-violet-400 font-black">Contexto Tonal</span>
-        <div id="cadence-chords" class="flex gap-2 text-xl font-black font-mono"></div>
+        <div id="cadence-chords" class="flex flex-wrap justify-center gap-2 text-xl font-black font-mono"></div>
     </div>
 
     <!-- MODAL DE USUARIOS -->
@@ -196,7 +196,7 @@
                 <div class="bg-violet-600 p-3 rounded-2xl mb-2">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
                 </div>
-                <h2 class="text-2xl font-black italic">Formar Oído <span class="text-violet-500">Pro</span></h2>
+                <h2 class="text-2xl sm:text-3xl font-black italic">Formar Oído <span class="text-violet-500">Pro</span></h2>
                 <div class="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mt-1">Rango: <span id="rank-display">No Evaluado</span></div>
             </div>
             
@@ -205,11 +205,11 @@
             </div>
 
             <div class="space-y-3" id="start-main-view">
-                <button id="btn-continue" onclick="continueSession()" class="hidden w-full bg-orange-500 text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg animate-pulse">Continuar Sesión</button>
-                <button onclick="showDailyOptions()" class="w-full bg-emerald-500 text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">Rutina Diaria</button>
-                <button onclick="startRealPlacementTest()" class="w-full bg-blue-500 text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">Test de Nivelación</button>
-                <button onclick="selectGameMode('free')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-sm">Práctica Libre</button>
-                <button onclick="exploreApp()" class="w-full bg-transparent border-2 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-sm mt-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Explorar App (Sin Entrenamiento)</button>
+                <button id="btn-continue" onclick="continueSession()" class="hidden w-full bg-orange-500 text-white font-black py-4 rounded-xl text-xs sm:text-sm uppercase tracking-widest shadow-lg animate-pulse">Continuar Sesión</button>
+                <button onclick="showDailyOptions()" class="w-full bg-emerald-500 text-white font-black py-4 rounded-xl text-xs sm:text-sm uppercase tracking-widest shadow-lg">Rutina Diaria</button>
+                <button onclick="startRealPlacementTest()" class="w-full bg-blue-500 text-white font-black py-4 rounded-xl text-xs sm:text-sm uppercase tracking-widest shadow-lg">Test de Nivelación</button>
+                <button onclick="selectGameMode('free')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black py-4 rounded-xl text-xs sm:text-sm uppercase tracking-widest shadow-sm">Práctica Libre</button>
+                <button onclick="exploreApp()" class="w-full bg-transparent border-2 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-black py-4 rounded-xl text-xs sm:text-sm uppercase tracking-widest shadow-sm mt-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Explorar App (Sin Entrenamiento)</button>
             </div>
 
             <div id="start-daily-view" class="hidden space-y-3">
@@ -322,13 +322,23 @@
         </div>
     </div>
 
+    <!-- MODAL INFO (Avisos del sistema) -->
+    <div id="info-modal" class="modal" style="z-index: 800;">
+        <div class="modal-content text-center">
+            <div class="text-5xl mb-4">💡</div>
+            <h2 id="info-title" class="text-2xl font-black text-violet-500 mb-4 uppercase italic">Aviso</h2>
+            <p id="info-desc" class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-6 leading-relaxed whitespace-pre-line"></p>
+            <button onclick="document.getElementById('info-modal').style.display='none'" class="w-full bg-slate-800 dark:bg-slate-700 text-white font-black py-3 rounded-xl uppercase tracking-widest shadow-lg active:scale-95 transition-transform">Entendido</button>
+        </div>
+    </div>
+
     <!-- UI PRINCIPAL -->
     <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-3 flex justify-between items-center shrink-0 z-50">
         <div class="flex items-center gap-2">
             <div class="bg-violet-600 p-1.5 rounded-xl">
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
             </div>
-            <h1 class="font-black text-[11px] uppercase italic leading-tight">Formar<br><span class="text-violet-500">Oído Pro</span></h1>
+            <h1 class="font-black text-[11px] sm:text-xs uppercase italic leading-tight">Formar<br><span class="text-violet-500">Oído Pro</span></h1>
         </div>
         <div class="flex items-center gap-2">
             <button onclick="toggleDarkMode()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-violet-500 hover:bg-slate-200 transition-colors shadow-sm" title="Alternar Modo Oscuro">
@@ -347,7 +357,7 @@
         </div>
     </header>
 
-    <main class="flex-1 overflow-y-auto no-scrollbar pb-[180px]">
+    <main class="flex-1 pb-[180px]">
         <div class="p-4 max-w-4xl mx-auto w-full flex flex-col gap-4">
             
             <!-- PANEL DE NIVELES -->
@@ -359,7 +369,7 @@
                         <input type="number" id="note-count-input" min="1" max="10" value="1" class="w-5 bg-transparent text-center font-black text-xs text-violet-600 outline-none" onchange="manualNoteUpdate(this.value)">
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-2">
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     <button onclick="setLevel('nivel1')" id="lvl-nivel1" class="control-btn active-choice">NIVEL 1</button>
                     <button onclick="setLevel('nivel2')" id="lvl-nivel2" class="control-btn">NIVEL 2</button>
                     <button onclick="setLevel('nivel3')" id="lvl-nivel3" class="control-btn">NIVEL 3</button>
@@ -372,7 +382,7 @@
             <!-- TONALIDAD Y DIRECCIÓN -->
             <div id="interval-settings" class="flex-col gap-1 hidden hide-in-test">
                 <span class="section-title">Dirección de Intervalos</span>
-                <div class="grid grid-cols-4 gap-2">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <button onclick="setIntervalDirection('asc')" id="int-dir-asc" class="control-btn">ASC ↗</button>
                     <button onclick="setIntervalDirection('desc')" id="int-dir-desc" class="control-btn">DESC ↘</button>
                     <button onclick="setIntervalDirection('harmonic')" id="int-dir-harmonic" class="control-btn">ARM ♪</button>
@@ -402,7 +412,7 @@
             <!-- PANEL DE FASE LIBRE -->
             <div id="free-phase-settings" class="flex-col gap-1 hidden mt-1 hide-in-test">
                 <span class="section-title">Fase Manual (Modo Libre)</span>
-                <div class="grid grid-cols-4 gap-2">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <button onclick="setFreePhase(0)" id="fp-0" class="control-btn">PRES</button>
                     <button onclick="setFreePhase(1)" id="fp-1" class="control-btn">INTRUSO</button>
                     <button onclick="setFreePhase(2)" id="fp-2" class="control-btn">CACERÍA</button>
@@ -438,13 +448,13 @@
                 <button id="btn-delete" onclick="deleteLastNote()" class="hidden mt-2 bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold px-4 py-1.5 rounded-full border text-[9px] uppercase shadow-sm active:scale-95">Borrar Última</button>
                 
                 <!-- Modo Armonía -->
-                <div id="harmony-grid" class="hidden grid grid-cols-2 gap-2 w-full"></div>
+                <div id="harmony-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2 w-full"></div>
                 
                 <!-- Modo Intervalos (Fase 3 y 4) -->
-                <div id="interval-grid" class="hidden grid grid-cols-3 gap-2 w-full"></div>
+                <div id="interval-grid" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 w-full"></div>
                 
                 <!-- Modo Intervalos (Fase 0) -->
-                <div id="presentation-module" class="hidden flex-col items-center w-full animate-fade-in-up text-center bg-violet-50 dark:bg-violet-900/20 p-6 rounded-2xl border border-violet-200 dark:border-violet-800">
+                <div id="presentation-module" class="hidden flex-col items-center w-full animate-fade-in-up text-center bg-violet-50 dark:bg-violet-900/20 p-4 sm:p-6 rounded-2xl border border-violet-200 dark:border-violet-800">
                     <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nuevo Objetivo</h3>
                     <p id="presentation-target" class="text-3xl font-black text-violet-600 dark:text-violet-400 mb-6"></p>
                     
@@ -469,23 +479,23 @@
 
                 <!-- Modo Intervalos (Fase 1: Intruso) -->
                 <div id="intruder-module" class="hidden flex-col items-center w-full animate-fade-in-up">
-                    <p id="intruder-instruction" class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-4 bg-violet-100 dark:bg-violet-900/30 px-4 py-2 rounded-full border border-violet-200 dark:border-violet-800"></p>
+                    <p id="intruder-instruction" class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-4 bg-violet-100 dark:bg-violet-900/30 px-4 py-2 rounded-full border border-violet-200 dark:border-violet-800 text-center"></p>
                     <button onclick="playIntruderSequence()" class="mb-4 bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-400 px-5 py-2.5 rounded-full text-[10px] font-black uppercase flex items-center gap-2 border border-violet-200 dark:border-slate-700 shadow-sm active:scale-95 transition-transform">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/></svg>
                         Oír Secuencia
                     </button>
-                    <div id="intruder-grid" class="grid grid-cols-5 gap-2 w-full"></div>
+                    <div id="intruder-grid" class="flex flex-wrap justify-center gap-2 w-full"></div>
                 </div>
 
                 <!-- Modo Intervalos (Fase 2: Cacería) -->
                 <div id="hunt-module" class="hidden flex-col items-center w-full animate-fade-in-up">
-                    <p id="hunt-instruction" class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-4 bg-violet-100 dark:bg-violet-900/30 px-4 py-2 rounded-full border border-violet-200 dark:border-violet-800"></p>
+                    <p id="hunt-instruction" class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-4 bg-violet-100 dark:bg-violet-900/30 px-4 py-2 rounded-full border border-violet-200 dark:border-violet-800 text-center"></p>
                     <button onclick="playHuntSequence()" class="mb-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-5 py-2.5 rounded-full text-[10px] font-black uppercase flex items-center gap-2 border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95 transition-transform">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/></svg>
                         Oír Secuencia
                     </button>
-                    <div id="hunt-grid" class="grid grid-cols-5 gap-2 w-full"></div>
-                    <button onclick="evaluarCaceria()" class="hunt-btn-eval shadow-lg active:scale-95 transition-transform mt-6">Evaluar Selección</button>
+                    <div id="hunt-grid" class="flex flex-wrap justify-center gap-2 w-full"></div>
+                    <button onclick="evaluarCaceria()" class="hunt-btn-eval shadow-lg active:scale-95 transition-transform">Evaluar Selección</button>
                 </div>
 
             </div>
@@ -493,7 +503,7 @@
     </main>
 
     <!-- PIANO DOCK -->
-    <div class="fixed bottom-0 left-0 w-full z-[200] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+    <div class="fixed bottom-0 left-0 w-full z-[200] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pb-safe">
         <div class="piano-viewport no-scrollbar overflow-x-auto"><div id="piano-stage" class="piano-stage"></div></div>
         <div class="flex items-center justify-between px-3 py-2 gap-2 bg-slate-50 dark:bg-slate-950/50">
             <div class="flex gap-2">
@@ -606,8 +616,10 @@
             const savedTheme = localStorage.getItem('fop_theme');
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-mode');
+                document.documentElement.classList.add('dark');
                 updateThemeIcon(true);
             } else {
+                document.documentElement.classList.remove('dark');
                 updateThemeIcon(false);
             }
 
@@ -624,6 +636,7 @@
 
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
+            document.documentElement.classList.toggle('dark');
             const isDark = document.body.classList.contains('dark-mode');
             localStorage.setItem('fop_theme', isDark ? 'dark' : 'light');
             updateThemeIcon(isDark);
@@ -2010,7 +2023,12 @@
 
         function advanceFromPresentation() {
             if(sessionState.type === 'free' || sessionState.type === 'explore') {
-                alert("En modo libre/explorar tú eliges la fase en el panel.");
+                const modal = document.getElementById('info-modal');
+                if (modal) {
+                    document.getElementById('info-title').innerText = "Modo Manual Activo";
+                    document.getElementById('info-desc').innerText = "El avance automático de fases funciona exclusivamente en las sesiones de entrenamiento (Mínima u Óptima).\n\nEn el Modo Libre, tú tienes el control total. Utiliza el panel de \"Fase Manual\" en la parte superior para cambiar de fase a tu gusto y practicar a tu propio ritmo.";
+                    modal.style.display = 'flex';
+                }
                 return;
             }
             state.mastery.intervals.phase = 1;
