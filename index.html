@@ -491,7 +491,7 @@
                         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/></svg>
                         Oír Secuencia
                     </button>
-                    <div id="intruder-grid" class="grid grid-cols-5 justify-center gap-1 w-full"></div>
+                    <div id="intruder-grid" class="flex flex-nowrap w-full overflow-hidden justify-center gap-1"></div>
                 </div>
 
                 <!-- Modo Intervalos (Fase 2: Cacería) -->
@@ -502,7 +502,7 @@
                         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/></svg>
                         Oír Secuencia
                     </button>
-                    <div id="hunt-grid" class="grid grid-cols-5 justify-center gap-1 w-full"></div>
+                    <div id="hunt-grid" class="flex flex-nowrap w-full overflow-hidden justify-center gap-1"></div>
                     <button onclick="evaluarCaceria()" class="hunt-btn-eval shadow-md active:scale-95 transition-transform mt-3">Evaluar Selección</button>
                 </div>
 
@@ -2411,7 +2411,6 @@
                     if (sessionState.type === 'test' || sessionState.type === 'explore') {
                         target = pool[Math.floor(Math.random() * pool.length)];
                     } else if (sessionState.type === 'free') {
-                        // En modo libre usamos el SR ponderado para todas las opciones del nivel actual
                         target = getWeightedTarget(pool, 'int');
                     } else {
                         const masteredPool = currentPhase === 4 ? pool : pool.slice(0, m.target_idx + 1);
@@ -2903,4 +2902,4 @@
         };
     </script>
 </body>
-    </html>
+                                                                                                                                        </html>
