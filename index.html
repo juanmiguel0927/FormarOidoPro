@@ -365,7 +365,7 @@
         </div>
     </header>
 
-    <main class="flex-1 pb-[140px] overflow-y-auto no-scrollbar">
+    <main class="flex-1 pb-[170px] overflow-y-auto no-scrollbar">
         <div class="p-2 max-w-4xl mx-auto w-full flex flex-col gap-1.5">
             
             <!-- PANEL DE NIVELES -->
@@ -635,8 +635,34 @@
             if (savedActive && users.some(u => u.id === savedActive) || savedActive === 'usr_guest') {
                 selectUser(savedActive);
             } else {
+                // RESCATISTA DE DATOS (Legacy check)
+                migrateLegacyDataIfNeeded();
                 showUserModal();
             }
+        }
+        
+        function migrateLegacyDataIfNeeded(newUserId = null) {
+            try {
+                const legacyDataStr = localStorage.getItem('fop_data');
+                if (legacyDataStr) {
+                    const legacyData = JSON.parse(legacyDataStr);
+                    if (legacyData.xp > 0 || legacyData.dailyStreak > 0) {
+                        if (newUserId) {
+                            const newKey = `fop_data_${newUserId}`;
+                            const newTargetData = { ...getDefaultState(), ...legacyData };
+                            localStorage.setItem(newKey, JSON.stringify(newTargetData));
+                            localStorage.removeItem('fop_data');
+                            console.log("Racha y XP huérfana rescatada para el nuevo usuario.");
+                        } else {
+                            // Si no hay id, intentar pegarselo al guest
+                            const guestKey = `fop_data_usr_guest`;
+                            const newTargetData = { ...getDefaultState(), ...legacyData };
+                            localStorage.setItem(guestKey, JSON.stringify(newTargetData));
+                            localStorage.removeItem('fop_data');
+                        }
+                    }
+                }
+            } catch(e) { console.log("Error en el rescatista de datos", e); }
         }
 
         function toggleDarkMode() {
@@ -703,6 +729,9 @@
             users.push(newUser);
             localStorage.setItem('fop_users', JSON.stringify(users));
             nameInput.value = '';
+            
+            migrateLegacyDataIfNeeded(newUser.id);
+            
             selectUser(newUser.id);
         }
 
@@ -2902,4 +2931,4 @@
         };
     </script>
 </body>
-                                                                                                                                        </html>
+    </html>
