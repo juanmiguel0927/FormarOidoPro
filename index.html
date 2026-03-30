@@ -169,7 +169,7 @@
                 <h2 class="text-2xl font-black italic">Selecciona tu Perfil</h2>
                 <p class="text-xs text-slate-500 font-bold mt-2">Los progresos y rachas son independientes.</p>
             </div>
-            <div id="user-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto">
+            <div id="user-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto">
                 <!-- Se inyecta la lista dinámica aquí -->
             </div>
             <div class="flex gap-2 mt-4">
@@ -188,7 +188,7 @@
     <!-- MODAL DE INICIO PRINCIPAL -->
     <div id="start-modal" class="modal">
         <div class="modal-content text-center relative">
-            <button onclick="switchUser()" class="absolute top-4 right-4 text-xs font-bold text-violet-500 bg-violet-100 px-3 py-1 rounded-full uppercase flex items-center gap-1 shadow-sm">
+            <button onclick="switchUser()" class="absolute top-4 right-4 text-xs font-bold text-violet-500 bg-violet-100 px-3 py-1 rounded-full uppercase flex items-center gap-1 shadow-sm hover:bg-violet-200 transition-colors">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 <span id="current-user-display">Usuario</span>
             </button>
@@ -344,6 +344,11 @@
             <h1 class="font-black text-[11px] sm:text-xs uppercase italic leading-tight">Formar<br><span class="text-violet-500">Oído Pro</span></h1>
         </div>
         <div class="flex items-center gap-2">
+            <!-- VOLUMEN -->
+            <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-1.5 rounded-full shadow-sm">
+                <svg class="w-3 h-3 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" /></svg>
+                <input type="range" id="master-volume" min="0" max="1" step="0.05" value="1" class="w-12 sm:w-16 h-1 bg-slate-300 rounded-lg appearance-none cursor-pointer" oninput="updateVolume(this.value)">
+            </div>
             <button onclick="toggleDarkMode()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-violet-500 hover:bg-slate-200 transition-colors shadow-sm" title="Alternar Modo Oscuro">
                 <svg id="theme-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
             </button>
@@ -586,6 +591,7 @@
         // ==========================================
         let audioCtx;
         let masterOut;
+        let globalVolume = localStorage.getItem('fop_volume') !== null ? parseFloat(localStorage.getItem('fop_volume')) : 1.0;
         let subModoIntervalos = 0; 
         let datosIntruso = { correctoIdx: -1, intervalos: [] };
         let datosCaceria = { targetInv: -1, cartas: [], evaluado: false };
@@ -626,6 +632,9 @@
                 updateThemeIcon(false);
             }
 
+            const volSlider = document.getElementById('master-volume');
+            if(volSlider) volSlider.value = globalVolume;
+
             const savedUsers = localStorage.getItem('fop_users');
             if (savedUsers) users = JSON.parse(savedUsers);
             
@@ -656,6 +665,11 @@
             }
         }
 
+        function updateVolume(val) {
+            globalVolume = parseFloat(val);
+            localStorage.setItem('fop_volume', globalVolume);
+        }
+
         function showUserModal() {
             document.getElementById('user-modal').style.display = 'flex';
             const ul = document.getElementById('user-list');
@@ -668,11 +682,23 @@
             ul.appendChild(guestBtn);
 
             users.forEach(u => {
+                const row = document.createElement('div');
+                row.className = "flex items-center gap-2 mb-2 w-full";
+                
                 const btn = document.createElement('button');
-                btn.className = "w-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-black py-3 rounded-xl mb-2 hover:bg-violet-100 hover:text-violet-600 transition-colors";
+                btn.className = "flex-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-black py-3 px-4 rounded-xl hover:bg-violet-100 hover:text-violet-600 transition-colors text-left truncate shadow-sm";
                 btn.innerText = u.name;
                 btn.onclick = () => selectUser(u.id);
-                ul.appendChild(btn);
+                
+                const delBtn = document.createElement('button');
+                delBtn.className = "bg-rose-100 dark:bg-rose-900/30 text-rose-500 hover:bg-rose-200 dark:hover:bg-rose-800 p-3 rounded-xl transition-colors shrink-0 shadow-sm";
+                delBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>';
+                delBtn.title = "Eliminar Usuario";
+                delBtn.onclick = (e) => deleteUser(u.id, e);
+                
+                row.appendChild(btn);
+                row.appendChild(delBtn);
+                ul.appendChild(row);
             });
         }
 
@@ -685,6 +711,22 @@
             localStorage.setItem('fop_users', JSON.stringify(users));
             nameInput.value = '';
             selectUser(newUser.id);
+        }
+
+        function deleteUser(id, event) {
+            event.stopPropagation();
+            if(!confirm("¿Seguro que deseas eliminar este perfil? Se perderá permanentemente todo su progreso, estadísticas y horas de vuelo.")) return;
+            
+            users = users.filter(u => u.id !== id);
+            localStorage.setItem('fop_users', JSON.stringify(users));
+            localStorage.removeItem(`fop_data_${id}`);
+            localStorage.removeItem(`fop_session_${id}`);
+            
+            if (activeUserId === id) {
+                activeUserId = null;
+                localStorage.removeItem('fop_active_user');
+            }
+            showUserModal();
         }
 
         function selectUser(id) {
@@ -1027,7 +1069,7 @@
             const g = audioCtx.createGain();
             osc.type = type; osc.frequency.setValueAtTime(freq, t);
             g.gain.setValueAtTime(0, t); 
-            g.gain.linearRampToValueAtTime(vol, t + 0.05); 
+            g.gain.linearRampToValueAtTime(vol * globalVolume, t + 0.05); 
             g.gain.exponentialRampToValueAtTime(0.001, t + dur);
             osc.connect(g); g.connect(masterOut);
             osc.start(t); osc.stop(t + dur);
@@ -1692,7 +1734,7 @@
         }
 
         // ==========================================
-        // ESTADÍSTICAS & ALGORITMO PONDERADO
+        // ESTADÍSTICAS & ALGORITMO PONDERADO (SRS)
         // ==========================================
         function getWeakestMode() {
             if (!state.errorStats || Object.keys(state.errorStats).length === 0) return 'melody';
@@ -1761,8 +1803,18 @@
             let weights = pool.map(val => {
                 const stats = state.errorStats[`${type}_${val}`];
                 if (!stats || stats.t < 3) return 100; 
+                
                 const acc = stats.c / stats.t;
-                return 10 + ((1 - acc) * 90); 
+                
+                // --- FACTOR SRS (REPETICIÓN ESPACIADA) ---
+                const daysSince = stats.lastPlayed ? (Date.now() - stats.lastPlayed) / (1000 * 60 * 60 * 24) : 0;
+                // Sumar peso si no lo ha visto en días (máx +50)
+                const timeWeight = Math.min(daysSince * 10, 50); 
+                
+                // Prioridad agresiva si ha fallado mucho (máx +150)
+                const accWeight = 10 + ((1 - acc) * 150); 
+                
+                return accWeight + timeWeight; 
             });
             
             const totalWeight = weights.reduce((a,b)=>a+b,0);
@@ -2586,9 +2638,10 @@
 
             if (trackKey && sessionState.type !== 'free' && sessionState.type !== 'explore') {
                 if (!state.errorStats) state.errorStats = {};
-                if (!state.errorStats[trackKey]) state.errorStats[trackKey] = { c: 0, t: 0 };
+                if (!state.errorStats[trackKey]) state.errorStats[trackKey] = { c: 0, t: 0, lastPlayed: 0 };
                 state.errorStats[trackKey].t++;
                 if (isCorrect) state.errorStats[trackKey].c++;
+                state.errorStats[trackKey].lastPlayed = Date.now();
             }
             
             if (state.mode === 'harmony' && trackKey && sessionState.type !== 'explore') {
