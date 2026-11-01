@@ -77,12 +77,15 @@
         .fretboard-stage {
             background-color: #3e2723;
             background-image: linear-gradient(90deg, #2b1b17 0%, #4e342e 100%);
-            border: 4px solid #1b100c;
+            border: 3px solid #1b100c;
             border-radius: 8px;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
             position: relative; overflow: hidden;
-            width: 100%; min-width: 800px; max-width: 1000px; margin: 0 auto; 
-            height: 145px; 
+            width: 100%; min-width: 560px; max-width: 1000px; margin: 0 auto; 
+            height: 128px; 
+        }
+        @media (min-width: 640px) {
+            .fretboard-stage { min-width: 780px; height: 142px; }
         }
 
         .control-btn { padding: 6px 4px; border-radius: 8px; font-size: 9px; font-weight: 900; color: #64748b; cursor: pointer; border: 1px solid var(--border-ui); background: var(--card-bg); transition: all 0.2s; text-align: center; white-space: nowrap; text-transform: uppercase; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
@@ -147,22 +150,26 @@
     <div id="session-bar-container" class="hidden absolute top-0 left-0 w-full h-1 bg-slate-200 z-[160]">
         <div id="session-progress" class="h-full bg-emerald-500 transition-all" style="width: 0%"></div>
     </div>
-    
-    <div id="session-time-remaining" class="hidden absolute top-1 left-1/2 transform -translate-x-1/2 z-[160] bg-slate-800/80 text-white text-[9px] font-bold px-3 py-1 rounded-b-lg shadow-md flex items-center gap-2">
-        <span id="session-timer-text">00:00</span>
-        <div class="h-2 w-px bg-white/20"></div>
-        <span class="text-[7px] opacity-70 uppercase" id="session-phase-text">Entrenamiento</span>
-        <button onclick="confirmExit()" class="ml-1 text-rose-400 hover:text-rose-500 font-bold">✕</button>
-    </div>
 
     <div id="test-hud" class="hidden absolute top-1 left-1/2 transform -translate-x-1/2 z-[160] bg-violet-900/90 text-white text-xs font-black px-4 py-1.5 rounded-b-xl shadow-lg flex-col items-center gap-1 border border-violet-700 w-56 text-center">
-        <span class="uppercase tracking-widest text-[8px] text-violet-300">Test de Nivelación - <span id="test-level-display">Nivel 1</span></span>
-        <div class="flex justify-between w-full items-center">
-            <span id="test-lives" class="text-rose-400 text-sm">❤️❤️❤️</span>
-            <div class="flex items-center gap-1">
-                <svg class="w-3 h-3 text-violet-300 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span id="test-timer-clock" class="text-sm">8s</span>
-                <button onclick="exitTest()" class="text-rose-400 hover:text-rose-300 font-black ml-3 text-lg">✕</button>
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-2 py-1.5 flex justify-between items-center gap-1 shrink-0 z-50">
+        <div class="flex items-center gap-1.5 shrink-0">
+            <div class="bg-violet-600 p-1 rounded-lg">
+                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+            </div>
+            <h1 class="font-black text-[10px] uppercase italic leading-tight">Formar<br><span class="text-violet-500">Oído Pro</span></h1>
+        </div>
+
+        <div id="session-time-remaining" class="hidden bg-slate-800 dark:bg-slate-800/90 text-white text-[9px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1.5 shrink-0 border border-slate-700">
+            <span id="session-timer-text" class="font-mono text-[10px] text-emerald-400">00:00</span>
+            <span class="hidden sm:inline text-[7px] opacity-75 uppercase tracking-wider" id="session-phase-text">Entrenamiento</span>
+            <button onclick="confirmExit()" class="text-rose-400 hover:text-rose-300 font-black text-xs leading-none pl-0.5" title="Salir de la sesión">✕</button>
+        </div>
+
+        <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-1.5 py-1 rounded-full shadow-sm">
+                <svg class="w-2.5 h-2.5 text-slate-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" /></svg>
+                <input type="range" id="master-volume" min="0" max="1" step="0.05" value="1" class="w-8 sm:w-10 h-1 bg-slate-300 rounded-lg appearance-none cursor-pointer" oninput="updateVolume(this.value)">
             </div>
         </div>
     </div>
@@ -377,7 +384,7 @@
         </div>
     </header>
 
-    <main class="flex-1 pb-[155px] overflow-y-auto no-scrollbar">
+    <main class="flex-1 pb-[220px] overflow-y-auto no-scrollbar">
         <div class="p-2 max-w-4xl mx-auto w-full flex flex-col gap-1.5">
             
             <div class="flex flex-col gap-1 hide-in-test">
@@ -422,44 +429,43 @@
                 </div>
             </div>
 
-            <div id="bass-settings" class="flex-col gap-1 hidden hide-in-test bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-xl border border-blue-100 dark:border-blue-900/30">
-                <div class="flex justify-between items-center px-1 mb-1 border-b border-blue-200/50 dark:border-blue-800/50 pb-1">
-                    <span class="section-title text-blue-500">Cuerdas del Bajo</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1 mb-2">
-                    <button onclick="setBassStrings(4)" id="str-4" class="control-btn active-choice">4 CUERDAS</button>
-                    <button onclick="setBassStrings(5)" id="str-5" class="control-btn">5 CUERDAS</button>
-                    <button onclick="setBassStrings(6)" id="str-6" class="control-btn">6 CUERDAS</button>
-                </div>
-                
-                <div class="flex justify-between items-center px-1 mb-1">
-                    <span class="section-title text-blue-500">Mezclador (Bajo vs Banda)</span>
-                </div>
-                <div class="flex items-center gap-2 px-2 bg-white dark:bg-slate-800 rounded-lg py-1.5 shadow-sm border border-slate-200 dark:border-slate-700">
-                    <span class="text-[8px] font-black uppercase text-slate-400">BANDA</span>
-                    <input type="range" id="band-vol" min="0" max="1" step="0.1" value="0.5" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer" oninput="updateBassMix()">
-                    <span class="text-[8px] font-black uppercase text-blue-500">BAJO</span>
-                    <input type="range" id="bass-vol" min="0" max="1" step="0.1" value="1.0" class="w-full h-1 bg-blue-200 rounded-lg appearance-none cursor-pointer" oninput="updateBassMix()">
-                </div>
-                
-                <div class="flex justify-between items-center px-1 mt-2 mb-1 border-t border-blue-200/50 dark:border-blue-800/50 pt-2">
-                    <span class="section-title text-blue-500">Opciones Pro</span>
-                </div>
-                <div class="grid grid-cols-2 gap-1 mb-1">
-                    <button onclick="toggleDropMode()" id="btn-drop-mode" class="control-btn flex items-center justify-center gap-1">
-                        <span class="w-2 h-2 rounded-full bg-slate-300 block transition-colors" id="drop-indicator"></span> DROP BANDA
-                    </button>
-                    <button onclick="toggleBassView()" id="btn-bass-view" class="control-btn">VISTA: PIANO</button>
+            <div id="bass-settings" class="flex-col gap-1 hidden hide-in-test bg-blue-50/70 dark:bg-blue-900/20 p-1.5 rounded-xl border border-blue-200/70 dark:border-blue-800/40">
+                <div class="flex justify-between items-center px-1 cursor-pointer select-none" onclick="toggleBassConfigDrawer()">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                            ⚙️ Ajustes Pro de Bajo
+                        </span>
+                        <span id="bass-summary-pill" class="text-[8px] font-bold bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">4C • SYNTH</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="event.stopPropagation(); toggleBassView()" id="btn-bass-view" class="px-2 py-0.5 rounded-md bg-violet-600 text-white font-black text-[8px] uppercase shadow-sm">VISTA: PIANO</button>
+                        <span id="bass-drawer-chevron" class="text-blue-500 font-black text-xs px-1 transition-transform duration-200">▼</span>
+                    </div>
                 </div>
 
-                <div class="flex justify-between items-center px-1 mt-1 mb-1 border-t border-blue-200/50 dark:border-blue-800/50 pt-2">
-                    <span class="section-title text-blue-500">Timbre del Bajo</span>
-                </div>
-                <div class="grid grid-cols-4 gap-1">
-                    <button onclick="setBassTimbre('synth')" id="timbre-synth" class="control-btn active-choice">SYNTH</button>
-                    <button onclick="setBassTimbre('electric')" id="timbre-electric" class="control-btn">ELEC</button>
-                    <button onclick="setBassTimbre('slap')" id="timbre-slap" class="control-btn">SLAP</button>
-                    <button onclick="setBassTimbre('sub')" id="timbre-sub" class="control-btn">SUB</button>
+                <div id="bass-config-drawer" class="hidden flex-col gap-1 pt-1.5 mt-1 border-t border-blue-200/50 dark:border-blue-800/50">
+                    <div class="grid grid-cols-3 gap-1">
+                        <button onclick="setBassStrings(4)" id="str-4" class="control-btn active-choice">4 CUERDAS</button>
+                        <button onclick="setBassStrings(5)" id="str-5" class="control-btn">5 CUERDAS</button>
+                        <button onclick="setBassStrings(6)" id="str-6" class="control-btn">6 CUERDAS</button>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 px-2 bg-white dark:bg-slate-800 rounded-lg py-1 shadow-sm border border-slate-200 dark:border-slate-700 mt-0.5">
+                        <span class="text-[8px] font-black uppercase text-slate-400">BANDA</span>
+                        <input type="range" id="band-vol" min="0" max="1" step="0.1" value="0.5" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer" oninput="updateBassMix()">
+                        <span class="text-[8px] font-black uppercase text-blue-500">BAJO</span>
+                        <input type="range" id="bass-vol" min="0" max="1" step="0.1" value="1.0" class="w-full h-1 bg-blue-200 rounded-lg appearance-none cursor-pointer" oninput="updateBassMix()">
+                    </div>
+                    
+                    <div class="grid grid-cols-5 gap-1 mt-0.5">
+                        <button onclick="toggleDropMode()" id="btn-drop-mode" class="control-btn flex items-center justify-center gap-1 col-span-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 block transition-colors" id="drop-indicator"></span> DROP
+                        </button>
+                        <button onclick="setBassTimbre('synth')" id="timbre-synth" class="control-btn active-choice">SYNTH</button>
+                        <button onclick="setBassTimbre('electric')" id="timbre-electric" class="control-btn">ELEC</button>
+                        <button onclick="setBassTimbre('slap')" id="timbre-slap" class="control-btn">SLAP</button>
+                        <button onclick="setBassTimbre('sub')" id="timbre-sub" class="control-btn">SUB</button>
+                    </div>
                 </div>
             </div>
 
@@ -512,19 +518,19 @@
                 
                 <div id="interval-grid" class="hidden grid grid-cols-3 gap-1.5 w-full"></div>
                 
-                <div id="presentation-module" class="hidden flex-col items-center w-full animate-fade-in-up text-center bg-violet-50 dark:bg-violet-900/20 p-3 rounded-2xl border border-violet-200 dark:border-violet-800">
+                <div id="presentation-module" class="hidden flex-col items-center w-full animate-fade-in-up text-center bg-violet-50 dark:bg-violet-900/20 p-3.5 rounded-2xl border border-violet-200 dark:border-violet-800">
                     <h3 class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Nuevo Objetivo</h3>
                     <p id="presentation-target" class="text-2xl font-black text-violet-600 dark:text-violet-400 mb-3"></p>
-                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-2">Escucha en diferentes direcciones</p>
-                    <div class="flex gap-2 mb-3">
-                        <button onclick="playPresentation('asc')" class="flex flex-col items-center justify-center w-12 h-12 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-violet-500 hover:text-violet-500 transition-all text-slate-600 dark:text-slate-300">
-                            <span class="text-lg mb-0.5 leading-none">↗</span><span class="text-[6px] font-black uppercase">Ascendente</span>
+                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Escucha en diferentes direcciones</p>
+                    <div class="grid grid-cols-3 gap-2 w-full max-w-xs mb-3.5">
+                        <button onclick="playPresentation('asc')" class="flex flex-col items-center justify-center py-2.5 px-1.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-violet-500 hover:text-violet-500 active:scale-95 transition-all text-slate-600 dark:text-slate-300">
+                            <span class="text-lg mb-1 leading-none">↗</span><span class="text-[7px] font-black uppercase tracking-tight">Ascendente</span>
                         </button>
-                        <button onclick="playPresentation('desc')" class="flex flex-col items-center justify-center w-12 h-12 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-violet-500 hover:text-violet-500 transition-all text-slate-600 dark:text-slate-300">
-                            <span class="text-lg mb-0.5 leading-none">↘</span><span class="text-[6px] font-black uppercase">Descendente</span>
+                        <button onclick="playPresentation('desc')" class="flex flex-col items-center justify-center py-2.5 px-1.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-violet-500 hover:text-violet-500 active:scale-95 transition-all text-slate-600 dark:text-slate-300">
+                            <span class="text-lg mb-1 leading-none">↘</span><span class="text-[7px] font-black uppercase tracking-tight">Descendente</span>
                         </button>
-                        <button onclick="playPresentation('harmonic')" class="flex flex-col items-center justify-center w-12 h-12 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-violet-500 hover:text-violet-500 transition-all text-slate-600 dark:text-slate-300">
-                            <span class="text-lg mb-0.5 leading-none">♪</span><span class="text-[6px] font-black uppercase">Armónico</span>
+                        <button onclick="playPresentation('harmonic')" class="flex flex-col items-center justify-center py-2.5 px-1.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-violet-500 hover:text-violet-500 active:scale-95 transition-all text-slate-600 dark:text-slate-300">
+                            <span class="text-lg mb-1 leading-none">♪</span><span class="text-[7px] font-black uppercase tracking-tight">Armónico</span>
                         </button>
                     </div>
                     <button onclick="advanceFromPresentation()" class="w-full bg-violet-600 text-white font-black py-2.5 rounded-xl uppercase shadow-md active:scale-95 transition-transform tracking-widest text-[10px]">Comenzar Práctica</button>
@@ -819,6 +825,7 @@
                 
                 document.getElementById('btn-bass-view').innerText = state.bassSettings.view === 'piano' ? 'VISTA: PIANO' : 'VISTA: MÁSTIL';
                 document.getElementById('btn-bass-view').classList.toggle('active-choice', state.bassSettings.view === 'fretboard');
+                updateBassSummaryPill();
 
                 const savedSession = localStorage.getItem(`fop_session_${activeUserId}`);
                 const btnCont = document.getElementById('btn-continue');
@@ -986,6 +993,31 @@
 
         function cerrarFinSesion() { document.getElementById('session-end-modal').style.display = 'none'; location.reload(); }
 
+        function toggleBassConfigDrawer() {
+            const drawer = document.getElementById('bass-config-drawer');
+            const chevron = document.getElementById('bass-drawer-chevron');
+            if (!drawer) return;
+            const isHidden = drawer.classList.contains('hidden');
+            if (isHidden) {
+                drawer.classList.remove('hidden');
+                drawer.classList.add('flex');
+                if (chevron) chevron.style.transform = 'rotate(180deg)';
+            } else {
+                drawer.classList.add('hidden');
+                drawer.classList.remove('flex');
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function updateBassSummaryPill() {
+            const pill = document.getElementById('bass-summary-pill');
+            if (!pill || !state.bassSettings) return;
+            const sc = state.bassSettings.stringCount || 4;
+            const t = (state.bassSettings.timbre || 'synth').toUpperCase();
+            const drop = state.bassSettings.dropMode ? ' • DROP' : '';
+            pill.innerText = `${sc}C • ${t}${drop}`;
+        }
+
         function updateBassMix() {
             if(!state.bassSettings) state.bassSettings = { bandVol: 0.5, bassVol: 1.0, timbre: 'synth', dropMode: false, view: 'piano', stringCount: 4 };
             state.bassSettings.bandVol = parseFloat(document.getElementById('band-vol').value);
@@ -997,7 +1029,9 @@
             if(!state.bassSettings) state.bassSettings = { bandVol: 0.5, bassVol: 1.0, timbre: 'synth', dropMode: false, view: 'piano', stringCount: 4 };
             state.bassSettings.timbre = t;
             ['timbre-synth', 'timbre-electric', 'timbre-slap', 'timbre-sub'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('active-choice'); });
-            document.getElementById(`timbre-${t}`).classList.add('active-choice'); savePersistence();
+            document.getElementById(`timbre-${t}`).classList.add('active-choice');
+            updateBassSummaryPill();
+            savePersistence();
             initAudio(); playBassTone(midiToFreq(36), 0.5); 
         }
 
@@ -1008,6 +1042,7 @@
                 const el = document.getElementById(`str-${num}`);
                 if(el) { if(num === n) el.classList.add('active-choice'); else el.classList.remove('active-choice'); }
             });
+            updateBassSummaryPill();
             savePersistence(); resetUI();
         }
 
@@ -1017,6 +1052,7 @@
             document.getElementById('btn-drop-mode').classList.toggle('active-choice', state.bassSettings.dropMode);
             document.getElementById('drop-indicator').classList.toggle('bg-white', state.bassSettings.dropMode);
             document.getElementById('drop-indicator').classList.toggle('bg-slate-300', !state.bassSettings.dropMode);
+            updateBassSummaryPill();
             savePersistence();
         }
 
@@ -1816,7 +1852,7 @@
                         for (let f = 0; f < numFrets; f++) {
                             const midi = openMidi + f;
                             const btn = document.createElement('button');
-                            btn.className = "flex-1 h-full hover:bg-white/20 active:bg-violet-500/50 transition-colors z-20 flex items-center justify-center relative";
+                            btn.className = "fret-cell flex-1 h-full hover:bg-white/20 active:bg-violet-500/50 transition-colors z-20 flex items-center justify-center relative";
                             if (f === 0) btn.classList.add('border-r-4', 'border-amber-200/80', 'bg-black/30'); 
                             
                             const functional = midi - (state.keyIndex - 12);
@@ -1827,8 +1863,8 @@
                                 const bgColorClass = vis.isFundamental ? 'bg-red-500' : 'bg-bass';
                                 const textColorClassOpen = vis.isFundamental ? 'text-red-400 border-red-500/50' : 'text-blue-300 border-blue-400/50';
                                 
-                                if (f > 0) btn.innerHTML = `<div class="${bgColorClass} text-white text-[9px] font-black w-5 h-5 rounded-full shadow-md flex items-center justify-center border border-white pointer-events-none leading-none tracking-tighter z-30">${vis.label}${vis.arrow}</div>`;
-                                else btn.innerHTML = `<div class="text-[8px] font-black ${textColorClassOpen} border leading-none tracking-tighter bg-black/70 px-1 py-0.5 rounded z-30">${stringNames[openMidi]}:${vis.label}${vis.arrow}</div>`;
+                                if (f > 0) btn.innerHTML = `<div class="fret-active-badge ${bgColorClass} text-white text-[9px] font-black w-5 h-5 rounded-full shadow-md flex items-center justify-center border border-white pointer-events-none leading-none tracking-tighter z-30">${vis.label}${vis.arrow}</div>`;
+                                else btn.innerHTML = `<div class="fret-active-badge text-[8px] font-black ${textColorClassOpen} border leading-none tracking-tighter bg-black/70 px-1 py-0.5 rounded z-30">${stringNames[openMidi]}:${vis.label}${vis.arrow}</div>`;
                             } else if (f === 0) {
                                 btn.innerHTML = `<span class="text-[7px] font-mono text-amber-200/60 font-bold">${stringNames[openMidi]}</span>`;
                             }
@@ -1846,7 +1882,7 @@
                     let startMidi = 48; let numKeys = 25; let totalWhiteKeys = 15; let blackRatio = 26;
                     if (isBass) {
                         startMidi = 24; numKeys = 37; totalWhiteKeys = 22; blackRatio = 36;
-                        pStage.style.minWidth = '850px'; pStage.style.maxWidth = '1200px';
+                        pStage.style.minWidth = '680px'; pStage.style.maxWidth = '1200px';
                     } else {
                         pStage.style.minWidth = '600px'; pStage.style.maxWidth = '920px';
                     }
@@ -1893,8 +1929,30 @@
             }
 
             setTimeout(() => {
-                const viewport = document.getElementById('piano-viewport'); const stage = document.getElementById('piano-stage');
-                if(!viewport || !stage || state.bassSettings?.view === 'fretboard') return;
+                const viewport = document.getElementById('piano-viewport');
+                if(!viewport) return;
+                if (isBass && state.bassSettings?.view === 'fretboard') {
+                    const fStageEl = document.getElementById('fretboard-stage');
+                    if (!fStageEl) return;
+                    const badges = fStageEl.querySelectorAll('.fret-active-badge');
+                    if (badges.length > 0) {
+                        let minLeft = Infinity, maxRight = 0;
+                        badges.forEach(b => {
+                            const cell = b.closest('.fret-cell');
+                            if (cell) {
+                                minLeft = Math.min(minLeft, cell.offsetLeft);
+                                maxRight = Math.max(maxRight, cell.offsetLeft + cell.offsetWidth);
+                            }
+                        });
+                        if (minLeft < Infinity) {
+                            const center = minLeft + (maxRight - minLeft) / 2;
+                            viewport.scrollTo({ left: Math.max(0, center - (viewport.clientWidth / 2)), behavior: 'smooth' });
+                        }
+                    }
+                    return;
+                }
+                const stage = document.getElementById('piano-stage');
+                if(!stage) return;
                 const activeKeys = stage.querySelectorAll('.bg-tonic, .bg-stable, .bg-unstable, .bg-bass, .bg-red-500');
                 if(activeKeys.length > 0) {
                     const first = activeKeys[0].closest('.piano-key'); const last = activeKeys[activeKeys.length - 1].closest('.piano-key');
