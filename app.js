@@ -301,15 +301,15 @@ function selectUser(id) {
 }
 
 function switchUser() {
-     stopAllSounds();
+    stopAllSounds(true);
     document.getElementById('start-modal').style.display = 'none'; showUserModal();
 }
 
 function logout() {
+    stopAllSounds(true);
     if(sessionState.timerId) clearInterval(sessionState.timerId); sessionState.timerId = null;
-    if (activeUserId) savePersistence();
     if(testTimerId) { clearInterval(testTimerId); testTimerId = null; }
-     stopAllSounds();
+    if (activeUserId) savePersistence();
     
     document.getElementById('session-bar-container').classList.add('hidden');
     document.getElementById('session-time-remaining').classList.add('hidden');
@@ -324,6 +324,7 @@ function logout() {
 }
 
 function confirmExit() { 
+    stopAllSounds(true);
     if(sessionState.timerId) clearInterval(sessionState.timerId); sessionState.timerId = null;
     if(testTimerId) { clearInterval(testTimerId); testTimerId = null; }
     if (state.test && state.test.active) {
@@ -331,7 +332,6 @@ function confirmExit() {
         document.getElementById('test-hud').classList.add('hidden'); document.getElementById('test-hud').classList.remove('flex');
     }
     savePersistence(); 
-     stopAllSounds();
     
     document.getElementById('start-modal').style.display = 'flex'; 
     document.getElementById('session-bar-container').classList.add('hidden');
@@ -393,8 +393,8 @@ function loadPersistence() {
 
 function savePersistence() {
     if(!activeUserId) return;
-    state.isPlaying = false; state.activeOscillators = []; state.timeouts = [];
-    localStorage.setItem(`fop_data_${activeUserId}`, JSON.stringify(state));
+    const toSave = { ...state, isPlaying: false, activeOscillators: [], timeouts: [] };
+    localStorage.setItem(`fop_data_${activeUserId}`, JSON.stringify(toSave));
     const sessionData = { active: sessionState.active, type: sessionState.type, timeLeft: sessionState.timeLeft, totalDuration: sessionState.totalDuration, elapsedTime: sessionState.elapsedTime, initialXP: sessionState.initialXP };
     localStorage.setItem(`fop_session_${activeUserId}`, JSON.stringify(sessionData));
 }
@@ -746,9 +746,12 @@ function playBassTone(freq, dur, start=0, vol=0.6, volOverride=null) {
     }
 }
 
-function stopAllSounds() { 
-    state.activeOscillators.forEach(osc => { try { osc.stop(); } catch(e) {} try { osc.disconnect(); } catch(e) {} }); 
-    state.activeOscillators = []; clearAllTimeouts(); state.isPlaying = false; 
+function stopAllSounds(suspendAudio = false) {
+    (state.activeOscillators || []).forEach(osc => { try { osc.stop(); } catch(e) {} try { osc.disconnect(); } catch(e) {} });
+    state.activeOscillators = []; clearAllTimeouts(); state.isPlaying = false;
+    if (suspendAudio && audioCtx && audioCtx.state === 'running') {
+        try { audioCtx.suspend(); } catch(e) {}
+    }
     document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
     document.querySelectorAll('.cadence-chord-active').forEach(el => { el.classList.remove('cadence-chord-active'); el.classList.add('opacity-50'); });
     const cDisp = document.getElementById('cadence-display');
