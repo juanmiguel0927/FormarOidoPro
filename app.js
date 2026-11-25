@@ -2343,8 +2343,18 @@ function applySavedTheme() {
     syncFixedKeyUI();
 }
 
+function openSettingsModal() {
+    const modal = document.getElementById('settings-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeSettingsModal() {
+    const modal = document.getElementById('settings-modal');
+    if (modal) modal.style.display = 'none';
+}
+
 window.handleAndroidBack = function () {
-    const closable = ['confirm-modal', 'info-modal', 'tutorial-modal', 'stats-modal', 'result-modal'];
+    const closable = ['confirm-modal', 'info-modal', 'tutorial-modal', 'settings-modal', 'stats-modal', 'result-modal'];
     for (const id of closable) {
         const el = document.getElementById(id);
         if (el && el.style.display === 'flex') {
@@ -2407,7 +2417,7 @@ function replayIntroSplash() {
 function isAnyBlockingModalOpen() {
     const splash = document.getElementById('introSplashOverlay');
     if (splash && !splash.classList.contains('hidden-splash') && !splash.classList.contains('fade-out')) return true;
-    const ids = ['user-modal', 'start-modal', 'stats-modal', 'tutorial-modal', 'info-modal', 'confirm-modal', 'session-end-modal', 'result-modal'];
+    const ids = ['user-modal', 'start-modal', 'settings-modal', 'stats-modal', 'tutorial-modal', 'info-modal', 'confirm-modal', 'session-end-modal', 'result-modal'];
     return ids.some(id => {
         const el = document.getElementById(id);
         return el && el.style.display === 'flex';
