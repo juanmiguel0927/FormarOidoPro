@@ -486,11 +486,11 @@ body {
 }
 
 .header-vol-slider {
-    width: 34px;
+    width: 28px;
 }
 
 .header-icon-btn {
-    padding: 6px;
+    padding: 5px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1418,4 +1418,112 @@ body.dark-mode .audio-status-text {
     background: var(--accent);
     color: #ffffff;
     box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3);
+}
+
+/* =========================================================
+   HEADER MENU BUTTON, SETTINGS MODAL & ZERO-SCROLL COMPACT
+   ========================================================= */
+.grid-cols-6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.w-36 {
+    width: 9rem;
+}
+
+.header-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    border: 1px solid var(--border-ui);
+}
+
+.settings-section {
+    background: var(--bg-main);
+    border: 1px solid var(--border-ui);
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+}
+
+.settings-label {
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+}
+
+body.dark-mode .settings-label {
+    color: #cbd5e1;
+}
+
+.settings-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    background: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-ui);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.settings-action-btn:active {
+    transform: scale(0.96);
+}
+
+/* Mobile Zero-Scroll Compact Proportions */
+@media (max-width: 639px) {
+    .app-container {
+        padding: 6px 10px 8px;
+        gap: 6px;
+    }
+
+    .control-btn {
+        padding: 5px 4px;
+        min-height: 30px;
+        font-size: 10px;
+        border-radius: 8px;
+    }
+
+    .practice-card {
+        width: 32px;
+        height: 32px;
+        font-size: 11px;
+    }
+
+    .center-audio-hub {
+        margin-top: 6px;
+        padding: 8px 10px;
+        gap: 5px;
+    }
+
+    .center-play-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .piano-stage {
+        height: 110px;
+    }
+
+    .dock-actions {
+        padding: 5px 10px 6px;
+    }
+
+    .dock-btn {
+        height: 40px;
+    }
 }
