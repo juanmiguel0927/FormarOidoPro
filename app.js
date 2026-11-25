@@ -1316,9 +1316,9 @@ function renderUI() {
             let startMidi = 48; let numKeys = 25; let totalWhiteKeys = 15; let blackRatio = 26;
             if (isBass) {
                 startMidi = 24; numKeys = 37; totalWhiteKeys = 22; blackRatio = 36;
-                pStage.style.minWidth = '680px'; pStage.style.maxWidth = '1120px';
+                pStage.style.minWidth = '620px'; pStage.style.maxWidth = '1120px';
             } else {
-                pStage.style.minWidth = '560px'; pStage.style.maxWidth = '1040px';
+                pStage.style.minWidth = '460px'; pStage.style.maxWidth = '1040px';
             }
 
             const offsets = {0:0, 1:0.6, 2:1, 3:1.6, 4:2, 5:3, 6:3.6, 7:4, 8:4.6, 9:5, 10:5.6, 11:6};
