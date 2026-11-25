@@ -14,7 +14,7 @@
     <link rel="icon" type="image/png" href="playstore-assets/icon-192x192.png">
     <link rel="apple-touch-icon" href="playstore-assets/icon-512x512.png">
 
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body class="select-none relative flex flex-col overflow-hidden">
 
@@ -240,6 +240,53 @@
         </div>
     </div>
 
+    <!-- Menú de Herramientas (MIDI, Velocidad, Círculo de 5tas) -->
+    <div id="settings-modal" class="modal" style="z-index: 650;" onclick="if(event.target===this) closeSettingsModal()">
+        <div class="modal-content text-left p-5">
+            <button onclick="closeSettingsModal()" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600 font-bold text-lg leading-none p-1">✕</button>
+            <h2 class="text-lg font-black text-violet-500 mb-3 uppercase italic text-center">🎹 MIDI, Velocidad y Tonalidad</h2>
+
+            <!-- MIDI -->
+            <div class="settings-section">
+                <button onclick="initMIDI()" id="midi-status-btn" class="settings-action-btn midi-pill w-full">
+                    <span>🎹 Conectar Teclado MIDI (USB / Bluetooth)</span>
+                </button>
+            </div>
+
+            <!-- Velocidad -->
+            <div class="settings-section">
+                <div class="settings-label mb-1.5">⏱️ Velocidad de Audio</div>
+                <div class="grid grid-cols-3 gap-1.5">
+                    <button onclick="setPlaybackSpeed(0.75)" id="spd-075" class="quick-pill">0.75x Lento</button>
+                    <button onclick="setPlaybackSpeed(1)" id="spd-1" class="quick-pill active-choice">1x Normal</button>
+                    <button onclick="setPlaybackSpeed(1.3)" id="spd-13" class="quick-pill">1.3x Rápido</button>
+                </div>
+            </div>
+
+            <!-- Tonalidad: Círculo de 5tas -->
+            <div class="settings-section mb-0">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="settings-label">🎼 Círculo de 5tas</span>
+                    <button onclick="setFixedKey('auto')" id="fkey-auto" class="quick-pill active-choice">AUTO (12 Tonos)</button>
+                </div>
+                <div class="grid grid-cols-4 gap-1.5">
+                    <button onclick="setFixedKey('C')" id="fkey-C" class="quick-pill not-uppercase">C</button>
+                    <button onclick="setFixedKey('G')" id="fkey-G" class="quick-pill not-uppercase">G</button>
+                    <button onclick="setFixedKey('D')" id="fkey-D" class="quick-pill not-uppercase">D</button>
+                    <button onclick="setFixedKey('A')" id="fkey-A" class="quick-pill not-uppercase">A</button>
+                    <button onclick="setFixedKey('E')" id="fkey-E" class="quick-pill not-uppercase">E</button>
+                    <button onclick="setFixedKey('B')" id="fkey-B" class="quick-pill not-uppercase">B</button>
+                    <button onclick="setFixedKey('F#')" id="fkey-F#" class="quick-pill not-uppercase">F#</button>
+                    <button onclick="setFixedKey('Db')" id="fkey-Db" class="quick-pill not-uppercase">Db</button>
+                    <button onclick="setFixedKey('Ab')" id="fkey-Ab" class="quick-pill not-uppercase">Ab</button>
+                    <button onclick="setFixedKey('Eb')" id="fkey-Eb" class="quick-pill not-uppercase">Eb</button>
+                    <button onclick="setFixedKey('Bb')" id="fkey-Bb" class="quick-pill not-uppercase">Bb</button>
+                    <button onclick="setFixedKey('F')" id="fkey-F" class="quick-pill not-uppercase">F</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main App Header -->
     <header class="app-header bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center gap-1 sm:gap-2 shrink-0 z-50 w-full overflow-hidden">
         <div class="flex items-center gap-1.5 shrink-0 cursor-pointer" onclick="replayIntroSplash()" title="Ver presentación de Formar Oído Pro">
@@ -247,17 +294,20 @@
             <h1 class="font-black text-[10px] sm:text-sm uppercase italic leading-tight">Formar<br><span class="text-violet-500">Oído Pro</span></h1>
         </div>
 
-        <div id="session-time-remaining" class="hidden bg-slate-800 dark:bg-slate-800/90 text-white text-[9px] sm:text-xs font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1 shrink-0 border border-slate-700">
+        <div id="session-time-remaining" class="hidden bg-slate-800 dark:bg-slate-800/90 text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1 shrink-0 border border-slate-700">
             <span id="session-timer-text" class="font-mono text-[10px] sm:text-xs text-emerald-400">00:00</span>
             <span class="hidden md:inline text-[9px] opacity-75 uppercase tracking-wider" id="session-phase-text">Entrenamiento</span>
             <button onclick="confirmExit()" class="text-rose-400 hover:text-rose-300 font-black text-xs leading-none pl-0.5" title="Salir de la sesión">✕</button>
         </div>
 
-        <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
             <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-1.5 py-1 rounded-full shadow-sm">
                 <svg class="w-3 h-3 text-slate-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" /></svg>
                 <input type="range" id="master-volume" min="0" max="1" step="0.05" value="1" class="header-vol-slider h-1 bg-slate-300 rounded-lg appearance-none cursor-pointer" oninput="updateVolume(this.value)">
             </div>
+            <button onclick="openSettingsModal()" id="settings-menu-btn" class="header-icon-btn bg-slate-100 dark:bg-slate-800 rounded-full text-violet-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm" title="MIDI, Velocidad y Círculo de 5tas">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </button>
             <button onclick="toggleDarkMode()" class="header-icon-btn bg-slate-100 dark:bg-slate-800 rounded-full text-violet-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm" title="Alternar Modo Oscuro">
                 <svg id="theme-icon" class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
             </button>
@@ -274,21 +324,21 @@
         </div>
     </header>
 
-    <!-- Scrollable Main Workspace -->
+    <!-- Main Workspace (Zero-Scroll Mobile Layout) -->
     <main class="app-main no-scrollbar">
         <div class="app-container">
 
-            <div class="flex flex-col gap-1.5 hide-in-test">
+            <div class="flex flex-col gap-1 hide-in-test">
                 <div class="flex justify-between items-center px-1">
                     <span class="section-title">Niveles de Práctica</span>
-                    <div id="note-counter-container" class="flex items-center gap-1.5 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-all duration-300">
-                        <span class="text-[9px] sm:text-[10px] font-bold uppercase text-slate-400">Notas:</span>
-                        <button onclick="changeNoteCount(-1)" class="text-slate-400 hover:text-violet-500 px-1.5 py-0.5 font-black text-sm leading-none cursor-pointer active:scale-90 transition-transform">-</button>
+                    <div id="note-counter-container" class="flex items-center gap-1 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <span class="text-[9px] font-bold uppercase text-slate-400">Notas:</span>
+                        <button onclick="changeNoteCount(-1)" class="text-slate-400 hover:text-violet-500 px-1 font-black text-sm leading-none cursor-pointer active:scale-90">-</button>
                         <span id="note-count-display" class="w-4 text-center font-black text-xs text-violet-600 dark:text-violet-400">1</span>
-                        <button onclick="changeNoteCount(1)" class="text-slate-400 hover:text-violet-500 px-1.5 py-0.5 font-black text-sm leading-none cursor-pointer active:scale-90 transition-transform">+</button>
+                        <button onclick="changeNoteCount(1)" class="text-slate-400 hover:text-violet-500 px-1 font-black text-sm leading-none cursor-pointer active:scale-90">+</button>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-1">
                     <button onclick="setLevel('nivel1')" id="lvl-nivel1" class="control-btn active-choice">NIVEL 1</button>
                     <button onclick="setLevel('nivel2')" id="lvl-nivel2" class="control-btn">NIVEL 2</button>
                     <button onclick="setLevel('nivel3')" id="lvl-nivel3" class="control-btn">NIVEL 3</button>
@@ -298,9 +348,9 @@
                 </div>
             </div>
 
-            <div id="interval-settings" class="flex-col gap-1.5 hidden hide-in-test">
+            <div id="interval-settings" class="flex-col gap-1 hidden hide-in-test">
                 <span class="section-title">Dirección de Intervalos</span>
-                <div class="grid grid-cols-4 gap-1.5">
+                <div class="grid grid-cols-4 gap-1">
                     <button onclick="setIntervalDirection('asc')" id="int-dir-asc" class="control-btn">ASC ↗</button>
                     <button onclick="setIntervalDirection('desc')" id="int-dir-desc" class="control-btn">DESC ↘</button>
                     <button onclick="setIntervalDirection('harmonic')" id="int-dir-harmonic" class="control-btn">ARM ♪</button>
@@ -308,43 +358,16 @@
                 </div>
             </div>
 
-            <div id="tonality-settings" class="flex flex-col gap-1.5 hide-in-test">
+            <div id="tonality-settings" class="flex flex-col gap-1 hide-in-test">
                 <div class="flex justify-between items-center px-1">
                     <span class="section-title">Configuración Tonal</span>
-                    <span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-[8px] sm:text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Auto-Res: ON</span>
+                    <span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">Auto-Res: ON</span>
                 </div>
-                <div class="grid grid-cols-3 gap-1.5">
+                <div class="grid grid-cols-3 gap-1">
                     <button onclick="setTonalityMode('major')" id="ton-major" class="control-btn active-choice">MAYOR</button>
                     <button onclick="setTonalityMode('minor')" id="ton-minor" class="control-btn">MENOR</button>
                     <button onclick="setTonalityMode('combined')" id="ton-combined" class="control-btn">COMBINADO</button>
                 </div>
-            </div>
-
-            <!-- Barra Rápida: Velocidad, Tonalidad y MIDI -->
-            <div class="quick-tools-row hide-in-test">
-                <div class="quick-tool-group" title="Velocidad de reproducción">
-                    <span class="quick-tool-label">⏱️</span>
-                    <button onclick="setPlaybackSpeed(0.75)" id="spd-075" class="quick-pill">0.75x</button>
-                    <button onclick="setPlaybackSpeed(1)" id="spd-1" class="quick-pill active-choice">1x</button>
-                    <button onclick="setPlaybackSpeed(1.3)" id="spd-13" class="quick-pill">1.3x</button>
-                </div>
-                <div class="quick-tool-group quick-key-group" title="Círculo de 5tas (Mayor y Menor)">
-                    <span class="quick-tool-label">🎼</span>
-                    <button onclick="setFixedKey('auto')" id="fkey-auto" class="quick-pill active-choice">AUTO</button>
-                    <button onclick="setFixedKey('C')" id="fkey-C" class="quick-pill not-uppercase">C</button>
-                    <button onclick="setFixedKey('G')" id="fkey-G" class="quick-pill not-uppercase">G</button>
-                    <button onclick="setFixedKey('D')" id="fkey-D" class="quick-pill not-uppercase">D</button>
-                    <button onclick="setFixedKey('A')" id="fkey-A" class="quick-pill not-uppercase">A</button>
-                    <button onclick="setFixedKey('E')" id="fkey-E" class="quick-pill not-uppercase">E</button>
-                    <button onclick="setFixedKey('B')" id="fkey-B" class="quick-pill not-uppercase">B</button>
-                    <button onclick="setFixedKey('F#')" id="fkey-F#" class="quick-pill not-uppercase">F#</button>
-                    <button onclick="setFixedKey('Db')" id="fkey-Db" class="quick-pill not-uppercase">Db</button>
-                    <button onclick="setFixedKey('Ab')" id="fkey-Ab" class="quick-pill not-uppercase">Ab</button>
-                    <button onclick="setFixedKey('Eb')" id="fkey-Eb" class="quick-pill not-uppercase">Eb</button>
-                    <button onclick="setFixedKey('Bb')" id="fkey-Bb" class="quick-pill not-uppercase">Bb</button>
-                    <button onclick="setFixedKey('F')" id="fkey-F" class="quick-pill not-uppercase">F</button>
-                </div>
-                <button onclick="initMIDI()" id="midi-status-btn" class="quick-pill midi-pill" title="Conectar teclado MIDI (USB/Bluetooth)">🎹 MIDI</button>
             </div>
 
             <div id="bass-settings" class="flex-col gap-1.5 hidden hide-in-test bg-blue-50/70 dark:bg-blue-900/20 p-2 rounded-xl border border-blue-200/70 dark:border-blue-800/40">
@@ -516,6 +539,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>
