@@ -1,5 +1,6 @@
 const DEGREES = ['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7', '8'];
-const ROOT_INDICES = { 'C': 0, 'Db': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'Gb': 6, 'G': 7, 'Ab': 8, 'A': 9, 'Bb': 10, 'B': 11 };
+const ROOT_INDICES = { 'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3, 'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11 };
+const CIRCLE_OF_FIFTHS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
 
 const INTERVAL_NAMES = { 
     0: "Unísono", 1: "2da Menor", 2: "2da Mayor", 3: "3ra Menor", 4: "3ra Mayor", 
@@ -54,6 +55,124 @@ let masterGain;
 let masterOut;
 let welcomeDone = false;
 let globalVolume = localStorage.getItem('fop_volume') !== null ? parseFloat(localStorage.getItem('fop_volume')) : 1.0;
+let playbackSpeed = localStorage.getItem('fop_speed') !== null ? parseFloat(localStorage.getItem('fop_speed')) : 1.0;
+let fixedKey = localStorage.getItem('fop_fixed_key') || 'auto';
+let midiAccessObj = null;
+
+function setAudioStatus(text, isPlaying = false) {
+    const statusEl = document.getElementById('audio-status-text');
+    const playBtn = document.getElementById('center-play-btn');
+    if (statusEl && text) statusEl.innerText = text;
+    if (playBtn) playBtn.classList.toggle('is-playing', Boolean(isPlaying));
+}
+
+function updateBufferPreviewChips() {
+    const cont = document.getElementById('buffer-preview-chips');
+    if (!cont) return;
+    cont.innerHTML = '';
+    if (!state.userBuffer || state.userBuffer.length === 0) return;
+    state.userBuffer.forEach(val => {
+        const chip = document.createElement('span');
+        chip.className = 'buffer-chip';
+        if (state.mode === 'bass') {
+            const vis = getDegreeVisuals(val, true);
+            chip.innerText = vis.label + vis.arrow;
+        } else {
+            chip.innerText = DEGREES[val] ?? String(val);
+        }
+        cont.appendChild(chip);
+    });
+}
+
+function setPlaybackSpeed(spd) {
+    playbackSpeed = parseFloat(spd) || 1.0;
+    localStorage.setItem('fop_speed', playbackSpeed);
+    ['spd-075', 'spd-1', 'spd-13'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active-choice');
+    });
+    const activeId = playbackSpeed <= 0.8 ? 'spd-075' : (playbackSpeed >= 1.2 ? 'spd-13' : 'spd-1');
+    const activeEl = document.getElementById(activeId);
+    if (activeEl) activeEl.classList.add('active-choice');
+    triggerHaptic('tap');
+}
+
+function syncFixedKeyUI() {
+    const isMin = state && state.tonalityMode === 'minor';
+    const autoEl = document.getElementById('fkey-auto');
+    if (autoEl) autoEl.classList.toggle('active-choice', fixedKey === 'auto');
+    CIRCLE_OF_FIFTHS.forEach(k => {
+        const el = document.getElementById(`fkey-${k}`);
+        if (el) {
+            el.classList.toggle('active-choice', fixedKey === k);
+            el.innerText = isMin ? `${k}m` : k;
+        }
+    });
+}
+
+function setFixedKey(keyVal) {
+    fixedKey = keyVal || 'auto';
+    localStorage.setItem('fop_fixed_key', fixedKey);
+    syncFixedKeyUI();
+    triggerHaptic('tap');
+    if (state.target && sessionState.type !== 'test') startGame();
+}
+
+function initMIDI() {
+    const btn = document.getElementById('midi-status-btn');
+    if (!navigator.requestMIDIAccess) {
+        showNotice('MIDI no disponible', 'Tu navegador o dispositivo no soporta Web MIDI API. Puedes usar el piano táctil o el teclado de la PC (A-K).');
+        return;
+    }
+    navigator.requestMIDIAccess().then((access) => {
+        midiAccessObj = access;
+        let connected = 0;
+        const bindInputs = () => {
+            connected = 0;
+            access.inputs.forEach((input) => {
+                connected++;
+                input.onmidimessage = (msg) => {
+                    const [cmd, midiNote, velocity] = msg.data;
+                    if ((cmd & 0xf0) === 0x90 && velocity > 0) {
+                        handleExternalMidiNote(midiNote);
+                    }
+                };
+            });
+            if (btn) {
+                btn.classList.toggle('midi-connected', connected > 0);
+                btn.innerText = connected > 0 ? `🎹 MIDI (${connected})` : '🎹 MIDI: 0';
+            }
+        };
+        bindInputs();
+        access.onstatechange = bindInputs;
+        if (connected === 0) {
+            showNotice('MIDI Activo', 'Conecta un teclado MIDI por USB o Bluetooth y toca cualquier tecla para responder.');
+        }
+    }).catch(() => {
+        showNotice('Error MIDI', 'No se pudo acceder a los dispositivos MIDI.');
+    });
+}
+
+function handleExternalMidiNote(midi) {
+    if (isAnyBlockingModalOpen()) return;
+    initAudio();
+    const isBass = state.mode === 'bass';
+    if (isBass) playBassTone(midiToFreq(midi), 0.6);
+    else playTone(midiToFreq(midi), 0.55);
+
+    const keyEl = document.getElementById(`piano-key-${midi}`);
+    if (keyEl) {
+        keyEl.classList.add('playing');
+        setTimeout(() => keyEl.classList.remove('playing'), 220);
+    }
+
+    const functional = isBass ? midi - (state.keyIndex - 12) : midi - state.keyIndex;
+    if (state.mode === 'melody' && state.target && functional >= 0 && functional <= 12) {
+        checkMelodyAnswer(functional);
+    } else if (isBass && state.target) {
+        checkBassAnswer(functional);
+    }
+}
 
 function triggerHaptic(type = 'tap') {
     if (typeof navigator === 'undefined' || !navigator.vibrate) return;
@@ -511,12 +630,60 @@ function midiToFreq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
 
 function playTone(freq, dur, type='triangle', start=0, vol=0.3, isBand=false, volOverride=null) {
     if (!audioCtx || !masterGain) return;
-    const t = start + audioCtx.currentTime; const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
-    let bandMult = volOverride !== null ? volOverride : (isBand ? ((state.bassSettings?.bandVol ?? 0.5) * 2) : 1);
+    const spd = playbackSpeed || 1.0;
+    const scaledStart = start / spd;
+    const scaledDur = Math.max(0.18, dur / spd);
+    const t = scaledStart + audioCtx.currentTime;
+    const bandMult = volOverride !== null ? volOverride : (isBand ? ((state.bassSettings?.bandVol ?? 0.5) * 2) : 1);
+    const peak = Math.max(0.001, vol * bandMult);
 
-    osc.type = type; osc.frequency.setValueAtTime(freq, t);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(Math.max(0.001, vol * bandMult), t + 0.05); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    osc.connect(g); g.connect(masterGain); osc.start(t); osc.stop(t + dur); state.activeOscillators.push(osc);
+    if (type === 'triangle') {
+        // Warm 2-harmonic piano synthesis with hammer filter envelope (100% offline)
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const g2 = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+        const env = audioCtx.createGain();
+
+        osc1.type = 'triangle';
+        osc2.type = 'sine';
+        osc1.frequency.setValueAtTime(freq, t);
+        osc2.frequency.setValueAtTime(freq * 2, t);
+        g2.gain.setValueAtTime(0.24, t);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(Math.min(6000, freq * 5.2), t);
+        filter.frequency.exponentialRampToValueAtTime(Math.max(400, freq * 1.9), t + Math.min(0.45, scaledDur * 0.7));
+
+        env.gain.setValueAtTime(0.0001, t);
+        env.gain.linearRampToValueAtTime(peak * 1.05, t + 0.014);
+        env.gain.exponentialRampToValueAtTime(Math.max(0.001, peak * 0.55), t + Math.min(0.22, scaledDur * 0.35));
+        env.gain.exponentialRampToValueAtTime(0.0008, t + scaledDur);
+
+        osc1.connect(filter);
+        osc2.connect(g2);
+        g2.connect(filter);
+        filter.connect(env);
+        env.connect(masterGain);
+
+        osc1.start(t); osc1.stop(t + scaledDur);
+        osc2.start(t); osc2.stop(t + scaledDur);
+        state.activeOscillators.push(osc1, osc2);
+        return;
+    }
+
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(peak, t + 0.025);
+    g.gain.exponentialRampToValueAtTime(0.001, t + scaledDur);
+    osc.connect(g);
+    g.connect(masterGain);
+    osc.start(t);
+    osc.stop(t + scaledDur);
+    state.activeOscillators.push(osc);
 }
 
 function playInterval(root, note, forceDir) { 
@@ -586,6 +753,7 @@ function stopAllSounds() {
     document.querySelectorAll('.cadence-chord-active').forEach(el => { el.classList.remove('cadence-chord-active'); el.classList.add('opacity-50'); });
     const cDisp = document.getElementById('cadence-display');
     if(cDisp) { cDisp.classList.remove('opacity-100', 'scale-100'); cDisp.classList.add('opacity-0', 'scale-95', 'pointer-events-none'); }
+    setAudioStatus('Toca ▶ para escuchar o responde', false);
 }
 
 function registerTimeout(fn, delay) { const id = setTimeout(fn, delay); state.timeouts.push(id); return id; }
@@ -1223,6 +1391,7 @@ function resetUI() {
     
     if(pMod) pMod.innerHTML = ''; if(hGrid) hGrid.innerHTML = ''; if(iGrid) iGrid.innerHTML = '';
     const bufDots = document.getElementById('buffer-dots'); if(bufDots) bufDots.innerHTML = '';
+    updateBufferPreviewChips();
     renderUI();
 }
 
@@ -1485,8 +1654,11 @@ function startGame() {
         syncModeUI(state.mode);
     }
 
-    const keys = ['C','G','F','D','A','Bb','Eb'];
-    state.keyLabel = keys[Math.floor(Math.random()*keys.length)]; state.keyIndex = 48 + ROOT_INDICES[state.keyLabel];
+    state.keyLabel = (sessionState.type !== 'test' && fixedKey && fixedKey !== 'auto' && ROOT_INDICES[fixedKey] !== undefined)
+        ? fixedKey
+        : CIRCLE_OF_FIFTHS[Math.floor(Math.random() * CIRCLE_OF_FIFTHS.length)];
+    state.keyIndex = 48 + ROOT_INDICES[state.keyLabel];
+    setAudioStatus('Escuchando contexto tonal...', true);
     state.currentRoundTonality = state.mode !== 'intervals' && state.tonalityMode === 'combined' ? (Math.random() > 0.5 ? 'major' : 'minor') : state.tonalityMode;
     if(state.mode === 'intervals') state.currentRoundTonality = 'major';
     
@@ -1694,7 +1866,10 @@ function playHuntSequence() {
 function checkMelodyAnswer(val) {
     if (state.isPlaying || !state.target || state.mode !== 'melody') return;
     state.userBuffer.push(val);
+    updateBufferPreviewChips();
     const dots = document.querySelectorAll('.buffer-dot'); if(dots && dots[state.userBuffer.length-1]) dots[state.userBuffer.length-1].classList.add('active');
+    const rem = state.target.sequence.length - state.userBuffer.length;
+    if (rem > 0) setAudioStatus(`Faltan ${rem} nota${rem > 1 ? 's' : ''}...`, false);
     if(state.userBuffer.length === state.target.sequence.length) {
         const timeTaken = (Date.now() - state.questionStartTime) / 1000;
         if(!state.hours) state.hours = { intervals: 0, melody: 0, harmony: 0, bass: 0 }; state.hours.melody += timeTaken;
@@ -1712,7 +1887,10 @@ function checkMelodyAnswer(val) {
 function checkBassAnswer(val) {
     if (state.isPlaying || !state.target || state.mode !== 'bass') return;
     state.userBuffer.push(val);
+    updateBufferPreviewChips();
     const dots = document.querySelectorAll('.buffer-dot'); if(dots && dots[state.userBuffer.length-1]) dots[state.userBuffer.length-1].classList.add('active');
+    const rem = state.target.sequence.length - state.userBuffer.length;
+    if (rem > 0) setAudioStatus(`Bajo: faltan ${rem} nota${rem > 1 ? 's' : ''}...`, false);
     
     if(state.userBuffer.length === state.target.sequence.length) {
         const timeTaken = (Date.now() - state.questionStartTime) / 1000;
@@ -2127,8 +2305,16 @@ function endPlacementTest(levelReached, won = false) {
 }
 
 function changeNoteCount(delta) { let newVal = state.currentNoteCount + delta; newVal = Math.max(1, Math.min(10, newVal)); if (newVal !== state.currentNoteCount) { state.currentNoteCount = newVal; resetUI(); if(state.target) startGame(); } }
-function deleteLastNote() { if(state.userBuffer && state.userBuffer.length > 0) { state.userBuffer.pop(); const dots = document.querySelectorAll('.buffer-dot'); if(dots && dots[state.userBuffer.length]) dots[state.userBuffer.length].classList.remove('active'); } }
-function setTonalityMode(mode) { state.tonalityMode = mode; ['ton-major', 'ton-minor', 'ton-combined'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('active-choice'); }); const tModeEl = document.getElementById(`ton-${mode}`); if(tModeEl) tModeEl.classList.add('active-choice'); state.currentRoundTonality = mode === 'combined' ? 'major' : mode; resetUI(); if(state.target) startGame(); }
+function deleteLastNote() {
+    if (state.userBuffer && state.userBuffer.length > 0) {
+        state.userBuffer.pop();
+        updateBufferPreviewChips();
+        const dots = document.querySelectorAll('.buffer-dot');
+        if (dots && dots[state.userBuffer.length]) dots[state.userBuffer.length].classList.remove('active');
+        setAudioStatus('Nota borrada · Continúa respondiendo', false);
+    }
+}
+function setTonalityMode(mode) { state.tonalityMode = mode; ['ton-major', 'ton-minor', 'ton-combined'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('active-choice'); }); const tModeEl = document.getElementById(`ton-${mode}`); if(tModeEl) tModeEl.classList.add('active-choice'); state.currentRoundTonality = mode === 'combined' ? 'major' : mode; syncFixedKeyUI(); resetUI(); if(state.target) startGame(); }
 function setIntervalDirection(dir) { state.intervalDirection = dir; document.querySelectorAll('button[id^="int-dir-"]').forEach(b => b.classList.remove('active-choice')); const intDirEl = document.getElementById(`int-dir-${dir}`); if(intDirEl) intDirEl.classList.add('active-choice'); }
 function setFreePhase(phaseIdx) { if ((sessionState.type !== 'free' && sessionState.type !== 'explore') || state.mode !== 'intervals') return; state.mastery.intervals.phase = phaseIdx; ['fp-0', 'fp-1', 'fp-2', 'fp-3'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('active-choice'); }); const pIdxEl = document.getElementById(`fp-${phaseIdx}`); if(pIdxEl) pIdxEl.classList.add('active-choice'); resetUI(); if(state.target) startGame(); }
 function setLevel(lvl) {
@@ -2153,7 +2339,28 @@ function applySavedTheme() {
     }
     const volSlider = document.getElementById('master-volume');
     if (volSlider) volSlider.value = globalVolume;
+    setPlaybackSpeed(playbackSpeed);
+    syncFixedKeyUI();
 }
+
+window.handleAndroidBack = function () {
+    const closable = ['confirm-modal', 'info-modal', 'tutorial-modal', 'stats-modal', 'result-modal'];
+    for (const id of closable) {
+        const el = document.getElementById(id);
+        if (el && el.style.display === 'flex') {
+            el.style.display = 'none';
+            return 'handled';
+        }
+    }
+    const startM = document.getElementById('start-modal');
+    const userM = document.getElementById('user-modal');
+    const inStartOrUser = (startM && startM.style.display === 'flex') || (userM && userM.style.display === 'flex');
+    if (!inStartOrUser && activeUserId) {
+        confirmExit();
+        return 'handled';
+    }
+    return 'exit';
+};
 
 function initIntroSplash() {
     const splash = document.getElementById('introSplashOverlay');
@@ -2237,6 +2444,18 @@ function initKeyboardShortcuts() {
             if (state.mode === 'melody' || state.mode === 'bass') {
                 e.preventDefault();
                 deleteLastNote();
+            }
+        } else if (state.mode === 'melody' || state.mode === 'bass') {
+            // PC keyboard playing: A W S E D F T G Y H U J K -> semitones 0..12 from active tonic
+            const pcKeyMap = {
+                KeyA: 0, KeyW: 1, KeyS: 2, KeyE: 3, KeyD: 4, KeyF: 5,
+                KeyT: 6, KeyG: 7, KeyY: 8, KeyH: 9, KeyU: 10, KeyJ: 11, KeyK: 12
+            };
+            if (Object.prototype.hasOwnProperty.call(pcKeyMap, e.code)) {
+                e.preventDefault();
+                const offset = pcKeyMap[e.code];
+                const base = state.mode === 'bass' ? (state.keyIndex - 12) : state.keyIndex;
+                handleExternalMidiNote(base + offset);
             }
         }
     });
