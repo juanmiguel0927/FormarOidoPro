@@ -14,7 +14,7 @@
     <link rel="icon" type="image/png" href="playstore-assets/icon-192x192.png">
     <link rel="apple-touch-icon" href="playstore-assets/icon-512x512.png">
 
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body class="select-none relative flex flex-col overflow-hidden">
 
@@ -320,6 +320,33 @@
                 </div>
             </div>
 
+            <!-- Barra Rápida: Velocidad, Tonalidad y MIDI -->
+            <div class="quick-tools-row hide-in-test">
+                <div class="quick-tool-group" title="Velocidad de reproducción">
+                    <span class="quick-tool-label">⏱️</span>
+                    <button onclick="setPlaybackSpeed(0.75)" id="spd-075" class="quick-pill">0.75x</button>
+                    <button onclick="setPlaybackSpeed(1)" id="spd-1" class="quick-pill active-choice">1x</button>
+                    <button onclick="setPlaybackSpeed(1.3)" id="spd-13" class="quick-pill">1.3x</button>
+                </div>
+                <div class="quick-tool-group quick-key-group" title="Círculo de 5tas (Mayor y Menor)">
+                    <span class="quick-tool-label">🎼</span>
+                    <button onclick="setFixedKey('auto')" id="fkey-auto" class="quick-pill active-choice">AUTO</button>
+                    <button onclick="setFixedKey('C')" id="fkey-C" class="quick-pill not-uppercase">C</button>
+                    <button onclick="setFixedKey('G')" id="fkey-G" class="quick-pill not-uppercase">G</button>
+                    <button onclick="setFixedKey('D')" id="fkey-D" class="quick-pill not-uppercase">D</button>
+                    <button onclick="setFixedKey('A')" id="fkey-A" class="quick-pill not-uppercase">A</button>
+                    <button onclick="setFixedKey('E')" id="fkey-E" class="quick-pill not-uppercase">E</button>
+                    <button onclick="setFixedKey('B')" id="fkey-B" class="quick-pill not-uppercase">B</button>
+                    <button onclick="setFixedKey('F#')" id="fkey-F#" class="quick-pill not-uppercase">F#</button>
+                    <button onclick="setFixedKey('Db')" id="fkey-Db" class="quick-pill not-uppercase">Db</button>
+                    <button onclick="setFixedKey('Ab')" id="fkey-Ab" class="quick-pill not-uppercase">Ab</button>
+                    <button onclick="setFixedKey('Eb')" id="fkey-Eb" class="quick-pill not-uppercase">Eb</button>
+                    <button onclick="setFixedKey('Bb')" id="fkey-Bb" class="quick-pill not-uppercase">Bb</button>
+                    <button onclick="setFixedKey('F')" id="fkey-F" class="quick-pill not-uppercase">F</button>
+                </div>
+                <button onclick="initMIDI()" id="midi-status-btn" class="quick-pill midi-pill" title="Conectar teclado MIDI (USB/Bluetooth)">🎹 MIDI</button>
+            </div>
+
             <div id="bass-settings" class="flex-col gap-1.5 hidden hide-in-test bg-blue-50/70 dark:bg-blue-900/20 p-2 rounded-xl border border-blue-200/70 dark:border-blue-800/40">
                 <div class="flex justify-between items-center px-1 cursor-pointer select-none" onclick="toggleBassConfigDrawer()">
                     <div class="flex items-center gap-1.5">
@@ -443,6 +470,16 @@
                     <div id="hunt-grid" class="flex flex-nowrap w-full overflow-hidden justify-center gap-1.5 sm:gap-2.5"></div>
                     <button onclick="evaluarCaceria()" class="hunt-btn-eval shadow-md active:scale-95 transition-transform mt-3">Evaluar Selección</button>
                 </div>
+
+                <!-- Zona Central Interactiva (Estado + Botón de Escucha + Vista Previa de Notas) -->
+                <div id="center-audio-hub" class="center-audio-hub">
+                    <button id="center-play-btn" onclick="repeatSound()" class="center-play-btn" title="Repetir sonido (Espacio)">
+                        <span class="center-play-ring"></span>
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+                    </button>
+                    <div id="audio-status-text" class="audio-status-text">Toca ▶ para escuchar o responde en el piano</div>
+                    <div id="buffer-preview-chips" class="buffer-preview-chips"></div>
+                </div>
             </div>
         </div>
     </main>
@@ -479,6 +516,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 </body>
 </html>
