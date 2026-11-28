@@ -110,12 +110,45 @@ function syncFixedKeyUI() {
     });
 }
 
+function playKeyPreviewChord(keyVal) {
+    if (!keyVal || keyVal === 'auto') return;
+    const rootOffset = ROOT_INDICES[keyVal];
+    if (rootOffset === undefined) return;
+    initAudio();
+    stopAllSounds();
+    const rootMidi = 48 + rootOffset;
+    const isMin = state && state.tonalityMode === 'minor';
+    const chord = isMin ? [rootMidi, rootMidi + 3, rootMidi + 7, rootMidi + 12] : [rootMidi, rootMidi + 4, rootMidi + 7, rootMidi + 12];
+    chord.forEach((m, idx) => {
+        playTone(midiToFreq(m), 0.72, 'triangle', idx * 0.045, 0.24);
+    });
+}
+
 function setFixedKey(keyVal) {
     fixedKey = keyVal || 'auto';
     localStorage.setItem('fop_fixed_key', fixedKey);
     syncFixedKeyUI();
     triggerHaptic('tap');
-    if (state.target && sessionState.type !== 'test') startGame();
+
+    const settingsModal = document.getElementById('settings-modal');
+    const settingsOpen = settingsModal && settingsModal.style.display === 'flex';
+
+    if (fixedKey !== 'auto') {
+        const rootOffset = ROOT_INDICES[fixedKey];
+        if (rootOffset !== undefined) {
+            state.keyIndex = 48 + rootOffset;
+            state.keyLabel = fixedKey;
+            const kr = document.getElementById('key-root');
+            if (kr) kr.innerText = fixedKey;
+        }
+        if (settingsOpen || !state.target || itourState.active) {
+            playKeyPreviewChord(fixedKey);
+        }
+    }
+
+    if (state.target && sessionState.type !== 'test' && !settingsOpen && !itourState.active) {
+        startGame();
+    }
 }
 
 function initMIDI() {
@@ -217,7 +250,7 @@ function getDefaultState() {
         intervalDirection: 'mixed', currentQuestionDirection: 'asc', currentNoteCount: 1, userBuffer: [],
         keyIndex: 48, keyLabel: 'C', xp: 0, streak: 0, dailyStreak: 0, lastDate: '',
         isPlaying: false, target: null, questionStartTime: 0, timeouts: [], activeOscillators: [],
-        tutorialShown: {}, errorStats: {}, rankIdx: 0,
+        tutorialShown: {}, interactiveTutorialDone: false, errorStats: {}, rankIdx: 0,
         hours: { intervals: 0, melody: 0, harmony: 0, bass: 0 },
         sessionHistory: [],
         bassSettings: { bandVol: 0.5, bassVol: 1.0, timbre: 'synth', dropMode: false, view: 'piano', stringCount: 4 },
@@ -352,6 +385,8 @@ function loadPersistence() {
         
         checkDailyStreak();
         document.getElementById('rank-display').innerText = RANK_NAMES[state.rankIdx || 0];
+        const tutBadge = document.getElementById('tutorial-new-badge');
+        if (tutBadge) tutBadge.classList.toggle('hidden', Boolean(state.interactiveTutorialDone));
 
         const bBand = document.getElementById('band-vol'); if(bBand) bBand.value = state.bassSettings.bandVol;
         const bBass = document.getElementById('bass-vol'); if(bBass) bBass.value = state.bassSettings.bassVol;
@@ -2357,7 +2392,11 @@ function closeSettingsModal() {
 }
 
 window.handleAndroidBack = function () {
-    const closable = ['confirm-modal', 'info-modal', 'tutorial-modal', 'settings-modal', 'stats-modal', 'result-modal'];
+    if (typeof itourState !== 'undefined' && itourState.active) {
+        endInteractiveTutorial(false);
+        return 'handled';
+    }
+    const closable = ['confirm-modal', 'info-modal', 'tutorial-modal', 'tour-menu-modal', 'settings-modal', 'stats-modal', 'result-modal'];
     for (const id of closable) {
         const el = document.getElementById(id);
         if (el && el.style.display === 'flex') {
@@ -2418,9 +2457,10 @@ function replayIntroSplash() {
 }
 
 function isAnyBlockingModalOpen() {
+    if (typeof itourState !== 'undefined' && itourState.active) return true;
     const splash = document.getElementById('introSplashOverlay');
     if (splash && !splash.classList.contains('hidden-splash') && !splash.classList.contains('fade-out')) return true;
-    const ids = ['user-modal', 'start-modal', 'settings-modal', 'stats-modal', 'tutorial-modal', 'info-modal', 'confirm-modal', 'session-end-modal', 'result-modal'];
+    const ids = ['user-modal', 'start-modal', 'tour-menu-modal', 'settings-modal', 'stats-modal', 'tutorial-modal', 'info-modal', 'confirm-modal', 'session-end-modal', 'result-modal'];
     return ids.some(id => {
         const el = document.getElementById(id);
         return el && el.style.display === 'flex';
@@ -2438,6 +2478,44 @@ function initKeyboardShortcuts() {
             if (e.code === 'Enter' && btnCont && btnCont.style.display !== 'none') {
                 e.preventDefault();
                 btnCont.click();
+            }
+            return;
+        }
+
+        if (typeof itourState !== 'undefined' && itourState.active) {
+            if (e.code === 'ArrowRight') {
+                e.preventDefault();
+                nextTutorialStep();
+                return;
+            }
+            if (e.code === 'ArrowLeft') {
+                e.preventDefault();
+                prevTutorialStep();
+                return;
+            }
+            if (e.code === 'Escape') {
+                e.preventDefault();
+                endInteractiveTutorial(false);
+                return;
+            }
+            const curStep = INTERACTIVE_TOUR_STEPS[itourState.stepIdx];
+            if (curStep && curStep.id === 'piano') {
+                const pcKeyMap = {
+                    KeyA: 0, KeyW: 1, KeyS: 2, KeyE: 3, KeyD: 4, KeyF: 5,
+                    KeyT: 6, KeyG: 7, KeyY: 8, KeyH: 9, KeyU: 10, KeyJ: 11, KeyK: 12
+                };
+                if (Object.prototype.hasOwnProperty.call(pcKeyMap, e.code)) {
+                    e.preventDefault();
+                    initAudio();
+                    const midi = 60 + pcKeyMap[e.code];
+                    playTone(midiToFreq(midi), 0.5);
+                    const keyEl = document.getElementById(`piano-key-${midi}`);
+                    if (keyEl) {
+                        keyEl.classList.add('playing');
+                        setTimeout(() => keyEl.classList.remove('playing'), 240);
+                    }
+                    markTutorialStepTried('✓ ¡Excelente! Ya sabes tocar con el teclado.');
+                }
             }
             return;
         }
@@ -2474,8 +2552,695 @@ function initKeyboardShortcuts() {
     });
 }
 
+/* =========================================================
+   INTERACTIVE GUIDED TUTORIAL ENGINE
+   ========================================================= */
+let itourState = {
+    active: false,
+    stepIdx: 0,
+    activeSteps: [],
+    trackId: 'full',
+    origin: 'header',
+    savedMode: 'melody',
+    savedSessionType: 'free',
+    savedNoteCount: 1,
+    savedTonality: 'major',
+    savedBassDrawerOpen: false,
+    savedBassView: 'piano',
+    cleanupTargetListener: null,
+    resizeHandler: null
+};
+
+function playTutorialDemoCadence() {
+    initAudio();
+    stopAllSounds();
+    const chords = [
+        [48, 52, 55, 60], // C
+        [53, 57, 60, 65], // F
+        [55, 59, 62, 67], // G
+        [48, 52, 55, 60]  // C
+    ];
+    setAudioStatus('Reproduciendo cadencia de ejemplo (I - IV - V - I)...', true);
+    chords.forEach((notes, idx) => {
+        const delay = idx * 0.48;
+        notes.forEach(m => playTone(midiToFreq(m), 0.44, 'triangle', delay, 0.2));
+    });
+    registerTimeout(() => {
+        setAudioStatus('Toca ▶ para escuchar o responde en el piano', false);
+    }, 2050);
+}
+
+function playTutorialDemoArpeggio() {
+    initAudio();
+    stopAllSounds();
+    const notes = [60, 64, 67, 72];
+    notes.forEach((midi, i) => {
+        registerTimeout(() => {
+            playTone(midiToFreq(midi), 0.45, 'triangle', 0, 0.3);
+            const keyEl = document.getElementById(`piano-key-${midi}`);
+            if (keyEl) {
+                keyEl.classList.add('playing');
+                setTimeout(() => keyEl.classList.remove('playing'), 280);
+            }
+        }, i * 210);
+    });
+}
+
+function playTutorialDemoInterval() {
+    initAudio();
+    stopAllSounds();
+    playTone(midiToFreq(60), 0.45, 'triangle', 0, 0.3);
+    playTone(midiToFreq(67), 0.65, 'triangle', 0.42, 0.3);
+}
+
+function playTutorialDemoBass() {
+    initAudio();
+    stopAllSounds();
+    const prevTimbre = state.bassSettings.timbre;
+    state.bassSettings.timbre = 'slap';
+    [36, 43, 41, 36].forEach((m, i) => {
+        playBassTone(midiToFreq(m), 0.32, i * 0.28, 0.65);
+    });
+    state.bassSettings.timbre = prevTimbre;
+}
+
+const TOUR_MODE_LABELS = {
+    melody: 'MELODÍA',
+    intervals: 'INTERVALOS',
+    harmony: 'ARMONÍA',
+    bass: 'BAJO'
+};
+
+const TOUR_TONALITY_LABELS = {
+    major: 'MAYOR',
+    minor: 'MENOR',
+    combined: 'COMBINADO'
+};
+
+function setupTourDeleteDemoBuffer() {
+    state.userBuffer = [0, 4];
+    updateBufferDotsUI(3);
+    const dots = document.querySelectorAll('.buffer-dot');
+    if (dots[0]) dots[0].classList.add('active');
+    if (dots[1]) dots[1].classList.add('active');
+    updateBufferPreviewChips();
+    setAudioStatus('Ejemplo: 2 notas ingresadas · Toca "Borrar Última" para corregir', false);
+}
+
+const INTERACTIVE_TOUR_STEPS = [
+    {
+        id: 'welcome',
+        target: null,
+        icon: '🎓',
+        title: '¡Bienvenido a Formar Oído Pro!',
+        desc: 'Este tutorial interactivo te guiará en español por todas las herramientas de la aplicación: modos de entrenamiento, niveles, resoluciones de referencia, borrado de respuestas, piano y mástil de bajo, MIDI, velocidad y estadísticas.\n\nPodrás probar cada control en vivo mientras avanzas.'
+    },
+    {
+        id: 'modes',
+        target: '#mode-selector-bar',
+        icon: '🎵',
+        title: '4 Modos de Entrenamiento',
+        desc: 'Cambia entre habilidades musicales en cualquier momento:\n• MELODÍA: reconoce grados y secuencias de notas.\n• INTERVALOS: método progresivo en 4 fases.\n• ARMONÍA: identifica progresiones de acordes.\n• BAJO: entrena tu oído en frecuencias graves.',
+        tryText: 'Toca un modo arriba o prueba alternarlos:',
+        tryBtn: 'Probar modos',
+        tryAction: () => {
+            const order = ['melody', 'intervals', 'harmony', 'bass'];
+            const next = order[(order.indexOf(state.mode) + 1) % order.length];
+            state.mode = next;
+            syncModeUI(next);
+            resetUI();
+            markTutorialStepTried(`✓ Cambiado a modo ${TOUR_MODE_LABELS[next]}.`);
+            scheduleTutorialReposition();
+        },
+        listenEvent: 'click',
+        onTargetInteract: () => markTutorialStepTried('✓ ¡Perfecto! Así cambias de modo al instante.')
+    },
+    {
+        id: 'levels',
+        target: '#levels-section',
+        icon: '📈',
+        title: 'Niveles (1 a 6) y Cantidad de Notas',
+        desc: 'Selecciona tu dificultad del Nivel 1 al 6. Con el contador «Notas: - 1 +» ajustas cuántas notas seguidas escucharás en Melodía o Bajo (de 1 hasta 10).',
+        onEnter: () => {
+            state.mode = 'melody';
+            syncModeUI('melody');
+            resetUI();
+        },
+        tryText: 'Prueba subir la cantidad de notas:',
+        tryBtn: '+1 Nota',
+        tryAction: () => {
+            const nextCount = state.currentNoteCount >= 4 ? 1 : state.currentNoteCount + 1;
+            state.currentNoteCount = nextCount;
+            resetUI();
+            markTutorialStepTried(`✓ Ahora escucharás secuencias de ${nextCount} nota(s).`);
+        },
+        listenEvent: 'click',
+        onTargetInteract: () => markTutorialStepTried('✓ ¡Listo! Nivel y cantidad de notas configurados.')
+    },
+    {
+        id: 'tonality',
+        target: '#tonality-settings',
+        icon: '🎼',
+        title: 'Mayor, Menor y Auto-Resolución',
+        desc: 'Alterna entre escalas MAYOR, MENOR o COMBINADO. Con la Auto-Resolución activada, tras acertar escucharás cómo resuelve la nota hacia la tónica para fijar cada grado en tu memoria auditiva.',
+        onEnter: () => {
+            state.mode = 'melody';
+            syncModeUI('melody');
+            resetUI();
+        },
+        tryText: 'Toca MAYOR, MENOR o COMBINADO arriba:',
+        tryBtn: 'Cambiar escala',
+        tryAction: () => {
+            const modes = ['major', 'minor', 'combined'];
+            const next = modes[(modes.indexOf(state.tonalityMode) + 1) % modes.length];
+            setTonalityMode(next);
+            markTutorialStepTried(`✓ Escala cambiada a ${TOUR_TONALITY_LABELS[next]}.`);
+        },
+        listenEvent: 'click',
+        onTargetInteract: () => markTutorialStepTried('✓ ¡Excelente! Ya sabes cambiar la tonalidad.')
+    },
+    {
+        id: 'resolutions',
+        target: '#practice-module',
+        icon: '🧭',
+        title: 'Resoluciones de Referencia',
+        desc: 'Estas tarjetas numeradas (1, 2, 3...) son tu guía auditiva y visual, clasificadas por color según su estabilidad tonal.\n\nAl tocar cualquier grado NO envías tu respuesta: escucharás esa nota y su resolución natural hacia la tónica mientras se ilumina su recorrido en el piano.',
+        showColorLegend: true,
+        onEnter: () => {
+            state.mode = 'melody';
+            syncModeUI('melody');
+            resetUI();
+        },
+        tryText: 'Toca cualquier número arriba o escucha una resolución:',
+        tryBtn: '▶ Resolución (3 → 1)',
+        tryAction: () => {
+            initAudio();
+            stopAllSounds();
+            executeVisualResolution(4);
+            markTutorialStepTried('✓ ¡Escuchaste el grado 3 resolviendo hacia la tónica (1)!');
+        },
+        listenEvent: 'click',
+        onTargetInteract: () => markTutorialStepTried('✓ ¡Genial! Usa estas tarjetas como referencia auditiva cuando lo necesites.')
+    },
+    {
+        id: 'delete-answer',
+        target: '#btn-delete',
+        icon: '⌫',
+        title: 'Borrar Última Respuesta',
+        desc: 'Cuando respondes secuencias de 2 o más notas (en Melodía o Bajo), las notas que ingresas aparecen como fichas antes de evaluarse.\n\nSi tocas una nota equivocada, pulsa «Borrar Última» (o la tecla Retroceso en PC) para deshacer solo la última nota sin reiniciar tu respuesta.',
+        onEnter: () => {
+            state.mode = 'melody';
+            state.currentNoteCount = 3;
+            syncModeUI('melody');
+            resetUI();
+            setupTourDeleteDemoBuffer();
+        },
+        onLeave: () => {
+            state.userBuffer = [];
+            updateBufferPreviewChips();
+            state.currentNoteCount = itourState.savedNoteCount;
+            resetUI();
+        },
+        tryText: 'Toca «Borrar Última» arriba o pruébalo aquí:',
+        tryBtn: '⌫ Probar Borrar',
+        tryAction: () => {
+            if (!state.userBuffer || state.userBuffer.length === 0) {
+                setupTourDeleteDemoBuffer();
+                markTutorialStepTried('✓ Cargamos 2 notas de ejemplo. Pulsa de nuevo para borrar.');
+            } else {
+                deleteLastNote();
+                markTutorialStepTried('✓ ¡Nota borrada! Así corriges antes de completar la secuencia.');
+            }
+        },
+        listenEvent: 'click',
+        onTargetInteract: () => markTutorialStepTried('✓ ¡Perfecto! Eliminaste la última nota ingresada.')
+    },
+    {
+        id: 'audio-hub',
+        target: '#center-audio-hub',
+        icon: '🔊',
+        title: 'Botón de Escucha y Vista Previa',
+        desc: 'Toca el botón violeta ▶ (o pulsa la barra Espacio) para repetir el ejercicio actual. Aquí verás el estado del audio y las fichas de las notas que vas respondiendo.',
+        onEnter: () => {
+            state.mode = 'melody';
+            syncModeUI('melody');
+            resetUI();
+        },
+        tryText: '¡Pruébalo! Escucha una cadencia tonal de ejemplo:',
+        tryBtn: '▶ Escuchar',
+        tryAction: () => {
+            playTutorialDemoCadence();
+            markTutorialStepTried('✓ ¡Sonando! Así oirás la referencia tonal.');
+        },
+        listenEvent: 'click',
+        onTargetInteract: () => {
+            playTutorialDemoCadence();
+            markTutorialStepTried('✓ ¡Sonando! Pulsa ▶ siempre que quieras repetir.');
+        }
+    },
+    {
+        id: 'piano',
+        target: '#piano-viewport',
+        icon: '🎹',
+        title: 'Piano Táctil, Teclado de PC y MIDI',
+        desc: 'Toca las teclas del piano para responder en Melodía y Bajo. En computadora también puedes tocar con las teclas A–K (Espacio = repetir, C = cadencia, Enter = siguiente, Retroceso = borrar última).',
+        onEnter: () => {
+            state.mode = 'melody';
+            syncModeUI('melody');
+            resetUI();
+        },
+        tryText: '¡Toca cualquier tecla del piano abajo!',
+        tryBtn: '🎵 Arpegio Do',
+        tryAction: () => {
+            playTutorialDemoArpeggio();
+            markTutorialStepTried('✓ ¡Genial! Escucha y observa cómo se iluminan las teclas.');
+        },
+        listenEvent: 'pointerdown',
+        onTargetInteract: () => markTutorialStepTried('✓ ¡Excelente! Ya dominas el piano interactivo.')
+    },
+    {
+        id: 'dock-actions',
+        target: '#dock-actions-bar',
+        icon: '⚡',
+        title: 'Cadencia, Sonido y Siguiente',
+        desc: '• CADENCIA: reproduce I–IV–V–I para ubicar la tónica.\n• SONIDO: repite el ejercicio actual.\n• SIGUIENTE: pasa a un nuevo reto musical al instante.',
+        tryText: 'Prueba escuchar la cadencia tonal:',
+        tryBtn: '▶ Oír Cadencia',
+        tryAction: () => {
+            playTutorialDemoCadence();
+            markTutorialStepTried('✓ ¡Perfecto! Usa Cadencia si pierdes la referencia tonal.');
+        },
+        listenEvent: 'click',
+        onTargetInteract: () => markTutorialStepTried('✓ ¡Listo! Controles rápidos probados.')
+    },
+    {
+        id: 'intervals',
+        target: '#interval-settings',
+        icon: '🎯',
+        title: 'Modo Intervalos: Dirección y Fases',
+        desc: 'Elige cómo escuchar los intervalos: Ascendente (↗), Descendente (↘), Armónico (♪) o Mixto (?). En Práctica Libre también seleccionas la fase: Presentación, El Intruso, Cacería o Clásico.',
+        onEnter: () => {
+            state.mode = 'intervals';
+            syncModeUI('intervals');
+            resetUI();
+        },
+        tryText: 'Escucha un intervalo de 5ta Justa:',
+        tryBtn: '▶ 5ta Justa',
+        tryAction: () => {
+            playTutorialDemoInterval();
+            markTutorialStepTried('✓ ¡Escuchaste una 5ta Justa ascendente (Do → Sol)!');
+        },
+        listenEvent: 'click',
+        onTargetInteract: () => markTutorialStepTried('✓ ¡Dirección de intervalos actualizada!')
+    },
+    {
+        id: 'bass-pro',
+        target: '#bass-settings',
+        icon: '🎸',
+        title: 'Ajustes Pro de Bajo y Mástil',
+        desc: 'El modo BAJO incluye herramientas exclusivas:\n• VISTA: cambia entre Piano y Mástil real (4, 5 o 6 cuerdas).\n• BANDA / BAJO: mezcla el volumen por separado.\n• MODO DROP: silencia la banda a mitad para aislar el bajo.\n• TIMBRES: Sintetizador (Synth), Eléctrico, Slap y Subgrave (Sub).',
+        onEnter: () => {
+            state.mode = 'bass';
+            syncModeUI('bass');
+            resetUI();
+            const drawer = document.getElementById('bass-config-drawer');
+            const chevron = document.getElementById('bass-drawer-chevron');
+            if (drawer) { drawer.classList.remove('hidden'); drawer.classList.add('flex'); }
+            if (chevron) chevron.style.transform = 'rotate(180deg)';
+        },
+        onLeave: () => {
+            const drawer = document.getElementById('bass-config-drawer');
+            const chevron = document.getElementById('bass-drawer-chevron');
+            if (drawer) { drawer.classList.add('hidden'); drawer.classList.remove('flex'); }
+            if (chevron) chevron.style.transform = 'rotate(0deg)';
+        },
+        tryText: 'Prueba el timbre Slap o cambia a vista Mástil:',
+        tryBtn: '🎸 Oír Bajo Slap',
+        tryAction: () => {
+            playTutorialDemoBass();
+            markTutorialStepTried('✓ ¡Línea de Bajo Slap reproducida!');
+        },
+        listenEvent: 'click',
+        onTargetInteract: () => markTutorialStepTried('✓ ¡Ajustes Pro de Bajo probados!')
+    },
+    {
+        id: 'settings-modal',
+        target: '#settings-modal .modal-content',
+        icon: '⚙️',
+        title: 'MIDI, Velocidad y Círculo de 5tas',
+        desc: 'Desde el ícono de engranaje (⚙️) puedes:\n• Conectar un teclado MIDI por USB o Bluetooth.\n• Cambiar la velocidad del audio (0.75x Lento, 1x Normal o 1.3x Rápido).\n• Fijar una tonalidad del Círculo de 5tas o dejar Automático (12 tonos).',
+        onEnter: () => {
+            state.mode = 'melody';
+            syncModeUI('melody');
+            resetUI();
+            openSettingsModal();
+        },
+        onLeave: () => {
+            closeSettingsModal();
+        },
+        tryText: 'Toca una velocidad o tonalidad arriba:',
+        tryBtn: 'Probar 0.75x',
+        tryAction: () => {
+            const nextSpd = playbackSpeed < 0.9 ? 1.0 : 0.75;
+            setPlaybackSpeed(nextSpd);
+            markTutorialStepTried(`✓ Velocidad ajustada a ${nextSpd}x.`);
+        },
+        listenEvent: 'click',
+        onTargetInteract: () => markTutorialStepTried('✓ ¡Herramientas avanzadas configuradas!')
+    },
+    {
+        id: 'header-finish',
+        target: '#header-tools-group',
+        icon: '🏆',
+        title: 'Volumen, Modo Oscuro y Estadísticas',
+        desc: 'En la barra superior tienes el control de volumen, este tutorial (?), ajustes (⚙️), modo oscuro (🌙), estadísticas de Mielinización (📊 fortalezas, áreas a reforzar e historial) y tu XP.\n\n¡Ya dominas todas las herramientas de Formar Oído Pro!',
+        onEnter: () => {
+            closeSettingsModal();
+        }
+    }
+];
+
+const INTERACTIVE_TOUR_TRACKS = {
+    full: null,
+    melody: ['levels', 'tonality', 'resolutions', 'delete-answer', 'audio-hub', 'piano'],
+    intervals: ['intervals', 'dock-actions'],
+    bass: ['bass-pro', 'delete-answer', 'piano'],
+    tools: ['settings-modal', 'header-finish']
+};
+
+function openTourMenuModal() {
+    if (state.test && state.test.active) {
+        showNotice('Test en Curso', 'Finaliza o sal del Test de Nivelación antes de abrir las guías interactivas.');
+        return;
+    }
+    const modal = document.getElementById('tour-menu-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeTourMenuModal() {
+    const modal = document.getElementById('tour-menu-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function launchTutorialTrack(trackId = 'full') {
+    closeTourMenuModal();
+    startInteractiveTutorial('header', trackId);
+}
+
+function startInteractiveTutorial(origin = 'header', trackId = 'full') {
+    if (state.test && state.test.active) {
+        showNotice('Test en Curso', 'Finaliza o sal del Test de Nivelación antes de abrir el tutorial interactivo.');
+        return;
+    }
+    stopAllSounds();
+    closeSettingsModal();
+    closeTourMenuModal();
+    const statsM = document.getElementById('stats-modal');
+    if (statsM) statsM.style.display = 'none';
+    const startM = document.getElementById('start-modal');
+    const wasInStartMenu = origin === 'start-menu' || (startM && startM.style.display === 'flex');
+    if (startM) startM.style.display = 'none';
+
+    const trackIds = INTERACTIVE_TOUR_TRACKS[trackId];
+    const selectedSteps = Array.isArray(trackIds)
+        ? trackIds.map(id => INTERACTIVE_TOUR_STEPS.find(s => s.id === id)).filter(Boolean)
+        : INTERACTIVE_TOUR_STEPS;
+
+    const bassDrawer = document.getElementById('bass-config-drawer');
+    itourState.active = true;
+    itourState.stepIdx = 0;
+    itourState.trackId = trackId;
+    itourState.activeSteps = selectedSteps.length ? selectedSteps : INTERACTIVE_TOUR_STEPS;
+    itourState.origin = wasInStartMenu ? 'start-menu' : 'header';
+    itourState.savedMode = state.mode;
+    itourState.savedSessionType = sessionState.type;
+    itourState.savedNoteCount = state.currentNoteCount;
+    itourState.savedTonality = state.tonalityMode;
+    itourState.savedBassDrawerOpen = Boolean(bassDrawer && !bassDrawer.classList.contains('hidden'));
+    itourState.savedBassView = state.bassSettings ? state.bassSettings.view : 'piano';
+
+    if (wasInStartMenu) {
+        sessionState.type = 'explore';
+    }
+
+    const root = document.getElementById('itour-root');
+    if (root) root.classList.remove('hidden');
+
+    if (!itourState.resizeHandler) {
+        itourState.resizeHandler = () => {
+            if (itourState.active) positionTutorialUI();
+        };
+        window.addEventListener('resize', itourState.resizeHandler);
+        window.addEventListener('scroll', itourState.resizeHandler, true);
+    }
+
+    renderTutorialStep(0);
+}
+
+function clearTutorialTargetListener() {
+    if (itourState.cleanupTargetListener) {
+        itourState.cleanupTargetListener();
+        itourState.cleanupTargetListener = null;
+    }
+}
+
+function markTutorialStepTried(message) {
+    const tryBox = document.getElementById('itour-try-box');
+    const tryText = document.getElementById('itour-try-text');
+    if (tryBox) tryBox.classList.add('itour-try-done');
+    if (tryText && message) tryText.innerText = message;
+    triggerHaptic('success');
+}
+
+function scheduleTutorialReposition() {
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            if (itourState.active) positionTutorialUI();
+        }, 60);
+    });
+}
+
+function renderTutorialStep(idx) {
+    clearTutorialTargetListener();
+    const steps = itourState.activeSteps && itourState.activeSteps.length ? itourState.activeSteps : INTERACTIVE_TOUR_STEPS;
+    const total = steps.length;
+    const step = steps[idx];
+    if (!step) return;
+
+    itourState.stepIdx = idx;
+
+    if (typeof step.onEnter === 'function') {
+        step.onEnter();
+    }
+
+    const badge = document.getElementById('itour-badge');
+    const fill = document.getElementById('itour-progress-fill');
+    const icon = document.getElementById('itour-icon');
+    const title = document.getElementById('itour-title');
+    const desc = document.getElementById('itour-desc');
+    const legendEl = document.getElementById('itour-legend');
+    const prevBtn = document.getElementById('itour-prev-btn');
+    const nextBtn = document.getElementById('itour-next-btn');
+    const skipBtn = document.getElementById('itour-skip-btn');
+    const tryBox = document.getElementById('itour-try-box');
+    const tryText = document.getElementById('itour-try-text');
+    const tryBtn = document.getElementById('itour-try-btn');
+    const dotsEl = document.getElementById('itour-dots');
+
+    if (badge) badge.innerText = `PASO ${idx + 1} DE ${total}`;
+    if (fill) fill.style.width = `${Math.round(((idx + 1) / total) * 100)}%`;
+    if (icon) icon.innerText = step.icon || '🎓';
+    if (title) title.innerText = step.title;
+    if (desc) desc.innerText = step.desc;
+    if (legendEl) legendEl.classList.toggle('hidden', !step.showColorLegend);
+
+    if (prevBtn) prevBtn.disabled = idx === 0;
+    if (nextBtn) nextBtn.innerText = idx === total - 1 ? '¡Finalizar! ✓' : 'Siguiente →';
+    if (skipBtn) skipBtn.style.display = idx === total - 1 ? 'none' : '';
+
+    if (tryBox && tryText && tryBtn) {
+        if (step.tryText && step.tryBtn) {
+            tryBox.classList.remove('hidden', 'itour-try-done');
+            tryText.innerText = step.tryText;
+            tryBtn.innerText = step.tryBtn;
+            tryBtn.onclick = () => {
+                if (typeof step.tryAction === 'function') step.tryAction();
+            };
+        } else {
+            tryBox.classList.add('hidden');
+            tryBox.classList.remove('itour-try-done');
+        }
+    }
+
+    if (dotsEl) {
+        dotsEl.innerHTML = '';
+        steps.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = 'itour-dot' + (i === idx ? ' active' : (i < idx ? ' visited' : ''));
+            dot.title = `Ir al paso ${i + 1}`;
+            dot.onclick = () => goToTutorialStep(i);
+            dotsEl.appendChild(dot);
+        });
+    }
+
+    if (step.target && step.listenEvent && typeof step.onTargetInteract === 'function') {
+        const targetEl = document.querySelector(step.target);
+        if (targetEl) {
+            const handler = () => step.onTargetInteract();
+            targetEl.addEventListener(step.listenEvent, handler);
+            itourState.cleanupTargetListener = () => targetEl.removeEventListener(step.listenEvent, handler);
+        }
+    }
+
+    scheduleTutorialReposition();
+}
+
+function positionTutorialUI() {
+    const steps = itourState.activeSteps && itourState.activeSteps.length ? itourState.activeSteps : INTERACTIVE_TOUR_STEPS;
+    const step = steps[itourState.stepIdx];
+    const backdrop = document.getElementById('itour-backdrop');
+    const spotlight = document.getElementById('itour-spotlight');
+    const card = document.getElementById('itour-card');
+    if (!step || !backdrop || !spotlight || !card) return;
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const margin = 12;
+
+    const targetEl = step.target ? document.querySelector(step.target) : null;
+    const rect = targetEl ? targetEl.getBoundingClientRect() : null;
+    const hasValidTarget = Boolean(rect && rect.width > 0 && rect.height > 0);
+
+    if (!hasValidTarget) {
+        backdrop.classList.remove('itour-backdrop-clear');
+        spotlight.classList.add('hidden');
+        card.style.left = '50%';
+        card.style.top = '50%';
+        card.style.transform = 'translate(-50%, -50%)';
+        return;
+    }
+
+    backdrop.classList.add('itour-backdrop-clear');
+    spotlight.classList.remove('hidden');
+
+    const pad = 6;
+    const sTop = Math.max(4, rect.top - pad);
+    const sLeft = Math.max(4, rect.left - pad);
+    const sWidth = Math.min(vw - sLeft - 4, rect.width + pad * 2);
+    const sHeight = Math.min(vh - sTop - 4, rect.height + pad * 2);
+
+    spotlight.style.top = `${sTop}px`;
+    spotlight.style.left = `${sLeft}px`;
+    spotlight.style.width = `${sWidth}px`;
+    spotlight.style.height = `${sHeight}px`;
+
+    card.style.transform = 'none';
+    const cardRect = card.getBoundingClientRect();
+    const cardW = cardRect.width || Math.min(360, vw - 24);
+    const cardH = cardRect.height || 230;
+
+    let cardLeft = rect.left + (rect.width - cardW) / 2;
+    cardLeft = Math.max(margin, Math.min(vw - cardW - margin, cardLeft));
+
+    const spaceBelow = vh - (sTop + sHeight) - margin;
+    const spaceAbove = sTop - margin;
+
+    let cardTop;
+    if (spaceBelow >= cardH + 10) {
+        cardTop = sTop + sHeight + 12;
+    } else if (spaceAbove >= cardH + 10) {
+        cardTop = sTop - cardH - 12;
+    } else {
+        // Fallback: anchor to whichever side has more room, clamped inside viewport
+        cardTop = spaceBelow >= spaceAbove
+            ? Math.max(margin, vh - cardH - margin)
+            : margin;
+    }
+
+    cardTop = Math.max(margin, Math.min(vh - cardH - margin, cardTop));
+    card.style.left = `${Math.round(cardLeft)}px`;
+    card.style.top = `${Math.round(cardTop)}px`;
+}
+
+function goToTutorialStep(targetIdx) {
+    if (!itourState.active) return;
+    const steps = itourState.activeSteps && itourState.activeSteps.length ? itourState.activeSteps : INTERACTIVE_TOUR_STEPS;
+    if (targetIdx < 0 || targetIdx >= steps.length) return;
+    const prevStep = steps[itourState.stepIdx];
+    if (prevStep && typeof prevStep.onLeave === 'function') prevStep.onLeave();
+    renderTutorialStep(targetIdx);
+}
+
+function nextTutorialStep() {
+    if (!itourState.active) return;
+    const steps = itourState.activeSteps && itourState.activeSteps.length ? itourState.activeSteps : INTERACTIVE_TOUR_STEPS;
+    if (itourState.stepIdx >= steps.length - 1) {
+        endInteractiveTutorial(true);
+        return;
+    }
+    goToTutorialStep(itourState.stepIdx + 1);
+}
+
+function prevTutorialStep() {
+    if (!itourState.active || itourState.stepIdx <= 0) return;
+    goToTutorialStep(itourState.stepIdx - 1);
+}
+
+function endInteractiveTutorial(completed = false) {
+    if (!itourState.active) return;
+    const steps = itourState.activeSteps && itourState.activeSteps.length ? itourState.activeSteps : INTERACTIVE_TOUR_STEPS;
+    const curStep = steps[itourState.stepIdx];
+    if (curStep && typeof curStep.onLeave === 'function') curStep.onLeave();
+    clearTutorialTargetListener();
+    stopAllSounds();
+
+    itourState.active = false;
+    const root = document.getElementById('itour-root');
+    if (root) root.classList.add('hidden');
+    closeSettingsModal();
+
+    if (itourState.resizeHandler) {
+        window.removeEventListener('resize', itourState.resizeHandler);
+        window.removeEventListener('scroll', itourState.resizeHandler, true);
+        itourState.resizeHandler = null;
+    }
+
+    // Restore previous user settings cleanly
+    state.mode = itourState.savedMode;
+    state.currentNoteCount = itourState.savedNoteCount;
+    state.tonalityMode = itourState.savedTonality;
+    sessionState.type = itourState.savedSessionType;
+    if (state.bassSettings) state.bassSettings.view = itourState.savedBassView;
+
+    const drawer = document.getElementById('bass-config-drawer');
+    const chevron = document.getElementById('bass-drawer-chevron');
+    if (drawer) {
+        drawer.classList.toggle('hidden', !itourState.savedBassDrawerOpen);
+        drawer.classList.toggle('flex', itourState.savedBassDrawerOpen);
+    }
+    if (chevron) chevron.style.transform = itourState.savedBassDrawerOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+
+    syncModeUI(state.mode);
+    syncFixedKeyUI();
+    resetUI();
+
+    if (completed) {
+        state.interactiveTutorialDone = true;
+        savePersistence();
+        const tutBadge = document.getElementById('tutorial-new-badge');
+        if (tutBadge) tutBadge.classList.add('hidden');
+    }
+
+    if (itourState.origin === 'start-menu') {
+        const startM = document.getElementById('start-modal');
+        if (startM) startM.style.display = 'flex';
+    }
+}
+
 window.onload = () => {
     applySavedTheme();
     initKeyboardShortcuts();
     initIntroSplash();
 };
+
