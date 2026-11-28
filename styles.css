@@ -1527,3 +1527,448 @@ body.dark-mode .settings-label {
         height: 40px;
     }
 }
+
+/* =========================================================
+   INTERACTIVE GUIDED TUTORIAL (SPOTLIGHT + TOOLTIP CARD)
+   ========================================================= */
+.itour-root {
+    position: fixed;
+    inset: 0;
+    z-index: 950;
+    pointer-events: none;
+}
+
+.itour-root.hidden {
+    display: none;
+}
+
+.itour-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.76);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    pointer-events: auto;
+    transition: opacity 0.25s ease;
+}
+
+.itour-backdrop.itour-backdrop-clear {
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    pointer-events: none;
+}
+
+.itour-spotlight {
+    position: fixed;
+    border-radius: 14px;
+    border: 2.5px solid #8b5cf6;
+    box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.74), 0 0 0 5px rgba(139, 92, 246, 0.35), 0 0 28px rgba(139, 92, 246, 0.55);
+    pointer-events: none;
+    transition: top 0.3s cubic-bezier(0.22, 1, 0.36, 1), left 0.3s cubic-bezier(0.22, 1, 0.36, 1), width 0.3s cubic-bezier(0.22, 1, 0.36, 1), height 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+    animation: itourPulseRing 2.2s ease-in-out infinite;
+    z-index: 951;
+}
+
+.itour-spotlight.hidden {
+    display: none;
+}
+
+@keyframes itourPulseRing {
+    0%, 100% {
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.74), 0 0 0 4px rgba(139, 92, 246, 0.35), 0 0 24px rgba(139, 92, 246, 0.45);
+    }
+    50% {
+        border-color: #34d399;
+        box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.74), 0 0 0 8px rgba(52, 211, 153, 0.28), 0 0 32px rgba(52, 211, 153, 0.55);
+    }
+}
+
+.itour-card {
+    position: fixed;
+    z-index: 960;
+    width: min(360px, calc(100vw - 24px));
+    background: #ffffff;
+    color: #0f172a;
+    border: 1.5px solid #ddd6fe;
+    border-radius: 20px;
+    padding: 15px 16px 14px;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(139, 92, 246, 0.12);
+    pointer-events: auto;
+    transition: top 0.3s cubic-bezier(0.22, 1, 0.36, 1), left 0.3s cubic-bezier(0.22, 1, 0.36, 1), transform 0.25s ease;
+}
+
+body.dark-mode .itour-card {
+    background: #1e293b;
+    color: #f8fafc;
+    border-color: #5b21b6;
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(167, 139, 250, 0.2);
+}
+
+.itour-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.itour-badge {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6d28d9;
+    background: #ede9fe;
+    padding: 3px 9px;
+    border-radius: 999px;
+}
+
+body.dark-mode .itour-badge {
+    color: #c4b5fd;
+    background: rgba(139, 92, 246, 0.25);
+}
+
+.itour-close-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 900;
+    color: #64748b;
+    background: #f1f5f9;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.itour-close-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+body.dark-mode .itour-close-btn {
+    color: #cbd5e1;
+    background: #334155;
+}
+
+.itour-progress-track {
+    width: 100%;
+    height: 5px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 11px;
+}
+
+body.dark-mode .itour-progress-track {
+    background: #334155;
+}
+
+.itour-progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #8b5cf6 0%, #10b981 100%);
+    transition: width 0.3s ease;
+}
+
+.itour-header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.itour-icon {
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.itour-title {
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.25;
+    color: #1e293b;
+}
+
+body.dark-mode .itour-title {
+    color: #ffffff;
+}
+
+.itour-desc {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #475569;
+    white-space: pre-line;
+    margin-bottom: 10px;
+}
+
+body.dark-mode .itour-desc {
+    color: #cbd5e1;
+}
+
+.itour-try-box {
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 12px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark-mode .itour-try-box {
+    background: rgba(76, 29, 149, 0.25);
+    border-color: #5b21b6;
+}
+
+.itour-try-box.itour-try-done {
+    background: #ecfdf5;
+    border-color: #6ee7b7;
+}
+
+body.dark-mode .itour-try-box.itour-try-done {
+    background: rgba(6, 78, 59, 0.35);
+    border-color: #059669;
+}
+
+.itour-try-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.itour-try-text {
+    font-size: 11px;
+    font-weight: 800;
+    color: #5b21b6;
+    line-height: 1.3;
+    flex: 1;
+}
+
+body.dark-mode .itour-try-text {
+    color: #ddd6fe;
+}
+
+.itour-try-box.itour-try-done .itour-try-text {
+    color: #047857;
+}
+
+body.dark-mode .itour-try-box.itour-try-done .itour-try-text {
+    color: #6ee7b7;
+}
+
+.itour-try-btn {
+    padding: 6px 10px;
+    border-radius: 9px;
+    background: #7c3aed;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+    transition: transform 0.12s ease, background-color 0.15s ease;
+}
+
+.itour-try-btn:hover {
+    background: #6d28d9;
+}
+
+.itour-try-btn:active {
+    transform: scale(0.94);
+}
+
+.itour-try-box.itour-try-done .itour-try-btn {
+    background: #10b981;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.itour-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 11px;
+}
+
+.itour-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #cbd5e1;
+    cursor: pointer;
+    transition: width 0.2s ease, background-color 0.2s ease;
+    border: none;
+    padding: 0;
+}
+
+body.dark-mode .itour-dot {
+    background: #475569;
+}
+
+.itour-dot.active {
+    width: 18px;
+    background: #8b5cf6;
+}
+
+.itour-dot.visited {
+    background: #10b981;
+}
+
+.itour-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 7px 9px;
+    border-radius: 10px;
+    background: rgba(148, 163, 184, 0.1);
+    border: 1px solid var(--border-ui);
+}
+
+.itour-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.itour-legend-swatch {
+    width: 11px;
+    height: 11px;
+    border-radius: 4px;
+    display: inline-block;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.tour-menu-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-ui);
+    text-align: left;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.tour-menu-option:hover {
+    border-color: #8b5cf6;
+}
+
+.tour-menu-option:active {
+    transform: scale(0.98);
+}
+
+.tour-menu-option-primary {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(16, 185, 129, 0.1) 100%);
+    border: 1.5px solid rgba(139, 92, 246, 0.55);
+}
+
+.tour-menu-icon {
+    font-size: 18px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.tour-menu-title {
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.tour-menu-sub {
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+body.dark-mode .tour-menu-sub {
+    color: #94a3b8;
+}
+
+.itour-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.itour-btn {
+    padding: 8px 12px;
+    border-radius: 11px;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: transform 0.12s ease, background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.itour-btn:active {
+    transform: scale(0.95);
+}
+
+.itour-btn:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+.itour-btn-ghost {
+    background: #f1f5f9;
+    color: #334155;
+}
+
+body.dark-mode .itour-btn-ghost {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+.itour-btn-text {
+    background: transparent;
+    color: #64748b;
+    padding: 8px 6px;
+}
+
+body.dark-mode .itour-btn-text {
+    color: #94a3b8;
+}
+
+.itour-btn-primary {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+
+@media (max-width: 639px) {
+    .itour-card {
+        padding: 12px 13px 11px;
+        border-radius: 16px;
+    }
+
+    .itour-title {
+        font-size: 14px;
+    }
+
+    .itour-desc {
+        font-size: 11.5px;
+    }
+
+    .itour-btn {
+        padding: 7px 10px;
+        font-size: 10px;
+    }
+}
+
